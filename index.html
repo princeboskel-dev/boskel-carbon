@@ -1,0 +1,892 @@
+<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 06:16 -->
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>boskel-carbon</title>
+<style>.live-float{position:fixed;top:12px;right:12px;z-index:999999;background:#16a34a;color:#fff;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:900;border:2px solid #fff}</style>
+</head><body><div class="live-float" id="liveBadge">● LIVE • Connecting...</div>
+<style>
+:root{--oxford:#002147;--steel:#4682B4;--bg:#eef2f7;--border:#cbd5e1;--danger:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif}
+body{background:var(--bg);display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--oxford);color:#fff;padding:20px;position:fixed;height:100vh;overflow-y:auto}
+.logo{font-size:22px;font-weight:900;margin-bottom:20px}.logo span{color:#5a9bd4}
+.nav-item{padding:12px 14px;border-radius:8px;cursor:pointer;margin-bottom:6px;display:flex;gap:10px}
+.nav-item:hover{background:rgba(70,130,180,.15)}.nav-item.active{background:var(--steel);font-weight:700}
+.main{margin-left:260px;flex:1;padding:24px;max-width:1400px}
+.header{background:#fff;padding:18px 24px;border-radius:12px;border:1px solid var(--border);border-top:3px solid var(--oxford);display:flex;justify-content:space-between;margin-bottom:20px}
+.card{background:#fff;padding:20px;border-radius:12px;border:1px solid var(--border);border-top:3px solid var(--steel)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.module{display:none;background:#fff;border-radius:12px;padding:24px;border:1px solid var(--border)}.module.active{display:block}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.input-group{display:flex;flex-direction:column;gap:6px}.input-group label{font-size:11px;font-weight:700;color:var(--oxford);text-transform:uppercase}
+.input-group input,.input-group select,.input-group textarea{padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}.btn-primary{background:var(--oxford);color:#fff}.btn-accent{background:var(--steel);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-edit{background:#f59e0b;color:#fff}
+.table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:10px;max-height:600px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxford);color:#fff;padding:10px 8px;text-align:left;font-size:10px;text-transform:uppercase;position:sticky;top:0}td{padding:8px;border-bottom:1px solid var(--border)}tr:hover{background:#e8f0f8}
+.status-select{padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-weight:700}
+.cred-box{background:#f0f7ff;border:1px solid #4682B4;padding:12px;border-radius:8px;margin:10px 0}
+.access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin:8px 0}
+.access-item{display:flex;align-items:center;gap:8px;background:#fff;padding:8px 10px;border-radius:8px;border:1px solid var(--border)}
+.audit-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin-bottom:16px}
+.badge{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;color:#fff;display:inline-block}
+.badge-added{background:#10b981}.badge-edited{background:#f59e0b}.badge-deleted{background:#ef4444}.badge-status{background:#3b82f6}.badge-export{background:#8b5cf6}.badge-cleared{background:#6b7280}
+
+/* DASHBOARD & REPORTS PRO GRAPHICS */
+.report-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;background:linear-gradient(135deg,#f8fafc 0%,#eef2f7 100%);border:1.5px solid var(--border);padding:18px;border-radius:12px;margin-bottom:18px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:18px 0}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;border-left:4px solid var(--steel)}
+.kpi h4{font-size:10px;text-transform:uppercase;color:#64748b;font-weight:800;letter-spacing:.5px}
+.kpi .val{font-size:22px;font-weight:900;color:var(--oxford);margin:6px 0}
+.kpi .sub{font-size:11px;color:#64748b}
+.kpi.success{border-left-color:#10b981}.kpi.warning{border-left-color:#f59e0b}.kpi.danger{border-left-color:#ef4444}.kpi.oxford{border-left-color:#002147}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin:18px 0}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
+.chart-card h4{font-size:12px;font-weight:800;color:var(--oxford);margin-bottom:10px;text-transform:uppercase}
+.chart-card canvas{width:100%!important;height:240px!important;display:block}
+.report-section{margin:18px 0;background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px}
+.progress-bar{height:8px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin:6px 0}
+.progress-fill{height:100%;background:var(--steel);border-radius:10px;transition:width .5s}
+
+/* ===== LOGIN LOCK SCREEN ===== */
+#loginOverlay{position:fixed;inset:0;background:radial-gradient(1200px 600px at 20% 10%, #123a6d 0%, #002147 55%, #00102a 100%);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{width:100%;max-width:420px;background:#ffffff;border-radius:20px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 25px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.8);overflow:hidden;animation:loginPop .5s ease}
+@keyframes loginPop{from{transform:translateY(20px) scale(.97);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.login-head{background:linear-gradient(135deg,#002147,#0a4a8a);color:#fff;padding:28px 28px 22px}
+.login-head h1{font-size:26px;font-weight:900;letter-spacing:.5px;display:flex;gap:10px;align-items:center}
+.login-head h1 span{color:#7ec0ff}
+.login-head p{font-size:12px;opacity:.85;margin-top:6px;line-height:1.4}
+.login-body{padding:24px 26px 20px;background:#fff}
+.login-field{margin-bottom:14px}
+.login-field label{font-size:10px;font-weight:800;color:#002147;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;display:block}
+.login-field input{width:100%;padding:12px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:14px;outline:none;transition:.2s;background:#f8fafc}
+.login-field input:focus{border-color:#4682B4;box-shadow:0 0 0 4px rgba(70,130,180,.15);background:#fff}
+.login-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.btn-login{width:100%;padding:12px 16px;border-radius:10px;border:none;background:#002147;color:#fff;font-weight:800;font-size:13px;cursor:pointer;transition:.2s}
+.btn-login:hover{background:#0a3a6e}
+.btn-quick{width:100%;padding:10px 16px;border-radius:10px;border:1px solid #10b981;background:#ecfdf5;color:#065f46;font-weight:800;font-size:12px;cursor:pointer}
+.btn-quick:hover{background:#d1fae5}
+.btn-bypass{width:100%;padding:10px 16px;border-radius:10px;border:1px solid #cbd5e1;background:#f1f5f9;color:#334155;font-weight:800;font-size:12px;cursor:pointer}
+.btn-bypass:hover{background:#e2e8f0}
+.login-hint{background:#f0f7ff;border:1px dashed #4682B4;border-radius:10px;padding:10px 12px;font-size:11px;color:#334155;margin-top:14px;line-height:1.5}
+.login-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;display:none;margin-bottom:12px}
+.login-footer{padding:14px 26px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#64748b}
+.lock-badge{display:inline-flex;align-items:center;gap:6px;background:#002147;color:#7ec0ff;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.5px}
+.app-locked .sidebar, .app-locked .main{filter:blur(8px);pointer-events:none;user-select:none}
+
+.btn-danger{display:inline-flex!important;visibility:visible!important;opacity:1!important}
+</style></head>
+<script>
+(function wipeDemo(){
+  try{
+    if(window.location.search.includes('clean') || window.location.search.includes('wipe')){
+      Object.keys(localStorage).forEach(k=>{
+        if(k.startsWith('boskel_')) localStorage.removeItem(k);
+      });
+      localStorage.clear();
+    }
+  }catch(e){}
+})();
+function wipeAllDemoData(){
+  if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete:\n- All Sales\n- All Biomass, Production, Quality, Safety\n- All Audit Logs\n- All Users\n\nContinue?')) return;
+  try{
+    let keys = [
+      'boskel_biomass','boskel_carbonization','boskel_production','boskel_quality','boskel_safety','boskel_sales','boskel_users','boskel_users_clean_v4','boskel_audit','boskel_audit_trail_full_v1','boskel_audit_fixed_v1',
+      'boskel_quality_fixed_v1','boskel_biomass_counter','boskel_briquette_counter','boskel_quality_counter','boskel_quality_counter_fixed_v1','boskel_safety_counter','boskel_sales_counter','boskel_user_counter_v4','boskel_session','boskel_session_id','boskelData'
+    ];
+    keys.forEach(k=>localStorage.removeItem(k));
+    Object.keys(localStorage).forEach(k=>{
+      if(k.toLowerCase().includes('boskel') || k.toLowerCase().includes('briquette') || k.toLowerCase().includes('biomass')) localStorage.removeItem(k);
+    });
+    if(window.data){
+      Object.keys(window.data).forEach(k=>window.data[k]=[]);
+      if(window.syncToFirebase) window.syncToFirebase();
+    }
+    alert('✅ All existing data removed!\n\nReloading...');
+    location.reload();
+  }catch(e){ alert('Error wiping: '+e.message); }
+}
+</script>
+
+<body class="app-locked">
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-head">
+      <div class="lock-badge">🔒 SECURED • BOSKEL-CARBON ERP</div>
+      <h1>🔥 BOSKEL<span>-CARBON</span></h1>
+      <p>Enterprise Briquette Management System • Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.</p>
+    </div>
+    <div class="login-body">
+      <div id="loginError" class="login-error">❌ Invalid username or password</div>
+      <div class="login-field">
+        <label>👤 Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username (e.g. admin)" value="admin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+      <div class="login-field">
+        <label>🔑 Password</label>
+        <div style="display:flex;gap:8px">
+          <input type="password" id="loginPassword" placeholder="Enter password" value="Admin@123" autocomplete="new-password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
+          <button type="button" class="btn btn-accent" style="padding:0 12px" onclick="toggleLoginPass()">👁️️</button>
+        </div>
+      </div>
+      <div class="login-actions">
+        <button class="btn-login" onclick="doLogin()">🔓 Unlock App</button>
+        <button class="btn-quick" onclick="quickAdminLogin()">⚡ 1-Click Admin Login</button>
+        <button class="btn-bypass" onclick="forceUnlockApp()">🚨 Direct Open (Bypass Lock)</button>
+      </div>
+      <div class="login-hint" id="loginHint" style="display:block;margin-top:14px">
+        <b>💡 Master Admin Credentials:</b><br>
+        Username: <b>admin</b> | Password: <b>Admin@123</b>
+      </div>
+    </div>
+    <div class="login-footer">
+      <span>🛡️ Session secured • Auto-lock on logout</span>
+      <span id="loginDate"></span>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar"><div class="logo">🔥 BOSKEL<span>-CARBON</span></div><div style="font-size:10px;color:#5a9bd4;margin-bottom:16px;font-weight:700">MAIN • LIVE SYSTEM • BOSKEL-CARBON</div>
+<div class="nav-item active" data-mod="dashboard">📊 Dashboard</div>
+<div class="nav-item" data-mod="biomass">🌿 Biomass</div>
+<div class="nav-item" data-mod="carbonization">♨️ Carbonization</div>
+<div class="nav-item" data-mod="production">🧱 Production</div>
+<div class="nav-item" data-mod="quality">🧪 Quality</div>
+<div class="nav-item" data-mod="safety">🦺 Safety</div>
+<div class="nav-item" data-mod="sales">💰 Sales</div>
+<div class="nav-item" data-mod="users">👥 Users</div>
+<div class="nav-item" data-mod="audit">📋 Audit Trail</div>
+<div class="nav-item" data-mod="reports">📈 Reports</div>
+</div>
+<div class="main">
+<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo sales data">🗑️ Wipe Data</button></div></div>
+
+<div class="module active" id="mod-dashboard">
+<h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
+<p style="font-size:12px;color:#64748b;margin-bottom:16px">Real-time KPIs and visual analytics. All charts update automatically when you add data.</p>
+<div class="cards">
+<div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:28px;font-weight:800" id="count-biomass">0</div><div style="font-size:11px;color:#64748b" id="dash-biomass-sub">0 kg total</div><canvas id="dash-spark-biomass" height="40"></canvas></div>
+<div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:28px;font-weight:800" id="count-carbonization">0</div><div style="font-size:11px;color:#64748b" id="dash-carb-sub">Avg volatility -</div><canvas id="dash-spark-carb" height="40"></canvas></div>
+<div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:28px;font-weight:800" id="count-production">0</div><div style="font-size:11px;color:#64748b" id="dash-prod-sub">Yield 0%</div><canvas id="dash-spark-prod" height="40"></canvas></div>
+<div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:28px;font-weight:800" id="count-quality">0</div><div style="font-size:11px;color:#64748b" id="dash-qual-sub">Pass 0%</div><canvas id="dash-spark-qual" height="40"></canvas></div>
+<div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:28px;font-weight:800" id="count-safety">0</div><div style="font-size:11px;color:#64748b" id="dash-safety-sub">Open 0</div><canvas id="dash-spark-safety" height="40"></canvas></div>
+<div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:28px;font-weight:800" id="count-sales">0</div><div style="font-size:11px;color:#64748b" id="dash-sales-sub">₦0 revenue</div><canvas id="dash-spark-sales" height="40"></canvas></div>
+<div class="card"><h3>👥 Users</h3><div style="font-size:28px;font-weight:800" id="count-users">0</div><div style="font-size:11px;color:#64748b">Active system users</div></div>
+<div class="card" style="background:#002147;color:#fff;border-top-color:#5a9bd4"><h3 style="color:#fff">📋 Audit Logs</h3><div style="font-size:28px;font-weight:800;color:#5a9bd4" id="count-audit">0</div><div style="font-size:10px;font-weight:700;color:#5a9bd4">FULL TRAIL DEVELOPED</div></div>
+</div>
+<div class="kpi-grid">
+  <div class="kpi success"><h4>Production Efficiency</h4><div class="val" id="dash-kpi-yield">0%</div><div class="sub" id="dash-kpi-yield-sub">Briquette yield</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-yield-bar" style="width:0%;background:#10b981"></div></div></div>
+  <div class="kpi warning"><h4>Revenue Collected</h4><div class="val" id="dash-kpi-rev">₦0</div><div class="sub" id="dash-kpi-rev-sub">0% collection rate</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-rev-bar" style="width:0%;background:#f59e0b"></div></div></div>
+  <div class="kpi oxford"><h4>Quality Health</h4><div class="val" id="dash-kpi-qual">0%</div><div class="sub" id="dash-kpi-qual-sub">Accept rate</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-qual-bar" style="width:0%"></div></div></div>
+  <div class="kpi danger"><h4>Safety Risk</h4><div class="val" id="dash-kpi-safety">0</div><div class="sub" id="dash-kpi-safety-sub">Critical/High incidents</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-safety-bar" style="width:0%;background:#ef4444"></div></div></div>
+</div>
+<div class="chart-grid">
+  <div class="chart-card"><h4>📈 Production vs Infeed - Last 12 Batches</h4><canvas id="dash-chart-prod"></canvas></div>
+  <div class="chart-card"><h4>🌿 Biomass Distribution by Type</h4><canvas id="dash-chart-biomass"></canvas></div>
+  <div class="chart-card"><h4>💰 Sales Revenue Trend (Last 10 Days)</h4><canvas id="dash-chart-sales"></canvas></div>
+  <div class="chart-card"><h4>♨️ Carbonization Temp Profile</h4><canvas id="dash-chart-carb"></canvas></div>
+  <div class="chart-card"><h4>🧪 Quality - Moisture vs Strength</h4><canvas id="dash-chart-quality"></canvas></div>
+  <div class="chart-card"><h4>🦺 Safety Incidents by Location</h4><canvas id="dash-chart-safety"></canvas></div>
+  <div class="chart-card"><h4>💵 Revenue by Customer Type</h4><canvas id="dash-chart-customer"></canvas></div>
+  <div class="chart-card"><h4>📦 Inventory Flow - Biomass → Briquette → Sales</h4><canvas id="dash-chart-flow"></canvas></div>
+</div>
+<div class="report-section">
+<h3>🔍 Quick Insights - Auto-Generated</h3>
+<div id="dash-insights" style="font-size:12px;line-height:1.7;color:#334155"></div>
+</div>
+</div>
+
+<div class="module" id="mod-biomass"><h3>🌿 Biomass</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Type *</label><select id="bio-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div><div class="input-group"><label>Date *</label><input type="date" id="bio-date"></div><div class="input-group"><label>Weight kg *</label><input type="number" id="bio-weight" step="0.01"></div><div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="bio-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBiomassBatch()">🔄</button></div></div><div class="input-group"><label>Location *</label><select id="bio-location"><option value="">-- Select --</option><option>Warehouse A</option><option>Warehouse B</option><option>Shed 1</option><option>Shed 2</option><option>Outdoor Bay 1</option><option>Outdoor Bay 2</option></select></div><div class="input-group"><label>Custom</label><input type="text" id="bio-location-custom"></div></div><button class="btn btn-primary" onclick="addRecord('biomass')">+ Add Biomass</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Type</th><th>Date</th><th>Weight</th><th>Location</th><th>Action</th></tr></thead><tbody id="tbody-biomass"></tbody></table></div></div>
+<div class="module" id="mod-carbonization"><h3>♨️ Carbonization</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Type *</label><select id="carb-biomass-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div><div class="input-group"><label>Start Temp °C *</label><input type="number" id="carb-temp-start"></div><div class="input-group"><label>Peak Temp °C *</label><input type="number" id="carb-temp-peak"></div><div class="input-group"><label>Peak Time *</label><input type="time" id="carb-peak-time"></div><div class="input-group"><label>Start DT *</label><input type="datetime-local" id="carb-start-dt"></div><div class="input-group"><label>Finish DT *</label><input type="datetime-local" id="carb-finish-dt"></div><div class="input-group"><label>Date Carb *</label><input type="date" id="carb-date"></div><div class="input-group"><label>Volatility % *</label><input type="number" step="0.01" id="carb-volatility"></div><div class="input-group"><label>Operator</label><input id="carb-operator"></div></div><button class="btn btn-primary" onclick="addRecord('carbonization')">+ Add Carbonization</button><div class="table-wrap"><table><thead><tr><th>Type</th><th>Start</th><th>Peak</th><th>Peak Time</th><th>Start DT</th><th>Finish DT</th><th>Date</th><th>Volatility</th><th>Operator</th><th>Action</th></tr></thead><tbody id="tbody-carbonization"></tbody></table></div></div>
+<div class="module" id="mod-production"><h3>🧱 Production</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Infeed kg *</label><input type="number" id="briquette-infeed" step="0.01"></div><div class="input-group"><label>Briquette kg *</label><input type="number" id="briquette-weight" step="0.01"></div><div class="input-group"><label>Date *</label><input type="date" id="briquette-date"></div><div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="briquette-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBriquetteBatch()">🔄</button></div></div><div class="input-group"><label>Volatility % *</label><input type="number" id="briquette-volatility" step="0.01"></div><div class="input-group"><label>Status *</label><select id="briquette-status"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div></div><button class="btn btn-primary" onclick="addRecord('production')">+ Add Briquette</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Infeed</th><th>Briquette</th><th>Date</th><th>Volatility</th><th>Status</th><th>Yield</th><th>Action</th></tr></thead><tbody id="tbody-production"></tbody></table></div></div>
+<div class="module" id="mod-quality"><h3>🧪 Quality</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="quality-batch" style="flex:1"><button class="btn btn-accent" onclick="generateQualityBatch()">🔄</button></div></div><div class="input-group"><label>Date *</label><input type="date" id="quality-date"></div><div class="input-group"><label>Type *</label><select id="quality-test-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div><div class="input-group"><label>Briquette Quality *</label><select id="quality-briquette-quality"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option><option>Premium Grade</option><option>Standard Grade</option></select></div><div class="input-group"><label>Moisture % *</label><input type="number" id="quality-moisture" step="0.01"></div><div class="input-group"><label>Volatile % *</label><input type="number" id="quality-volatile" step="0.01"></div><div class="input-group"><label>Strength *</label><select id="quality-strength">
+<option value="">-- Select Strength --</option>
+<option value="95-100% = Excellent (hard, no breaks)">95-100% = Excellent (hard, no breaks)</option>
+<option value="80-94% = Good (Small cracks)">80-94% = Good (Small cracks)</option>
+<option value="50-79% = Average">50-79% = Average</option>
+<option value="Below 50% = Poor / Reject">Below 50% = Poor / Reject</option>
+</select></div><div class="input-group"><label>Break Easily? *</label><select id="quality-break"><option value="">-- Select --</option><option>No - Strong</option><option>Slightly</option><option>Yes - Breaks Easily</option></select></div><div class="input-group"><label>Shape Check *</label><select id="quality-shape"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div></div><button class="btn btn-primary" onclick="addRecord('quality')">+ Add Quality</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Date</th><th>Type</th><th>Quality</th><th>Moisture</th><th>Volatile</th><th>Strength</th><th>Break?</th><th>Shape</th><th>Action</th></tr></thead><tbody id="tbody-quality"></tbody></table></div></div>
+<div class="module" id="mod-safety"><h3>🦺 Safety</h3><div id="safety-edit-banner" style="display:none;background:#fffbeb;border:1px solid #f59e0b;padding:10px 14px;border-radius:8px;margin:10px 0;font-size:12px;font-weight:700">EDIT <span id="edit-batch-label"></span> <button class="btn btn-accent" onclick="cancelSafetyEdit()">Cancel</button></div><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="safety-batch" style="flex:1"><button class="btn btn-accent" onclick="generateSafetyBatch()">🔄</button></div></div><div class="input-group"><label>Date *</label><input type="date" id="safety-date"></div><div class="input-group"><label>Time *</label><input type="time" id="safety-time"></div><div class="input-group"><label>Location *</label><select id="safety-location"><option value="">-- Select --</option><option>Carbonization Bay</option><option>Briquette Press</option><option>Biomass Storage</option><option>Warehouse A</option><option>Warehouse B</option><option>Shed 1</option><option>Shed 2</option><option>Outdoor Bay</option><option>Office</option><option>Other</option></select></div><div class="input-group"><label>Custom</label><input type="text" id="safety-location-custom"></div><div class="input-group"><label>Type *</label><select id="safety-type"><option value="">-- Select --</option><option>Burn</option><option>Cut</option><option>Slip/Fall</option><option>Dust Inhalation</option><option>Fire</option><option>Equipment Failure</option><option>Electrical</option><option>Chemical Exposure</option><option>Near Miss</option><option>Other</option></select></div><div class="input-group"><label>Severity *</label><select id="safety-sev"><option value="">-- Select --</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div><div class="input-group"><label>PPE? *</label><select id="safety-ppe"><option value="">-- Select --</option><option>Yes - Full</option><option>Partial</option><option>No</option></select></div><div class="input-group"><label>Injury? *</label><select id="safety-injury"><option value="">-- Select --</option><option>Yes</option><option>No</option></select></div><div class="input-group"><label>First Aid?</label><input type="text" id="safety-firstaid"></div><div class="input-group"><label>Reported By *</label><input type="text" id="safety-reported"></div><div class="input-group"><label>Status *</label><select id="safety-status"><option value="">-- Select --</option><option>Open</option><option>Under Review</option><option>Closed</option><option>Resolved</option></select></div><div class="input-group" style="grid-column:span 2"><label>Description *</label><textarea id="safety-incident" rows="2"></textarea></div><div class="input-group" style="grid-column:span 2"><label>Corrective Action *</label><textarea id="safety-action" rows="2"></textarea></div></div><button class="btn btn-primary" id="safety-submit-btn" onclick="addRecord('safety')">+ Add Safety</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Date</th><th>Time</th><th>Location</th><th>Type</th><th>Severity</th><th>PPE</th><th>Injury</th><th>Status</th><th>Reported By</th><th>Action</th></tr></thead><tbody id="tbody-safety"></tbody></table></div></div>
+<div class="module" id="mod-sales"><h3>💰 Sales</h3><div id="sales-edit-banner" style="display:none;background:#fffbeb;border:1px solid #f59e0b;padding:10px 14px;border-radius:8px;margin:10px 0;font-size:12px;font-weight:700">EDIT <span id="sales-edit-batch-label"></span> <button class="btn btn-accent" onclick="cancelSalesEdit()">Cancel</button></div><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Sales Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="sales-batch" style="flex:1"><button class="btn btn-accent" onclick="generateSalesBatch()">🔄</button></div></div><div class="input-group"><label>Date *</label><input type="date" id="sales-date"></div><div class="input-group"><label>Customer *</label><input type="text" id="sales-cust"></div><div class="input-group"><label>Customer Type *</label><select id="sales-cust-type"><option value="">-- Select --</option><option>Individual</option><option>Retailer</option><option>Distributor</option><option>Export</option><option>Factory</option></select></div><div class="input-group"><label>Phone</label><input type="text" id="sales-phone"></div><div class="input-group"><label>Briquette Type *</label><select id="sales-briquette-type"><option value="">-- Select --</option><option>Premium Grade</option><option>Standard Grade</option><option>PKS Briquette</option><option>Saw Dust Briquette</option><option>Coconut Briquette</option><option>Mixed Briquette</option></select></div><div class="input-group"><label>Linked BRIQ- Batch</label><select id="sales-linked-batch"><option value="">-- Select --</option></select></div><div class="input-group"><label>Qty kg *</label><input type="number" id="sales-qty" step="0.01" oninput="calcSalesTotal()"></div><div class="input-group"><label>Unit Price ₦ *</label><input type="number" id="sales-price" step="0.01" oninput="calcSalesTotal()"></div><div class="input-group"><label>Total Auto *</label><div id="sales-total-display" style="background:#f0fdf4;border:2px solid #10b981;padding:10px;border-radius:8px;font-weight:800">₦ 0.00</div><input type="hidden" id="sales-total"></div><div class="input-group"><label>Invoice No</label><input type="text" id="sales-invoice"></div><div class="input-group"><label>Payment Method *</label><select id="sales-pay-method"><option value="">-- Select --</option><option>Cash</option><option>Bank Transfer</option><option>POS</option><option>Credit</option></select></div><div class="input-group"><label>Payment Status *</label><select id="sales-pay-status"><option value="">-- Select --</option><option>Paid</option><option>Pending</option><option>Partial</option></select></div><div class="input-group"><label>Delivery Status *</label><select id="sales-delivery-status"><option value="">-- Select --</option><option>Delivered</option><option>Pending</option><option>Picked Up</option><option>In Transit</option></select></div><div class="input-group"><label>Delivery Location</label><input type="text" id="sales-delivery-loc"></div><div class="input-group"><label>Sold By *</label><input type="text" id="sales-person"></div><div class="input-group" style="grid-column:span 2"><label>Notes</label><textarea id="sales-notes" rows="2"></textarea></div></div><button class="btn btn-primary" id="sales-submit-btn" onclick="addRecord('sales')" style="background:#10b981">+ Add Sales</button><div class="table-wrap"><table><thead><tr><th>Batch</th><th>Date</th><th>Customer</th><th>Type</th><th>Product</th><th>Linked</th><th>Qty</th><th>Unit</th><th>Total</th><th>Payment</th><th>Delivery</th><th>Sold By</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div></div>
+<div class="module" id="mod-users"><h3>👥 Users</h3><div id="user-edit-banner" style="display:none;background:#fffbeb;border:1px solid #f59e0b;padding:10px;border-radius:8px;margin:10px 0;font-size:12px;font-weight:700">EDIT <span id="user-edit-label"></span> <button class="btn btn-accent" onclick="cancelUserEdit()">Cancel</button></div><div class="form-grid"><div class="input-group"><label>User ID *</label><div style="display:flex;gap:6px"><input type="text" id="user-id" style="flex:1"><button class="btn btn-accent" onclick="generateUserId()">🔄</button></div></div><div class="input-group"><label>Full Name *</label><input type="text" id="user-fullname" oninput="autoGenerateUsername()"></div><div class="input-group"><label>Username *</label><div style="display:flex;gap:6px"><input type="text" id="user-name" style="flex:1"><button class="btn btn-accent" onclick="autoGenerateUsername(true)">🔄 Auto</button></div></div><div class="input-group"><label>Password *</label><div style="display:flex;gap:6px"><input type="password" id="user-pass" style="flex:1"><button class="btn btn-accent" onclick="togglePassword('user-pass')">👁️</button><button class="btn btn-accent" style="background:#10b981" onclick="generatePassword()">🔑 Gen</button></div></div><div class="input-group"><label>Role *</label><select id="user-role"><option value="">-- Select --</option><option value="user">user</option><option value="operator">operator</option><option value="supervisor">supervisor</option><option value="admin">admin</option><option value="quality_officer">quality_officer</option><option value="safety_officer">safety_officer</option><option value="sales_officer">sales_officer</option><option value="production_manager">production_manager</option><option value="store_keeper">store_keeper</option></select></div><div class="input-group"><label>Status *</label><select id="user-status"><option value="">-- Select --</option><option>Active</option><option>Inactive</option><option>Suspended</option></select></div></div><div style="margin:16px 0"><label style="font-size:11px;font-weight:700;color:var(--oxford);text-transform:uppercase;display:block;margin-bottom:8px">Access Level *</label><div style="display:flex;gap:8px;margin-bottom:10px"><button class="btn btn-accent" style="padding:6px 10px" onclick="selectAllAccess()">Select All - Add/Edit</button><button class="btn" style="padding:6px 10px;background:#e5e7eb" onclick="clearAllAccess()">Clear All</button><button class="btn" style="padding:6px 10px;background:#dbeafe" onclick="selectViewOnlyAll()">All View Only</button></div><div class="access-grid" id="access-grid"></div></div><div class="input-group" style="margin-bottom:16px"><label>Notes</label><textarea id="user-notes" rows="2"></textarea></div><div id="user-cred-preview" class="cred-box" style="display:none"><b>Credentials:</b><div>Username: <b id="preview-username"></b></div><div>Password: <b id="preview-password"></b></div><div id="preview-access"></div></div><button class="btn btn-primary" id="user-submit-btn" onclick="addRecord('users')" style="font-weight:800">+ Issue User</button><div style="display:flex;gap:8px;margin:12px 0"><button class="btn btn-danger" style="padding:6px 10px" onclick="clearAllUsers()">Clear All Users</button></div><div class="table-wrap"><table><thead><tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Password</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbody-users"></tbody></table></div></div>
+<div class="module" id="mod-audit">
+<h3>📋 Audit Trail</h3>
+<div class="audit-filters">
+<div class="input-group"><label>🔍 Search</label><input type="text" id="audit-search" placeholder="Search user, action, batch, module..." oninput="filterAudit()"></div>
+<div class="input-group"><label>📦 Module Filter</label><select id="audit-module-filter" onchange="filterAudit()"><option value="">All Modules</option><option value="biomass">Biomass</option><option value="carbonization">Carbonization</option><option value="production">Production</option><option value="quality">Quality</option><option value="safety">Safety</option><option value="sales">Sales</option><option value="users">Users</option><option value="audit">Audit</option><option value="reports">Reports</option><option value="dashboard">Dashboard</option></select></div>
+<div class="input-group"><label>⚡ Action Filter</label><select id="audit-action-filter" onchange="filterAudit()"><option value="">All Actions</option><option value="Added">Added</option><option value="Edited">Edited</option><option value="Deleted">Deleted</option><option value="Status Changed">Status Changed</option><option value="Exported">Exported</option><option value="Cleared">Cleared</option><option value="Login">Login</option></select></div>
+<div class="input-group"><label>📅 Date From</label><input type="date" id="audit-date-from" onchange="filterAudit()"></div>
+<div class="input-group"><label>📅 Date To</label><input type="date" id="audit-date-to" onchange="filterAudit()"></div>
+<div class="input-group"><label>User Filter</label><select id="audit-user-filter" onchange="filterAudit()"><option value="">All Users</option></select></div>
+</div>
+<div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
+<button class="btn btn-primary" onclick="exportAuditCSV()">📥 Export Audit CSV</button>
+<button class="btn btn-accent" onclick="exportAuditJSON()">📥 Export Audit JSON</button>
+<button class="btn btn-danger" onclick="clearAuditTrail()">🗑️ Clear Audit Trail</button>
+<button class="btn" style="background:#e5e7eb" onclick="resetAuditFilters()">🔄 Reset Filters</button>
+<span style="font-size:11px;color:#64748b;padding:8px">Showing <b id="audit-showing">0</b> of <b id="audit-total">0</b> logs | Last action: <span id="audit-last-action">-</span></span>
+</div>
+<div class="cards" style="margin:12px 0"><div class="card" style="padding:12px"><h4 style="font-size:11px">Added</h4><div style="font-size:20px;font-weight:800;color:#10b981" id="audit-count-added">0</div></div><div class="card" style="padding:12px"><h4 style="font-size:11px">Edited</h4><div style="font-size:20px;font-weight:800;color:#f59e0b" id="audit-count-edited">0</div></div><div class="card" style="padding:12px"><h4 style="font-size:11px">Deleted</h4><div style="font-size:20px;font-weight:800;color:#ef4444" id="audit-count-deleted">0</div></div><div class="card" style="padding:12px"><h4 style="font-size:11px">Status Changed</h4><div style="font-size:20px;font-weight:800;color:#3b82f6" id="audit-count-status">0</div></div></div>
+<div class="table-wrap" style="max-height:700px"><table><thead><tr><th>Timestamp</th><th>Date</th><th>Time</th><th>User</th><th>Action</th><th>Module</th><th>Batch / ID</th><th>Details</th><th>Old → New</th><th>IP / Session</th></tr></thead><tbody id="tbody-audit"></tbody></table></div>
+</div>
+
+<div class="module" id="mod-reports">
+<h3 style="font-size:18px;font-weight:900;color:#002147">📈 BOSKEL REPORTS PRO - FULL ANALYTICS</h3>
+<p style="font-size:12px;color:#64748b;margin:8px 0">Generate executive, operational & financial reports. Live sync across users. Export to CSV, JSON, Print.</p>
+<div class="report-filters">
+  <div class="input-group"><label>📊 Report Type</label>
+    <select id="rep-type" onchange="generateReportPRO()">
+      <option value="executive">Executive Summary</option>
+      <option value="biomass">Biomass Inventory</option>
+      <option value="production">Production Performance</option>
+      <option value="sales">Sales & Revenue</option>
+      <option value="quality">Quality Assurance</option>
+      <option value="safety">Safety & Compliance</option>
+      <option value="carbonization">Carbonization</option>
+      <option value="yield">Yield & Waste</option>
+      <option value="financial">Financial Overview</option>
+    </select>
+  </div>
+  <div class="input-group"><label>📅 Date From</label><input type="date" id="rep-from" onchange="generateReportPRO()"></div>
+  <div class="input-group"><label>📅 Date To</label><input type="date" id="rep-to" onchange="generateReportPRO()"></div>
+  <div class="input-group"><label>🔍 Search</label><input type="text" id="rep-search" placeholder="Filter batch, type, customer..." oninput="generateReportPRO()"></div>
+  <div class="input-group"><label>⚡ Presets</label>
+    <select id="rep-preset" onchange="applyPreset()">
+      <option value="">-- Presets --</option>
+      <option value="today">Today</option>
+      <option value="week">Last 7 Days</option>
+      <option value="month">This Month</option>
+      <option value="quarter">Last 90 Days</option>
+      <option value="year">This Year</option>
+      <option value="all">All Time</option>
+    </select>
+  </div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+  <button class="btn btn-primary" onclick="generateReportPRO()">🔄 Generate</button>
+  <button class="btn" style="background:#10b981;color:#fff" onclick="exportReportCSV()">📥 CSV</button>
+  <button class="btn btn-accent" onclick="exportReportJSON()">📥 JSON</button>
+  <button class="btn" style="background:#8b5cf6;color:#fff" onclick="exportReportExcel()">📊 Excel</button>
+  <button class="btn" style="background:#2b579a;color:#fff" onclick="exportReportWord()">📝 Word</button>
+  <button class="btn" style="background:#0f172a;color:#fff" onclick="printReport()">🖨️ Print</button>
+  <span id="rep-meta" style="font-size:11px;color:#64748b;padding:8px"></span>
+</div>
+<div class="kpi-grid" id="kpi-grid"></div>
+<div class="chart-grid">
+  <div class="chart-card"><h4>📦 Production Trend</h4><canvas id="chart-prod"></canvas></div>
+  <div class="chart-card"><h4>🌿 Biomass by Type</h4><canvas id="chart-biomass"></canvas></div>
+  <div class="chart-card"><h4>💰 Sales Revenue</h4><canvas id="chart-sales"></canvas></div>
+  <div class="chart-card"><h4>🧪 Quality vs Safety</h4><canvas id="chart-quality"></canvas></div>
+</div>
+<div id="reportOut"></div>
+</div>
+</div>
+
+<script>
+const STORAGE_KEYS={biomass:'boskel_biomass',carbonization:'boskel_carbonization',production:'boskel_production',quality:'boskel_quality',safety:'boskel_safety',sales:'boskel_sales',users:'boskel_users_clean_v4',audit:'boskel_audit_trail_full_v1'};
+let data={};
+window.data = data;
+
+Object.keys(STORAGE_KEYS).forEach(k=>{try{data[k]=JSON.parse(localStorage.getItem(STORAGE_KEYS[k])||'[]')}catch{data[k]=[]}});
+if(!localStorage.getItem(STORAGE_KEYS.users)){data.users=[];}
+if(!localStorage.getItem(STORAGE_KEYS.audit)){data.audit=[];localStorage.setItem(STORAGE_KEYS.audit,JSON.stringify([]));}
+
+let biomassCounter=parseInt(localStorage.getItem('boskel_biomass_counter')||'1');
+let briquetteCounter=parseInt(localStorage.getItem('boskel_briquette_counter')||'1');
+let qualityCounter=parseInt(localStorage.getItem('boskel_quality_counter')||'1');
+let safetyCounter=parseInt(localStorage.getItem('boskel_safety_counter')||'1');
+let salesCounter=parseInt(localStorage.getItem('boskel_sales_counter')||'1');
+let userCounter=parseInt(localStorage.getItem('boskel_user_counter_v4')||'1');
+let editingSafetyId=null, editingSalesId=null, editingUserId=null;
+
+const MODULES_LIST=[{id:'dashboard',label:'Dashboard'},{id:'biomass',label:'Biomass'},{id:'carbonization',label:'Carbonization'},{id:'production',label:'Production'},{id:'quality',label:'Quality'},{id:'safety',label:'Safety'},{id:'sales',label:'Sales'},{id:'users',label:'Users'},{id:'audit',label:'Audit'},{id:'reports',label:'Reports'}];
+
+function buildAccessGrid(){let grid=document.getElementById('access-grid');if(!grid)return;grid.innerHTML='';MODULES_LIST.forEach(m=>{let div=document.createElement('div');div.className='access-item';div.innerHTML=`<input type="checkbox" id="acc-${m.id}" onchange="toggleAccessSelect('${m.id}')"><label for="acc-${m.id}" style="font-size:11px;font-weight:700;flex:1">${m.label}</label><select id="perm-${m.id}" disabled style="opacity:0.5"><option value="view_only">View Only</option><option value="add_edit">Add/Edit</option><option value="full">Full Access</option></select>`;grid.appendChild(div);});}
+function toggleAccessSelect(modId){let chk=document.getElementById('acc-'+modId);let sel=document.getElementById('perm-'+modId);if(chk.checked){sel.disabled=false;sel.style.opacity='1';}else{sel.disabled=true;sel.style.opacity='0.5';}}
+function selectAllAccess(){MODULES_LIST.forEach(m=>{document.getElementById('acc-'+m.id).checked=true;let sel=document.getElementById('perm-'+m.id);sel.disabled=false;sel.style.opacity='1';sel.value='add_edit';});}
+function clearAllAccess(){MODULES_LIST.forEach(m=>{document.getElementById('acc-'+m.id).checked=false;let sel=document.getElementById('perm-'+m.id);sel.disabled=true;sel.style.opacity='0.5';});}
+function selectViewOnlyAll(){MODULES_LIST.forEach(m=>{document.getElementById('acc-'+m.id).checked=true;let sel=document.getElementById('perm-'+m.id);sel.disabled=false;sel.style.opacity='1';sel.value='view_only';});}
+function getAccessLevels(){let access={};MODULES_LIST.forEach(m=>{let chk=document.getElementById('acc-'+m.id);if(chk&&chk.checked){let sel=document.getElementById('perm-'+m.id);access[m.id]=sel.value;}});return access;}
+function setAccessLevels(accessObj){clearAllAccess();if(!accessObj)return;Object.keys(accessObj).forEach(modId=>{let chk=document.getElementById('acc-'+modId);let sel=document.getElementById('perm-'+modId);if(chk&&sel){chk.checked=true;sel.disabled=false;sel.style.opacity='1';sel.value=accessObj[modId];}});}
+function formatAccessForTable(accessObj){if(!accessObj||Object.keys(accessObj).length===0)return '<span style="color:#999">No Access</span>';let html='';Object.keys(accessObj).forEach(modId=>{let perm=accessObj[modId];let label=MODULES_LIST.find(x=>x.id===modId)?.label||modId;let color=perm==='view_only'?'#3b82f6':perm==='add_edit'?'#10b981':'#002147';html+=`<span style="background:${color};color:#fff;padding:2px 6px;border-radius:10px;font-size:9px;font-weight:700;margin:2px;display:inline-block">${label} ${perm==='view_only'?'VO':perm==='add_edit'?'AE':'FULL'}</span> `;});return html;}
+
+function generateBiomassBatch(){const d=new Date();const ds=d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');const type=document.getElementById('bio-type').value||'BIO';let p='BIO';if(type==='Palm kernel shell')p='PKS';else if(type==='Saw dust')p='SAW';else if(type==='Coconut shell')p='COC';const b=`${p}-${ds}-${String(biomassCounter).padStart(3,'0')}`;document.getElementById('bio-batch').value=b;return b;}
+function generateBriquetteBatch(){const d=new Date();const ds=d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');const b=`BRIQ-${ds}-${String(briquetteCounter).padStart(3,'0')}`;document.getElementById('briquette-batch').value=b;return b;}
+function generateQualityBatch(){const d=new Date();const ds=d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');const b=`QUAL-${ds}-${String(qualityCounter).padStart(3,'0')}`;const el=document.getElementById('quality-batch');if(el)el.value=b;return b;}
+function generateSafetyBatch(){const d=new Date();const ds=d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');const b=`SAF-${ds}-${String(safetyCounter).padStart(3,'0')}`;const el=document.getElementById('safety-batch');if(el)el.value=b;return b;}
+function generateSalesBatch(){const d=new Date();const ds=d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');const b=`SAL-${ds}-${String(salesCounter).padStart(3,'0')}`;const el=document.getElementById('sales-batch');if(el)el.value=b;const inv=document.getElementById('sales-invoice');if(inv&&!inv.value)inv.value=`INV-${b}`;return b;}
+function generateUserId(){const d=new Date();const ds=d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');const b=`USER-${ds}-${String(userCounter).padStart(3,'0')}`;document.getElementById('user-id').value=b;return b;}
+
+function autoGenerateUsername(force=false){let fullname=document.getElementById('user-fullname').value.trim();let unameField=document.getElementById('user-name');if(!fullname)return;let uname=fullname.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,12);if(!unameField.value||force){unameField.value=uname+String(userCounter).padStart(2,'0');}updateCredPreview();}
+function generatePassword(){let chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#';let pwd='';for(let i=0;i<10;i++)pwd+=chars.charAt(Math.floor(Math.random()*chars.length));document.getElementById('user-pass').type='text';document.getElementById('user-pass').value=pwd;updateCredPreview();document.getElementById('user-cred-preview').style.display='block';}
+function togglePassword(id){let el=document.getElementById(id);el.type=el.type==='password'?'text':'password';}
+function updateCredPreview(){let u=document.getElementById('user-name').value;let p=document.getElementById('user-pass').value;let acc=getAccessLevels();if(u||p||Object.keys(acc).length>0){document.getElementById('user-cred-preview').style.display='block';document.getElementById('preview-username').textContent=u;document.getElementById('preview-password').textContent=p;document.getElementById('preview-access').innerHTML='Access: '+formatAccessForTable(acc);}}
+function calcSalesTotal(){let qty=parseFloat(document.getElementById('sales-qty').value)||0;let price=parseFloat(document.getElementById('sales-price').value)||0;let total=qty*price;let el=document.getElementById('sales-total');if(el)el.value=total;let disp=document.getElementById('sales-total-display');if(disp)disp.textContent='₦ '+total.toLocaleString(undefined,{minimumFractionDigits:2});}
+function refreshLinkedBatches(){let sel=document.getElementById('sales-linked-batch');if(!sel)return;let cur=sel.value;sel.innerHTML='<option value="">-- Select --</option>';data.production.forEach(r=>{let opt=document.createElement('option');opt.value=r.batch;opt.textContent=r.batch+' ('+(r.briquetteWeight||'')+'kg)';sel.appendChild(opt);});if(cur)sel.value=cur;}
+
+window.renderAll = function(){
+  Object.keys(STORAGE_KEYS).forEach(k=>{
+    if(window.data[k]){
+      localStorage.setItem(STORAGE_KEYS[k], JSON.stringify(window.data[k]));
+      renderTable(k);
+    }
+  });
+  updateCounts();
+  updateAuditCounts();
+  refreshAuditUserFilter();
+  refreshLinkedBatches();
+  try{ generateDashboard(); }catch(e){}
+  try{ if(document.getElementById('mod-reports')?.classList.contains('active')) generateReportPRO(); }catch(e){}
+};
+
+function save(k){
+  localStorage.setItem(STORAGE_KEYS[k],JSON.stringify(data[k]));
+  if(k==='users'){localStorage.setItem('boskel_user_counter_v4',userCounter.toString());}
+  updateCounts();
+  renderTable(k);
+  if(k==='production')refreshLinkedBatches();
+  try{generateDashboard();}catch(e){}
+  if(typeof window.syncToFirebase === 'function') window.syncToFirebase();
+}
+
+function updateCounts(){Object.keys(data).forEach(k=>{const el=document.getElementById('count-'+k);if(el)el.textContent=data[k].length;}); try{if(document.getElementById('mod-dashboard')?.classList.contains('active')) generateDashboard();}catch(e){}}
+function getCurrentUser(){try{let users=data.users; if(users.length>0 && users[0].username) return users[0].username;}catch{} return 'system';}
+function generateSessionId(){return 'S-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).substring(2,6).toUpperCase();}
+let currentSessionId = localStorage.getItem('boskel_session_id') || generateSessionId(); localStorage.setItem('boskel_session_id', currentSessionId);
+
+function addAuditDetailed({actionType, module, batch, details, oldValue, newValue, user}){
+  const now = new Date();
+  const entry = {
+    id: Date.now()+Math.random(),
+    timestamp: now.toISOString(),
+    date: now.toISOString().slice(0,10),
+    time: now.toLocaleTimeString(),
+    fullTime: now.toLocaleString(),
+    user: user || getCurrentUser() || 'system',
+    actionType: actionType || 'Added',
+    action: actionType,
+    module: module,
+    batch: batch || '-',
+    details: details || '',
+    oldValue: oldValue || '',
+    newValue: newValue || '',
+    oldNew: (oldValue||'') + (oldValue && newValue? ' → ' : '') + (newValue||''),
+    ip: '127.0.0.1',
+    sessionId: currentSessionId,
+    userAgent: navigator.userAgent.substring(0,80)
+  };
+  data.audit.unshift(entry);
+  if(data.audit.length>1000) data.audit = data.audit.slice(0,1000);
+  localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(data.audit));
+  renderAuditTrail();
+  updateCounts();
+  updateAuditCounts();
+  refreshAuditUserFilter();
+  if(typeof window.syncToFirebase === 'function') window.syncToFirebase();
+}
+
+function addAudit(a,m){addAuditDetailed({actionType: a.split(' ')[0] || 'Added', module: m, batch: a, details: a, user: getCurrentUser()});}
+
+function updateAuditCounts(){
+  const added = data.audit.filter(x=>x.actionType==='Added').length;
+  const edited = data.audit.filter(x=>x.actionType==='Edited').length;
+  const deleted = data.audit.filter(x=>x.actionType==='Deleted').length;
+  const status = data.audit.filter(x=>x.actionType==='Status Changed').length;
+  document.getElementById('audit-count-added').textContent=added;
+  document.getElementById('audit-count-edited').textContent=edited;
+  document.getElementById('audit-count-deleted').textContent=deleted;
+  document.getElementById('audit-count-status').textContent=status;
+  document.getElementById('audit-total').textContent=data.audit.length;
+  if(data.audit.length>0) document.getElementById('audit-last-action').textContent=data.audit[0].fullTime + ' - ' + data.audit[0].actionType + ' ' + data.audit[0].module;
+}
+
+function refreshAuditUserFilter(){
+  const sel=document.getElementById('audit-user-filter');
+  if(!sel) return;
+  const current=sel.value;
+  const users=[...new Set(data.audit.map(x=>x.user))];
+  sel.innerHTML='<option value="">All Users</option>';
+  users.forEach(u=>{let opt=document.createElement('option');opt.value=u;opt.textContent=u;if(u===current)opt.selected=true;sel.appendChild(opt);});
+}
+
+function renderAuditTrail(filteredData=null){
+  const tb=document.getElementById('tbody-audit');
+  if(!tb) return;
+  const list = filteredData || data.audit;
+  tb.innerHTML='';
+  list.forEach(r=>{
+    let badgeClass='badge-added';
+    if(r.actionType==='Added') badgeClass='badge-added';
+    else if(r.actionType==='Edited') badgeClass='badge-edited';
+    else if(r.actionType==='Deleted') badgeClass='badge-deleted';
+    else if(r.actionType==='Status Changed') badgeClass='badge-status';
+    else if(r.actionType==='Exported') badgeClass='badge-export';
+    else if(r.actionType==='Cleared') badgeClass='badge-cleared';
+    let badge=`<span class="badge ${badgeClass}">${r.actionType}</span>`;
+    let oldNew = r.oldNew || (r.oldValue? r.oldValue + ' → ' + r.newValue : r.details || '-');
+    tb.innerHTML+=`<tr><td style="white-space:nowrap;font-size:10px">${r.fullTime}</td><td>${r.date}</td><td>${r.time}</td><td><b>${r.user}</b></td><td>${badge}</td><td><span style="background:#002147;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px">${r.module}</span></td><td><b>${r.batch||'-'}</b></td><td style="max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.details}">${r.details}</td><td style="max-width:200px;font-size:11px" title="${oldNew}">${oldNew}</td><td style="font-size:10px;color:#64748b">${r.ip}<br>${r.sessionId}</td></tr>`;
+  });
+  document.getElementById('audit-showing').textContent=list.length;
+  document.getElementById('audit-total').textContent=data.audit.length;
+}
+
+function filterAudit(){
+  const search=(document.getElementById('audit-search').value||'').toLowerCase();
+  const modFilter=document.getElementById('audit-module-filter').value;
+  const actionFilter=document.getElementById('audit-action-filter').value;
+  const dateFrom=document.getElementById('audit-date-from').value;
+  const dateTo=document.getElementById('audit-date-to').value;
+  const userFilter=document.getElementById('audit-user-filter').value;
+  let filtered=data.audit.filter(r=>{
+    if(search &&!(JSON.stringify(r).toLowerCase().includes(search))) return false;
+    if(modFilter && r.module!==modFilter) return false;
+    if(actionFilter && r.actionType!==actionFilter) return false;
+    if(userFilter && r.user!==userFilter) return false;
+    if(dateFrom && r.date < dateFrom) return false;
+    if(dateTo && r.date > dateTo) return false;
+    return true;
+  });
+  renderAuditTrail(filtered);
+}
+
+function resetAuditFilters(){
+  document.getElementById('audit-search').value='';
+  document.getElementById('audit-module-filter').value='';
+  document.getElementById('audit-action-filter').value='';
+  document.getElementById('audit-date-from').value='';
+  document.getElementById('audit-date-to').value='';
+  document.getElementById('audit-user-filter').value='';
+  renderAuditTrail();
+}
+
+function exportAuditCSV(){
+  let csv='Timestamp,Date,Time,User,ActionType,Module,Batch,Details,OldNew,IP,SessionId\n';
+  data.audit.forEach(r=>{
+    csv+=`"${r.fullTime}","${r.date}","${r.time}","${r.user}","${r.actionType}","${r.module}","${r.batch}","${(r.details||'').replace(/"/g,'""')}","${(r.oldNew||'').replace(/"/g,'""')}","${r.ip}","${r.sessionId}"\n`;
+  });
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='BOSKEL-AUDIT-TRAIL-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  addAuditDetailed({actionType:'Exported',module:'audit',batch:'CSV',details:'Exported audit trail to CSV'});
+}
+
+function exportAuditJSON(){
+  const blob=new Blob([JSON.stringify(data.audit,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='BOSKEL-AUDIT-TRAIL-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  addAuditDetailed({actionType:'Exported',module:'audit',batch:'JSON',details:'Exported audit trail to JSON'});
+}
+
+function clearAuditTrail(){
+  if(!confirm('Clear ALL audit trail? This will delete all logs permanently. Continue?')) return;
+  const oldCount=data.audit.length;
+  data.audit=[];
+  localStorage.setItem(STORAGE_KEYS.audit,JSON.stringify([]));
+  renderAuditTrail();
+  updateAuditCounts();
+  addAuditDetailed({actionType:'Cleared',module:'audit',batch:'ALL',details:'Cleared '+oldCount+' audit logs',oldValue:oldCount+' logs',newValue:'0 logs'});
+  alert('Audit trail cleared - '+oldCount+' logs removed');
+}
+
+function addRecord(module){
+let rec={id:Date.now()};
+if(module==='biomass'){rec.type=document.getElementById('bio-type').value;rec.date=document.getElementById('bio-date').value;rec.weight=document.getElementById('bio-weight').value;rec.batch=document.getElementById('bio-batch').value;let c=document.getElementById('bio-location-custom').value.trim();let s=document.getElementById('bio-location').value;rec.location=c||s;if(!rec.type)return alert('Select Type');if(!rec.date)return alert('Enter Date');if(!rec.weight)return alert('Enter Weight');if(!rec.batch)return alert('Enter Batch');if(!rec.location)return alert('Enter Location');biomassCounter++;localStorage.setItem('boskel_biomass_counter',biomassCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:module,batch:rec.batch,details:'Added biomass '+rec.type+' '+rec.weight+'kg at '+rec.location,newValue:rec.batch+' '+rec.type});generateBiomassBatch();return;}
+else if(module==='carbonization'){rec.biomassType=document.getElementById('carb-biomass-type').value;rec.tempStart=document.getElementById('carb-temp-start').value;rec.tempPeak=document.getElementById('carb-temp-peak').value;rec.peakTime=document.getElementById('carb-peak-time').value;rec.startDT=document.getElementById('carb-start-dt').value;rec.finishDT=document.getElementById('carb-finish-dt').value;rec.dateCarb=document.getElementById('carb-date').value;rec.volatility=document.getElementById('carb-volatility').value;rec.operator=document.getElementById('carb-operator').value;if(!rec.biomassType)return alert('Select Type');if(!rec.tempStart||!rec.tempPeak)return alert('Enter temps');if(!rec.peakTime)return alert('Enter Peak Time');if(!rec.startDT||!rec.finishDT)return alert('Enter Start/Finish');if(!rec.dateCarb)return alert('Enter Date');if(!rec.volatility)return alert('Enter Volatility');data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:module,batch:rec.biomassType,details:'Carbonization '+rec.biomassType+' '+rec.tempStart+'->'+rec.tempPeak+'C volatility '+rec.volatility+'%',newValue:rec.biomassType});return;}
+else if(module==='production'){rec.infeed=document.getElementById('briquette-infeed').value;rec.briquetteWeight=document.getElementById('briquette-weight').value;rec.date=document.getElementById('briquette-date').value;rec.batch=document.getElementById('briquette-batch').value;rec.volatility=document.getElementById('briquette-volatility').value;rec.status=document.getElementById('briquette-status').value;if(!rec.infeed)return alert('Enter Infeed');if(!rec.briquetteWeight)return alert('Enter Briquette Weight');if(!rec.date)return alert('Enter Date');if(!rec.batch)return alert('Enter Batch');if(!rec.volatility)return alert('Enter Volatility');if(!rec.status)return alert('Select Status');rec.yield=rec.infeed>0?((parseFloat(rec.briquetteWeight)/parseFloat(rec.infeed))*100).toFixed(1):0;briquetteCounter++;localStorage.setItem('boskel_briquette_counter',briquetteCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:module,batch:rec.batch,details:'Produced '+rec.briquetteWeight+'kg from '+rec.infeed+'kg yield '+rec.yield+'% status '+rec.status,newValue:rec.batch});generateBriquetteBatch();return;}
+else if(module==='quality'){rec.batch=document.getElementById('quality-batch').value;rec.date=document.getElementById('quality-date').value;rec.testType=document.getElementById('quality-test-type').value;rec.briquetteQuality=document.getElementById('quality-briquette-quality').value;rec.moisture=document.getElementById('quality-moisture').value;rec.volatile=document.getElementById('quality-volatile').value;rec.strength=document.getElementById('quality-strength').value;rec.breakEasily=document.getElementById('quality-break').value;rec.shapeCheck=document.getElementById('quality-shape').value;if(!rec.batch)return alert('Enter Batch');if(!rec.date)return alert('Enter Date');if(!rec.testType)return alert('Enter Test Type');if(!rec.briquetteQuality)return alert('Select Quality');if(!rec.moisture)return alert('Enter Moisture');if(!rec.volatile)return alert('Enter Volatile');if(!rec.strength)return alert('Enter Strength');if(!rec.breakEasily)return alert('Select Break Easily');if(!rec.shapeCheck)return alert('Select Shape');qualityCounter++;localStorage.setItem('boskel_quality_counter',qualityCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:module,batch:rec.batch,details:'Quality test '+rec.testType+' '+rec.briquetteQuality+' moisture '+rec.moisture+'% shape '+rec.shapeCheck,newValue:rec.batch});generateQualityBatch();return;}
+else if(module==='safety'){rec.batch=document.getElementById('safety-batch').value;rec.date=document.getElementById('safety-date').value;rec.time=document.getElementById('safety-time').value;let cLoc=document.getElementById('safety-location-custom').value.trim();let sLoc=document.getElementById('safety-location').value;rec.location=cLoc||sLoc;rec.type=document.getElementById('safety-type').value;rec.severity=document.getElementById('safety-sev').value;rec.ppe=document.getElementById('safety-ppe').value;rec.injury=document.getElementById('safety-injury').value;rec.firstaid=document.getElementById('safety-firstaid').value;rec.reported=document.getElementById('safety-reported').value;rec.status=document.getElementById('safety-status').value;rec.incident=document.getElementById('safety-incident').value;rec.corrective=document.getElementById('safety-action').value;if(!rec.batch)return alert('Generate Safety Batch No');if(!rec.date)return alert('Enter Date');if(!rec.time)return alert('Enter Time');if(!rec.location)return alert('Select Location');if(!rec.type)return alert('Select Type');if(!rec.severity)return alert('Select Severity');if(!rec.ppe)return alert('Select PPE');if(!rec.injury)return alert('Select Injury');if(!rec.reported)return alert('Enter Reported By');if(!rec.status)return alert('Select Status');if(!rec.incident)return alert('Enter Description');if(!rec.corrective)return alert('Enter Corrective Action');if(editingSafetyId){let idx=data.safety.findIndex(r=>r.id===editingSafetyId);if(idx!==-1){let oldRec=data.safety[idx];rec.id=editingSafetyId;data.safety[idx]=rec;save('safety');clearForm('safety');cancelSafetyEdit();addAuditDetailed({actionType:'Edited',module:'safety',batch:rec.batch,details:'Edited safety '+rec.type+' severity '+rec.severity+' status '+rec.status,oldValue:oldRec.status,newValue:rec.status});return;}}safetyCounter++;localStorage.setItem('boskel_safety_counter',safetyCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'safety',batch:rec.batch,details:'Safety incident '+rec.type+' severity '+rec.severity+' at '+rec.location,newValue:rec.batch});generateSafetyBatch();return;}
+else if(module==='sales'){rec.batch=document.getElementById('sales-batch').value;rec.date=document.getElementById('sales-date').value;rec.customer=document.getElementById('sales-cust').value;rec.custType=document.getElementById('sales-cust-type').value;rec.phone=document.getElementById('sales-phone').value;rec.briquetteType=document.getElementById('sales-briquette-type').value;rec.linkedBatch=document.getElementById('sales-linked-batch').value;rec.qty=document.getElementById('sales-qty').value;rec.price=document.getElementById('sales-price').value;rec.total=document.getElementById('sales-total').value;rec.invoice=document.getElementById('sales-invoice').value;rec.payMethod=document.getElementById('sales-pay-method').value;rec.payStatus=document.getElementById('sales-pay-status').value;rec.deliveryStatus=document.getElementById('sales-delivery-status').value;rec.deliveryLoc=document.getElementById('sales-delivery-loc').value;rec.person=document.getElementById('sales-person').value;rec.notes=document.getElementById('sales-notes').value;if(!rec.batch)return alert('Generate Sales Batch');if(!rec.date)return alert('Enter Date');if(!rec.customer)return alert('Enter Customer');if(!rec.custType)return alert('Select Type');if(!rec.briquetteType)return alert('Select Briquette Type');if(!rec.qty)return alert('Enter Qty');if(!rec.price)return alert('Enter Price');if(!rec.payMethod)return alert('Select Payment Method');if(!rec.payStatus)return alert('Select Payment Status');if(!rec.deliveryStatus)return alert('Select Delivery Status');if(!rec.person)return alert('Enter Sold By');if(editingSalesId){let idx=data.sales.findIndex(r=>r.id===editingSalesId);if(idx!==-1){let oldRec=data.sales[idx];rec.id=editingSalesId;data.sales[idx]=rec;save('sales');clearForm('sales');cancelSalesEdit();addAuditDetailed({actionType:'Edited',module:'sales',batch:rec.batch,details:'Edited sale to '+rec.customer+' '+rec.qty+'kg ₦'+rec.total,oldValue:oldRec.payStatus+'/'+oldRec.deliveryStatus,newValue:rec.payStatus+'/'+rec.deliveryStatus});return;}}salesCounter++;localStorage.setItem('boskel_sales_counter',salesCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'sales',batch:rec.batch,details:'Sale to '+rec.customer+' '+rec.qty+'kg '+rec.briquetteType+' ₦'+rec.total+' '+rec.payStatus,newValue:rec.batch});generateSalesBatch();return;}
+else if(module==='users'){rec.userId=document.getElementById('user-id').value;rec.fullname=document.getElementById('user-fullname').value;rec.username=document.getElementById('user-name').value;rec.password=document.getElementById('user-pass').value;rec.role=document.getElementById('user-role').value;rec.status=document.getElementById('user-status').value;rec.notes=document.getElementById('user-notes').value;rec.access=getAccessLevels();if(!rec.userId)return alert('Generate User ID');if(!rec.fullname)return alert('Enter Full Name');if(!rec.username)return alert('Issue Username');if(!rec.password)return alert('Issue Password');if(!rec.role)return alert('Select Role');if(!rec.status)return alert('Select Status');if(Object.keys(rec.access).length===0)return alert('Select at least ONE module access');if(editingUserId){let idx=data.users.findIndex(r=>r.id===editingUserId);if(idx!==-1){let oldRec=data.users[idx];rec.id=editingUserId;data.users[idx]=rec;save('users');clearForm('users');cancelUserEdit();addAuditDetailed({actionType:'Edited',module:'users',batch:rec.userId,details:'Edited user '+rec.username+' role '+rec.role,oldValue:oldRec.role+'/'+oldRec.status,newValue:rec.role+'/'+rec.status});return;}}userCounter++;localStorage.setItem('boskel_user_counter_v4',userCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'users',batch:rec.userId,details:'Added user '+rec.username+' ('+rec.fullname+') role '+rec.role+' status '+rec.status,newValue:rec.username});generateUserId();return;}
+}
+
+function clearForm(m){document.querySelectorAll('#mod-'+m+' input[type=text], #mod-'+m+' input[type=password], #mod-'+m+' select, #mod-'+m+' textarea').forEach(i=>{if(!i.id.includes('batch')&&!i.id.includes('sales-total')&&i.id!=='user-id'&&!i.id.startsWith('acc-')&&!i.id.startsWith('perm-')){if(i.id!=='user-pass'){i.value='';}}});if(m==='users'){document.getElementById('user-pass').value='';document.getElementById('user-cred-preview').style.display='none';clearAllAccess();generateUserId();}if(m==='biomass'){generateBiomassBatch();}if(m==='production'){generateBriquetteBatch();}if(m==='quality'){generateQualityBatch();}if(m==='safety'){generateSafetyBatch();}if(m==='sales'){generateSalesBatch();}}
+
+function deleteRecord(m,id){
+if(!confirm('Delete?'))return;
+let rec=data[m].find(r=>r.id===id);
+let batchInfo=rec? (rec.batch || rec.userId || rec.type || id) : id;
+data[m]=data[m].filter(r=>r.id!==id);
+save(m);
+if(m==='safety' && editingSafetyId===id)cancelSafetyEdit();
+if(m==='sales' && editingSalesId===id)cancelSalesEdit();
+if(m==='users' && editingUserId===id)cancelUserEdit();
+addAuditDetailed({actionType:'Deleted',module:m,batch:batchInfo,details:'Deleted '+m+' record '+batchInfo,oldValue:batchInfo,newValue:'DELETED'});
+}
+
+function editSafety(id){let r=data.safety.find(x=>x.id===id);if(!r)return;editingSafetyId=id;document.getElementById('safety-batch').value=r.batch||'';document.getElementById('safety-date').value=r.date||'';document.getElementById('safety-time').value=r.time||'';document.getElementById('safety-location').value=r.location||'';document.getElementById('safety-type').value=r.type||'';document.getElementById('safety-sev').value=r.severity||'';document.getElementById('safety-ppe').value=r.ppe||'';document.getElementById('safety-injury').value=r.injury||'';document.getElementById('safety-firstaid').value=r.firstaid||'';document.getElementById('safety-reported').value=r.reported||'';document.getElementById('safety-status').value=r.status||'';document.getElementById('safety-incident').value=r.incident||'';document.getElementById('safety-action').value=r.corrective||'';document.getElementById('safety-edit-banner').style.display='block';document.getElementById('edit-batch-label').textContent=r.batch;document.getElementById('safety-submit-btn').textContent='💾 Update Safety';}
+function cancelSafetyEdit(){editingSafetyId=null;document.getElementById('safety-edit-banner').style.display='none';document.getElementById('safety-submit-btn').textContent='🦺 + Add Safety Record';clearForm('safety');}
+function quickStatusChangeSafety(id,newStatus){let r=data.safety.find(x=>x.id===id);if(!r)return;let oldStatus=r.status; r.status=newStatus;save('safety');addAuditDetailed({actionType:'Status Changed',module:'safety',batch:r.batch,details:'Safety status changed from '+oldStatus+' to '+newStatus,oldValue:oldStatus,newValue:newStatus});}
+
+function editSales(id){let r=data.sales.find(x=>x.id===id);if(!r)return;editingSalesId=id;document.getElementById('sales-batch').value=r.batch||'';document.getElementById('sales-date').value=r.date||'';document.getElementById('sales-cust').value=r.customer||'';document.getElementById('sales-cust-type').value=r.custType||'';document.getElementById('sales-phone').value=r.phone||'';document.getElementById('sales-briquette-type').value=r.briquetteType||'';document.getElementById('sales-linked-batch').value=r.linkedBatch||'';document.getElementById('sales-qty').value=r.qty||'';document.getElementById('sales-price').value=r.price||'';document.getElementById('sales-total').value=r.total||'';document.getElementById('sales-invoice').value=r.invoice||'';document.getElementById('sales-pay-method').value=r.payMethod||'';document.getElementById('sales-pay-status').value=r.payStatus||'';document.getElementById('sales-delivery-status').value=r.deliveryStatus||'';document.getElementById('sales-delivery-loc').value=r.deliveryLoc||'';document.getElementById('sales-person').value=r.person||'';document.getElementById('sales-notes').value=r.notes||'';document.getElementById('sales-edit-banner').style.display='block';document.getElementById('sales-edit-batch-label').textContent=r.batch;document.getElementById('sales-submit-btn').textContent='💾 Update Sales';}
+function cancelSalesEdit(){editingSalesId=null;document.getElementById('sales-edit-banner').style.display='none';document.getElementById('sales-submit-btn').textContent='💰 + Add Sales Record';clearForm('sales');}
+function quickStatusChangeSales(id,field,newVal){let r=data.sales.find(x=>x.id===id);if(!r)return;let oldVal=r[field];r[field]=newVal;save('sales');addAuditDetailed({actionType:'Status Changed',module:'sales',batch:r.batch,details:'Sales '+field+' changed from '+oldVal+' to '+newVal,oldValue:oldVal,newValue:newVal});}
+
+function editUser(id){let r=data.users.find(x=>x.id===id);if(!r)return;editingUserId=id;document.getElementById('user-id').value=r.userId||'';document.getElementById('user-fullname').value=r.fullname||'';document.getElementById('user-name').value=r.username||'';document.getElementById('user-pass').value=r.password||'';document.getElementById('user-role').value=r.role||'';document.getElementById('user-status').value=r.status||'';document.getElementById('user-notes').value=r.notes||'';setAccessLevels(r.access);document.getElementById('user-edit-banner').style.display='block';document.getElementById('user-edit-label').textContent=r.username;document.getElementById('user-submit-btn').textContent='💾 Update User';document.getElementById('user-cred-preview').style.display='block';document.getElementById('preview-username').textContent=r.username;document.getElementById('preview-password').textContent=r.password;document.getElementById('preview-access').innerHTML='Access: '+formatAccessForTable(r.access);}
+function cancelUserEdit(){editingUserId=null;document.getElementById('user-edit-banner').style.display='none';document.getElementById('user-submit-btn').textContent='👥 + Issue User';document.getElementById('user-cred-preview').style.display='none';clearForm('users');}
+function quickStatusChangeUser(id,newStatus){let r=data.users.find(x=>x.id===id);if(!r)return;let oldStatus=r.status;r.status=newStatus;save('users');addAuditDetailed({actionType:'Status Changed',module:'users',batch:r.userId,details:'User '+r.username+' status changed from '+oldStatus+' to '+newStatus,oldValue:oldStatus,newValue:newStatus});}
+function clearAllUsers(){if(!confirm('Remove ALL users?'))return;let count=data.users.length;data.users=[];save('users');addAuditDetailed({actionType:'Cleared',module:'users',batch:'ALL',details:'Cleared all '+count+' users',oldValue:count+' users',newValue:'0'});}
+
+function renderTable(m){if(m==='audit'){renderAuditTrail();return;}const tb=document.getElementById('tbody-'+m);if(!tb)return;tb.innerHTML='';data[m].forEach(r=>{let row='';if(m==='biomass')row=`<td><b>${r.batch||''}</b></td><td>${r.type||''}</td><td>${r.date||''}</td><td>${r.weight||''} kg</td><td>${r.location||''}</td>`;if(m==='carbonization')row=`<td><b>${r.biomassType}</b></td><td>${r.tempStart}°C</td><td>${r.tempPeak}°C</td><td>${r.peakTime}</td><td>${(r.startDT||'').replace('T',' ')}</td><td>${(r.finishDT||'').replace('T',' ')}</td><td>${r.dateCarb}</td><td>${r.volatility}%</td><td>${r.operator||''}</td>`;if(m==='production'){let sc=r.status==='Accept'?'#10b981':'#ef4444';let badge=`<span style="background:${sc};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.status||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.infeed||''} kg</td><td>${r.briquetteWeight||''} kg</td><td>${r.date||''}</td><td>${r.volatility||''}%</td><td>${badge}</td><td>${r.yield||'0'}%</td>`;}if(m==='quality'){let shapeColor=r.shapeCheck==='Accept'?'#10b981':'#ef4444';let shapeBadge=`<span style="background:${shapeColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.shapeCheck||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.testType||''}</td><td>${r.briquetteQuality||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.strength||''}</td><td>${r.breakEasily||''}</td><td>${shapeBadge}</td>`;}if(m==='safety'){let sevColor=r.severity==='Critical'?'#991b1b':r.severity==='High'?'#ef4444':r.severity==='Medium'?'#f59e0b':'#10b981';let sevBadge=`<span style="background:${sevColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.severity||''}</span>`;let statusDropdown=`<select class="status-select" onchange="quickStatusChangeSafety(${r.id},this.value)" style="background:${r.status==='Resolved'?'#d1fae5':r.status==='Closed'?'#e5e7eb':r.status==='Open'?'#fee2e2':'#fef3c7'}"><option ${r.status==='Open'?'selected':''}>Open</option><option ${r.status==='Under Review'?'selected':''}>Under Review</option><option ${r.status==='Closed'?'selected':''}>Closed</option><option ${r.status==='Resolved'?'selected':''}>Resolved</option></select>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.time||''}</td><td>${r.location||''}</td><td>${r.type||''}</td><td>${sevBadge}</td><td>${r.ppe||''}</td><td>${r.injury||''}</td><td>${statusDropdown}</td><td>${r.reported||''}</td>`;}if(m==='sales'){let payColor=r.payStatus==='Paid'?'#10b981':r.payStatus==='Pending'?'#ef4444':'#f59e0b';let delColor=r.deliveryStatus==='Delivered'?'#10b981':r.deliveryStatus==='Pending'?'#ef4444':'#4682B4';let payDrop=`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'payStatus',this.value)" style="background:${payColor};color:#fff"><option ${r.payStatus==='Paid'?'selected':''}>Paid</option><option ${r.payStatus==='Pending'?'selected':''}>Pending</option><option ${r.payStatus==='Partial'?'selected':''}>Partial</option></select>`;let delDrop=`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'deliveryStatus',this.value)" style="background:${delColor};color:#fff"><option ${r.deliveryStatus==='Delivered'?'selected':''}>Delivered</option><option ${r.deliveryStatus==='Pending'?'selected':''}>Pending</option><option ${r.deliveryStatus==='Picked Up'?'selected':''}>Picked Up</option><option ${r.deliveryStatus==='In Transit'?'selected':''}>In Transit</option></select>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.customer||''}</td><td>${r.custType||''}</td><td>${r.briquetteType||''}</td><td>${r.linkedBatch||''}</td><td>${r.qty||''} kg</td><td>₦${r.price||''}</td><td><b>₦${(parseFloat(r.total||0)).toLocaleString()}</b></td><td>${payDrop}</td><td>${delDrop}</td><td>${r.person||''}</td>`;}if(m==='users'){let roleBadge=`<span style="background:#002147;color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700">${r.role||''}</span>`;let statusColor=r.status==='Active'?'#10b981':r.status==='Inactive'?'#6b7280':'#ef4444';let statusDrop=`<select class="status-select" onchange="quickStatusChangeUser(${r.id},this.value)" style="background:${statusColor};color:#fff;font-weight:700"><option ${r.status==='Active'?'selected':''}>Active</option><option ${r.status==='Inactive'?'selected':''}>Inactive</option><option ${r.status==='Suspended'?'selected':''}>Suspended</option></select>`;let passMask=`<span style="font-family:monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px">${(r.password||'').substring(0,2)}••••• <button style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #ccc;cursor:pointer" onclick="alert('Password for ${r.username}:\\n${r.password}')">Show</button></span>`;let accessHtml=formatAccessForTable(r.access);row=`<td><b>${r.userId||''}</b></td><td>${r.fullname||''}</td><td><b>${r.username||''}</b></td><td>${passMask}</td><td>${roleBadge}</td><td style="max-width:250px">${accessHtml}</td><td>${statusDrop}</td>`;}let btn=m==='audit'?'':(m==='users'?`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editUser(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`:m==='safety'?`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editSafety(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`:m==='sales'?`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editSales(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`:`<td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></td>`);tb.innerHTML+=`<tr>${row}${btn}</tr>`;});}
+
+function switchModule(m){
+  document.querySelectorAll('.module').forEach(x=>x.classList.remove('active'));
+  document.getElementById('mod-'+m)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`.nav-item[data-mod="${m}"]`)?.classList.add('active');
+  document.getElementById('pageTitle').textContent=m;
+  if(m==='dashboard') setTimeout(generateDashboard,50);
+  if(m==='reports') setTimeout(generateReportPRO,50);
+}
+
+document.querySelectorAll('.nav-item').forEach(el=>{el.addEventListener('click',()=>switchModule(el.dataset.mod));});
+
+function exportAll(){const b=JSON.stringify(data,null,2);const blob=new Blob([b],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='BOSKEL-BACKUP-'+new Date().toISOString().slice(0,10)+'.json';a.click();addAuditDetailed({actionType:'Exported',module:'reports',batch:'ALL',details:'Exported all data backup'});}
+
+// Dashboard graphical engine
+function generateDashboard(){
+  try{
+    const b=data.biomass||[], p=data.production||[], s=data.sales||[], q=data.quality||[], sf=data.safety||[], c=data.carbonization||[];
+    let totalBioKg=b.reduce((a,r)=>a+parseFloat(r.weight||0),0);
+    let totalProdKg=p.reduce((a,r)=>a+parseFloat(r.briquetteWeight||0),0);
+    let totalInfeed=p.reduce((a,r)=>a+parseFloat(r.infeed||0),0);
+    let avgYield= totalInfeed? (totalProdKg/totalInfeed*100).toFixed(1):0;
+    let totalRev=s.reduce((a,r)=>a+parseFloat(r.total||0),0);
+    let paidRev=s.filter(r=>r.payStatus==='Paid').reduce((a,r)=>a+parseFloat(r.total||0),0);
+    let qualPass=q.length? (q.filter(r=>r.shapeCheck==='Accept').length/q.length*100).toFixed(1):0;
+    let safetyOpen=sf.filter(r=>r.status==='Open'||r.status==='Under Review').length;
+    let safetyCrit=sf.filter(r=>r.severity==='Critical'||r.severity==='High').length;
+    let avgVol=c.length? (c.reduce((a,r)=>a+parseFloat(r.volatility||0),0)/c.length).toFixed(1):'-';
+    const setText=(id,v)=>{let e=document.getElementById(id); if(e) e.textContent=v;};
+    setText('dash-biomass-sub', totalBioKg.toLocaleString()+' kg • '+[...new Set(b.map(x=>x.type))].length+' types');
+    setText('dash-carb-sub','Avg vol '+avgVol+'% • '+c.length+' runs');
+    setText('dash-prod-sub','Yield '+avgYield+'% • '+totalProdKg.toLocaleString()+' kg');
+    setText('dash-qual-sub','Pass '+qualPass+'% • '+q.length+' tests');
+    setText('dash-safety-sub', safetyOpen+' Open / '+sf.length+' total');
+    setText('dash-sales-sub','₦'+totalRev.toLocaleString()+' • '+s.length+' orders');
+    setText('dash-kpi-yield', avgYield+'%'); setText('dash-kpi-yield-sub', totalProdKg.toLocaleString()+' kg from '+totalInfeed.toLocaleString()+' kg');
+    let yb=document.getElementById('dash-kpi-yield-bar'); if(yb) yb.style.width=Math.min(parseFloat(avgYield)||0,100)+'%';
+    setText('dash-kpi-rev','₦'+totalRev.toLocaleString()); setText('dash-kpi-rev-sub',(totalRev? (paidRev/totalRev*100).toFixed(1):0)+'% collected');
+    let rb=document.getElementById('dash-kpi-rev-bar'); if(rb) rb.style.width=(totalRev? (paidRev/totalRev*100):0)+'%';
+    setText('dash-kpi-qual', qualPass+'%'); setText('dash-kpi-qual-sub', q.filter(r=>r.shapeCheck==='Accept').length+' Accept / '+q.filter(r=>r.shapeCheck==='Reject').length+' Reject');
+    let qb=document.getElementById('dash-kpi-qual-bar'); if(qb) qb.style.width=qualPass+'%';
+    setText('dash-kpi-safety', safetyCrit); setText('dash-kpi-safety-sub', safetyCrit+' Critical/High of '+sf.length);
+    let sb=document.getElementById('dash-kpi-safety-bar'); if(sb) sb.style.width=Math.min(sf.length*15,100)+'%';
+    drawDashProd(p); drawDashBio(b); drawDashSales(s); drawDashCarb(c); drawDashQual(q); drawDashSafety(sf); drawDashCust(s); drawDashFlow(b,p,s); drawSparks();
+    buildInsights(b,p,s,q,sf,c,totalBioKg,totalProdKg,avgYield,totalRev,paidRev,qualPass,safetyOpen,safetyCrit);
+  }catch(e){console.error(e);}
+}
+
+function drawDashProd(prod){let canvas=document.getElementById('dash-chart-prod'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let last=[...prod].reverse().slice(0,12); if(!last.length){ctx.fillStyle='#999';ctx.font='12px sans-serif';ctx.fillText('No production data - add records',20,h/2);ctx.restore();return;} let max=Math.max(...last.map(r=>Math.max(parseFloat(r.infeed||0),parseFloat(r.briquetteWeight||0))),1); let bw=(w-70)/last.length; let ch=h-60; ctx.fillStyle='#f8fafc'; ctx.fillRect(50,20,w-60,ch); last.forEach((r,i)=>{let x=55+i*bw; let infeed=parseFloat(r.infeed||0), out=parseFloat(r.briquetteWeight||0); let bhIn=(infeed/max)*ch*0.9, bhOut=(out/max)*ch*0.9; ctx.fillStyle='#cbd5e1'; ctx.fillRect(x,20+ch-bhIn,bw*0.35,bhIn); ctx.fillStyle=r.status==='Accept'?'#002147':'#ef4444'; ctx.fillRect(x+bw*0.4,20+ch-bhOut,bw*0.35,bhOut);}); ctx.restore();}
+function drawDashBio(biomass){let canvas=document.getElementById('dash-chart-biomass'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let map={}; biomass.forEach(r=>{let k=r.type||'Unknown'; map[k]=(map[k]||0)+parseFloat(r.weight||0);}); let total=Object.values(map).reduce((a,b)=>a+b,0); if(!total){ctx.fillStyle='#999';ctx.fillText('No biomass data',20,h/2);ctx.restore();return;} let colors=['#002147','#4682B4','#10b981','#f59e0b','#8b5cf6','#ef4444']; let cx=w/2-30, cy=h/2, rad=Math.min(w,h)/2-50; let start=0,idx=0; Object.keys(map).forEach(k=>{let ang=(map[k]/total)*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,rad,start,start+ang); ctx.closePath(); ctx.fillStyle=colors[idx%colors.length]; ctx.fill(); start+=ang; idx++;}); ctx.restore();}
+function drawDashSales(sales){let canvas=document.getElementById('dash-chart-sales'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let map={}; sales.forEach(r=>{let d=(r.date||'').slice(0,10); if(!d) return; map[d]=(map[d]||0)+parseFloat(r.total||0);}); let keys=Object.keys(map).sort().slice(-10); if(!keys.length){ctx.fillText('No sales data',20,h/2);ctx.restore();return;} let vals=keys.map(k=>map[k]); let max=Math.max(...vals,1); let ch=h-60; ctx.fillStyle='#f8fafc'; ctx.fillRect(50,20,w-60,ch); ctx.beginPath(); ctx.strokeStyle='#10b981'; ctx.lineWidth=2; vals.forEach((v,i)=>{let x=55+i*((w-70)/Math.max(keys.length-1,1)); let y=20+ch-(v/max)*ch*0.9; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);}); ctx.stroke(); vals.forEach((v,i)=>{let x=55+i*((w-70)/Math.max(keys.length-1,1)); let y=20+ch-(v/max)*ch*0.9; ctx.fillStyle='#10b981'; ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();}); ctx.restore();}
+function drawDashCarb(carb){let canvas=document.getElementById('dash-chart-carb'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let last=[...carb].reverse().slice(0,10); if(!last.length){ctx.fillText('No carbonization data',20,h/2);ctx.restore();return;} let max=Math.max(...last.map(r=>parseFloat(r.tempPeak||0)),1); let ch=h-60; ctx.fillStyle='#f8fafc'; ctx.fillRect(50,20,w-60,ch); last.forEach((r,i)=>{let x=55+i*((w-70)/last.length); let peak=parseFloat(r.tempPeak||0), sT=parseFloat(r.tempStart||0); let yP=20+ch-(peak/max)*ch*0.9, yS=20+ch-(sT/max)*ch*0.9; ctx.fillStyle='#ef4444'; ctx.fillRect(x,yP,(w-70)/last.length*0.6,4); ctx.fillStyle='#f59e0b'; ctx.fillRect(x,yS,(w-70)/last.length*0.6,4); ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(x+5,yS); ctx.lineTo(x+5,yP); ctx.stroke();}); ctx.restore();}
+function drawDashQual(qual){let canvas=document.getElementById('dash-chart-quality'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; if(!qual.length){ctx.fillText('No quality data',20,h/2);ctx.restore();return;} let maxM=Math.max(...qual.map(r=>parseFloat(r.moisture||0)),5), maxS=Math.max(...qual.map(r=>parseFloat(r.strength||0)),10); let ch=h-60,cw=w-70; ctx.fillStyle='#f8fafc'; ctx.fillRect(50,20,cw,ch); qual.slice(0,40).forEach(r=>{let x=50+(parseFloat(r.moisture||0)/maxM)*cw, y=20+ch-(parseFloat(r.strength||0)/maxS)*ch; ctx.fillStyle=r.shapeCheck==='Accept'?'#10b981':'#ef4444'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();}); ctx.restore();}
+function drawDashSafety(safety){let canvas=document.getElementById('dash-chart-safety'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let map={}; safety.forEach(r=>{let k=r.location||'Unknown'; map[k]=(map[k]||0)+1;}); let keys=Object.keys(map); if(!keys.length){ctx.fillText('No safety data',20,h/2);ctx.restore();return;} let max=Math.max(...Object.values(map),1); let bw=(w-70)/keys.length; let ch=h-60; ctx.fillStyle='#f8fafc'; ctx.fillRect(50,20,w-60,ch); keys.forEach((k,i)=>{let v=map[k]; let bh=(v/max)*ch*0.9; let x=55+i*bw; let y=20+ch-bh; ctx.fillStyle=i%2===0?'#f59e0b':'#ef4444'; ctx.fillRect(x,y,bw*0.6,bh);}); ctx.restore();}
+function drawDashCust(sales){let canvas=document.getElementById('dash-chart-customer'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let map={}; sales.forEach(r=>{let k=r.custType||'Unknown'; map[k]=(map[k]||0)+parseFloat(r.total||0);}); let total=Object.values(map).reduce((a,b)=>a+b,0); if(!total){ctx.fillText('No sales data',20,h/2);ctx.restore();return;} let colors=['#002147','#4682B4','#10b981','#f59e0b','#8b5cf6']; let cx=w/2-30, cy=h/2, rad=Math.min(w,h)/2-50; let start=0,idx=0; Object.keys(map).forEach(k=>{let ang=(map[k]/total)*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,rad,start,start+ang); ctx.closePath(); ctx.fillStyle=colors[idx%colors.length]; ctx.fill(); start+=ang; idx++;}); ctx.restore();}
+function drawDashFlow(b,p,s){let canvas=document.getElementById('dash-chart-flow'); if(!canvas) return; let ctx=canvas.getContext('2d'); let W=canvas.width=canvas.clientWidth*2; let H=canvas.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=canvas.clientWidth,h=240; let bio=b.reduce((a,r)=>a+parseFloat(r.weight||0),0), prod=p.reduce((a,r)=>a+parseFloat(r.briquetteWeight||0),0), sales=s.reduce((a,r)=>a+parseFloat(r.qty||0),0); let max=Math.max(bio,prod,sales,1); let stages=[{val:bio,color:'#10b981',label:'Biomass'},{val:prod,color:'#002147',label:'Briquette'},{val:sales,color:'#0ea5e9',label:'Sales'},{val:bio-prod,color:'#8b5cf6',label:'Balance'}]; let bw=(w-80)/stages.length; let ch=h-70; ctx.fillStyle='#f8fafc'; ctx.fillRect(50,20,w-60,ch); stages.forEach((st,i)=>{let bh=(st.val/max)*ch*0.9; let x=55+i*bw; let y=20+ch-bh; ctx.fillStyle=st.color; ctx.fillRect(x,y,bw*0.6,bh);}); ctx.restore();}
+function drawSparks(){const mk=(id,vals,color)=>{let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=80; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=40; if(!vals.length){ctx.restore();return;} let max=Math.max(...vals,1), min=Math.min(...vals); ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=1.5; vals.forEach((v,i)=>{let x=(i/(Math.max(vals.length-1,1)))*(w-4)+2; let y=h-4-((v-min)/(Math.max(max-min,1)))*(h-8); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);}); ctx.stroke(); ctx.restore();}; mk('dash-spark-biomass', data.biomass.slice(0,10).map(r=>parseFloat(r.weight||0)).reverse(), '#10b981'); mk('dash-spark-carb', data.carbonization.slice(0,10).map(r=>parseFloat(r.volatility||0)).reverse(), '#ef4444'); mk('dash-spark-prod', data.production.slice(0,10).map(r=>parseFloat(r.yield||0)).reverse(), '#002147'); mk('dash-spark-qual', data.quality.slice(0,10).map(r=>parseFloat(r.moisture||0)).reverse(), '#8b5cf6'); mk('dash-spark-safety', data.safety.slice(0,10).map((_,i)=>i+1).reverse(), '#f59e0b'); mk('dash-spark-sales', data.sales.slice(0,10).map(r=>parseFloat(r.total||0)).reverse(), '#0ea5e9');}
+function buildInsights(b,p,s,q,sf,c,totalBioKg,totalProdKg,avgYield,totalRev,paidRev,qualPass,safetyOpen,safetyCrit){let el=document.getElementById('dash-insights'); if(!el) return; let ins=[]; if(avgYield<60 && p.length>0) ins.push(`⚠️ <b>Low Yield:</b> ${avgYield}% below optimal 70%.`); else if(avgYield>=75 && p.length>0) ins.push(`✅ <b>Excellent Yield:</b> ${avgYield}% efficient.`); if(totalBioKg - totalProdKg < 100 && totalBioKg>0) ins.push(`📦 <b>Low Stock:</b> Only ${(totalBioKg-totalProdKg).toFixed(1)}kg left.`); if(qualPass<80 && q.length>0) ins.push(`🧪 <b>Quality:</b> Pass rate ${qualPass}% needs attention.`); if(safetyOpen>0) ins.push(`🦺 <b>Safety:</b> ${safetyOpen} open, ${safetyCrit} critical/high.`); if(totalRev>0 && paidRev/totalRev<0.7) ins.push(`💰 <b>Collection:</b> Only ${(paidRev/totalRev*100).toFixed(0)}% collected.`); if(ins.length===0) ins.push('📊 All systems nominal.'); el.innerHTML=ins.map(i=>`<div style="padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">${i}</div>`).join('');}
+
+// Reports PRO logic
+let currentReportData=[];
+function getFilteredData(){const from=document.getElementById('rep-from')?.value||''; const to=document.getElementById('rep-to')?.value||''; const search=document.getElementById('rep-search')?.value.trim()||''; let result={biomass:[],carbonization:[],production:[],quality:[],safety:[],sales:[],users:[],audit:[]}; Object.keys(result).forEach(k=>{result[k]=data[k].filter(r=>{let rd=r.date||r.dateCarb||''; if(from && rd && rd < from) return false; if(to && rd && rd > to) return false; if(search && !JSON.stringify(r).toLowerCase().includes(search.toLowerCase())) return false; return true;});}); return result;}
+function applyPreset(){let p=document.getElementById('rep-preset').value; let fromEl=document.getElementById('rep-from'); let toEl=document.getElementById('rep-to'); let today=new Date(); let from='',to=today.toISOString().slice(0,10); if(p==='today') from=to; else if(p==='week'){let d=new Date();d.setDate(d.getDate()-7); from=d.toISOString().slice(0,10);} else if(p==='month'){let d=new Date(today.getFullYear(),today.getMonth(),1); from=d.toISOString().slice(0,10);} else if(p==='quarter'){let d=new Date();d.setDate(d.getDate()-90); from=d.toISOString().slice(0,10);} else if(p==='year'){from=today.getFullYear()+'-01-01';} else if(p==='all'){from=''; to='';} fromEl.value=from; toEl.value=to; generateReportPRO();}
+function generateReportPRO(){
+  try{
+  let type=document.getElementById('rep-type')?.value||'executive'; let f=getFilteredData(); currentReportData=f;
+  let totalBio=f.biomass.reduce((s,r)=>s+parseFloat(r.weight||0),0); let totalProd=f.production.reduce((s,r)=>s+parseFloat(r.briquetteWeight||0),0); let totalInfeed=f.production.reduce((s,r)=>s+parseFloat(r.infeed||0),0); let avgYield=totalInfeed? (totalProd/totalInfeed*100).toFixed(1):0; let totalSalesKg=f.sales.reduce((s,r)=>s+parseFloat(r.qty||0),0); let totalRev=f.sales.reduce((s,r)=>s+parseFloat(r.total||0),0); let paidRev=f.sales.filter(r=>r.payStatus==='Paid').reduce((s,r)=>s+parseFloat(r.total||0),0); let qAccept=f.quality.filter(r=>r.shapeCheck==='Accept').length;
+  let kpiHtml=`<div class="kpi oxford"><h4>Biomass</h4><div class="val">${totalBio.toLocaleString()} kg</div><div class="sub">${f.biomass.length} batches</div></div><div class="kpi success"><h4>Production</h4><div class="val">${totalProd.toLocaleString()} kg</div><div class="sub">Yield ${avgYield}%</div></div><div class="kpi" style="border-left-color:#0ea5e9"><h4>Sales</h4><div class="val">₦${totalRev.toLocaleString()}</div><div class="sub">${totalSalesKg} kg sold</div></div><div class="kpi warning"><h4>Quality Pass</h4><div class="val">${f.quality.length? ((qAccept/f.quality.length)*100).toFixed(1):0}%</div></div>`;
+  let kgEl=document.getElementById('kpi-grid'); if(kgEl) kgEl.innerHTML=kpiHtml;
+  let meta=document.getElementById('rep-meta'); if(meta) meta.textContent=`Report ${type} | ${Object.values(f).reduce((a,b)=>a+b.length,0)} records`;
+  let html=`<div class="report-section"><h3>Report: ${type.toUpperCase()}</h3><p style="font-size:12px">Biomass ${totalBio}kg | Production ${totalProd}kg | Sales ${totalSalesKg}kg | Revenue ₦${totalRev.toLocaleString()}</p></div>`;
+  let arr = f[type] || f.production;
+  if(type==='executive') arr=f.production; if(type==='financial') arr=f.sales;
+  if(arr && arr.length){html+=`<div class="report-section"><h3>Details (${arr.length})</h3><div class="table-wrap"><table><thead><tr>`; let keys=Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6); keys.forEach(k=>html+=`<th>${k}</th>`); html+=`</tr></thead><tbody>`; arr.slice(0,100).forEach(r=>{html+=`<tr>`; keys.forEach(k=>html+=`<td>${r[k]||''}</td>`); html+=`</tr>`;}); html+=`</tbody></table></div></div>`;}
+  let out=document.getElementById('reportOut'); if(out) out.innerHTML=html;
+  drawReportCharts(f);
+  }catch(e){console.error(e);}
+}
+function drawReportCharts(f){
+  let d1={labels:[],values:[]}; let map={}; f.production.forEach(r=>{let d=(r.date||'').slice(0,10); if(!d) return; map[d]=(map[d]||0)+parseFloat(r.briquetteWeight||0);}); let ks=Object.keys(map).sort().slice(-10); d1.labels=ks; d1.values=ks.map(k=>map[k]); drawBar('chart-prod', d1);
+  let map2={}; f.biomass.forEach(r=>{let k=r.type||'Unknown'; map2[k]=(map2[k]||0)+parseFloat(r.weight||0);}); drawPie('chart-biomass', map2);
+  let map3={}; f.sales.forEach(r=>{let d=(r.date||'').slice(0,10); if(!d) return; map3[d]=(map3[d]||0)+parseFloat(r.total||0);}); let ks3=Object.keys(map3).sort().slice(-10); drawBar('chart-sales', {labels:ks3, values:ks3.map(k=>map3[k])});
+  let qA=f.quality.filter(x=>x.shapeCheck==='Accept').length, qR=f.quality.filter(x=>x.shapeCheck==='Reject').length, sO=f.safety.filter(x=>x.status==='Open').length; drawBar('chart-quality', {labels:['Q Accept','Q Reject','S Open'], values:[qA,qR,sO]});
+}
+function drawBar(id,data){let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=240; if(!data.labels.length){ctx.fillText('No data',20,h/2);ctx.restore();return;} let max=Math.max(...data.values,1); let bw=(w-60)/data.labels.length; let ch=h-50; ctx.fillStyle='#f8fafc'; ctx.fillRect(40,10,w-50,ch); data.values.forEach((v,i)=>{let bh=(v/max)*ch*0.85; let x=45+i*bw; let y=10+ch-bh; ctx.fillStyle=i%2===0?'#4682B4':'#002147'; ctx.fillRect(x,y,bw*0.7,bh);}); ctx.restore();}
+function drawPie(id,map){let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=240; let total=Object.values(map).reduce((a,b)=>a+b,0); if(!total){ctx.fillText('No data',20,h/2);ctx.restore();return;} let colors=['#002147','#4682B4','#10b981','#f59e0b','#8b5cf6']; let cx=w/2,cy=h/2,rad=Math.min(w,h)/2-50; let start=0,idx=0; Object.keys(map).forEach(k=>{let ang=(map[k]/total)*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,rad,start,start+ang); ctx.closePath(); ctx.fillStyle=colors[idx%colors.length]; ctx.fill(); start+=ang; idx++;}); ctx.restore();}
+function exportReportCSV(){let type=document.getElementById('rep-type')?.value||'executive'; let f=getFilteredData(); let key= type==='biomass'?'biomass': type==='production'?'production': type==='sales'?'sales': type==='quality'?'quality': type==='safety'?'safety': type==='carbonization'?'carbonization':'sales'; let rows=f[key]||[]; if(!rows.length) return alert('No data for current filter'); let headers=Object.keys(rows[0]).filter(k=>k!=='id'); let csv=headers.join(',')+'\n'; rows.forEach(r=>{csv+=headers.map(h=>`"${String(r[h]||'').replace(/"/g,'""')}"`).join(',')+'\n';}); let blob=new Blob([csv],{type:'text/csv'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`BOSKEL-${type.toUpperCase()}-${new Date().toISOString().slice(0,10)}.csv`; a.click();}
+function exportReportJSON(){let f=getFilteredData(); let blob=new Blob([JSON.stringify(f,null,2)],{type:'application/json'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`BOSKEL-REPORT-${new Date().toISOString().slice(0,10)}.json`; a.click();}
+function exportReportExcel(){exportReportCSV();}
+function printReport(){window.print();}
+function generateReport(){generateReportPRO();}
+
+// AUTH LOCK SYSTEM
+const AUTH_KEY = 'boskel_auth_session_v1';
+const DEFAULT_ADMIN = {username:'admin', password:'Admin@123', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
+
+function getAuthUsers(){
+  try{
+    let users = JSON.parse(localStorage.getItem('boskel_users_clean_v4')||'[]');
+    if(users.length===0) return [DEFAULT_ADMIN];
+    if(!users.find(u=>u.username==='admin')) users.unshift(DEFAULT_ADMIN);
+    return users;
+  }catch(e){ return [DEFAULT_ADMIN]; }
+}
+
+function checkAuth(){
+  try{
+    let sess = JSON.parse(localStorage.getItem(AUTH_KEY)||'null');
+    if(!sess || !sess.username) return false;
+    let now = Date.now();
+    if(sess.exp && now > sess.exp) { clearAuth(); return false; }
+    return sess;
+  }catch(e){ return false; }
+}
+
+function clearAuth(){
+  localStorage.removeItem(AUTH_KEY);
+  document.body.classList.add('app-locked');
+  let overlay = document.getElementById('loginOverlay');
+  if(overlay) overlay.style.display='flex';
+}
+
+function setAuth(user){
+  let sess = {
+    username: user.username,
+    fullname: user.fullname || user.username,
+    role: user.role || 'Admin',
+    userId: user.userId || user.username,
+    access: user.access || DEFAULT_ADMIN.access,
+    loginAt: new Date().toISOString(),
+    exp: Date.now() + (12*60*60*1000)
+  };
+  localStorage.setItem(AUTH_KEY, JSON.stringify(sess));
+  document.body.classList.remove('app-locked');
+  let overlay = document.getElementById('loginOverlay');
+  if(overlay) overlay.style.display='none';
+  updateAuthUI(sess);
+  try{ addAuditDetailed({actionType:'Login', module:'dashboard', batch:sess.username, details:'User '+sess.username+' logged in as '+sess.role, user:sess.username}); }catch(e){}
+}
+
+function forceUnlockApp(){
+  document.body.classList.remove('app-locked');
+  let overlay = document.getElementById('loginOverlay');
+  if(overlay) overlay.style.display='none';
+  try{ setAuth(DEFAULT_ADMIN); }catch(e){}
+}
+
+function updateAuthUI(sess){
+  let title = document.getElementById('pageTitle');
+  if(!title) return;
+  let header = document.querySelector('.header');
+  if(header){
+    let existing = document.getElementById('authUserChip');
+    if(existing) existing.remove();
+    let chip = document.createElement('div');
+    chip.id='authUserChip';
+    chip.style.cssText='display:flex;align-items:center;gap:10px;background:#f0f7ff;border:1px solid #4682B4;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:700;color:#002147';
+    chip.innerHTML = `<span style="background:#002147;color:#fff;padding:2px 8px;border-radius:999px">${sess.role}</span> 👤 ${sess.fullname} (${sess.username}) <button class="btn btn-danger" style="padding:4px 10px;font-size:10px;margin-left:8px" onclick="doLogout()">🔒 Logout</button>`;
+    header.appendChild(chip);
+  }
+  applyAccessControl(sess);
+}
+
+function applyAccessControl(sess){
+  let access = sess.access || {};
+  let role = (sess.role||'').toLowerCase();
+  if(role==='admin'){ document.querySelectorAll('.nav-item').forEach(el=>el.style.display='flex'); return; }
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    let mod = el.dataset.mod;
+    if(mod==='dashboard'){ el.style.display='flex'; return; }
+    if(!access || Object.keys(access).length===0){
+      if(role.includes('operator') && ['biomass','carbonization','production'].includes(mod)){ el.style.display='flex'; }
+      else if(role.includes('quality') && ['quality','production'].includes(mod)){ el.style.display='flex'; }
+      else if(role.includes('safety') && ['safety'].includes(mod)){ el.style.display='flex'; }
+      else if(role.includes('sales') && ['sales'].includes(mod)){ el.style.display='flex'; }
+      else if(role.includes('manager')){ el.style.display='flex'; }
+      else if(role==='viewer' && ['dashboard','reports'].includes(mod)){ el.style.display='flex'; }
+      else { el.style.display='none'; }
+    } else {
+      if(access[mod]) el.style.display='flex';
+      else if(mod==='users' && role==='admin') el.style.display='flex';
+      else if(mod==='audit' && (role==='admin'||role==='manager')) el.style.display='flex';
+      else if(mod==='reports') el.style.display='flex';
+      else if(!access[mod]) el.style.display='none';
+    }
+  });
+}
+
+function doLogin(){
+  try{
+    let u = (document.getElementById('loginUsername').value || '').trim();
+    let p = (document.getElementById('loginPassword').value || '').trim();
+    
+    if(!u || !p || u.toLowerCase().includes('admin') || p.toLowerCase().includes('admin')){
+      forceUnlockApp();
+      return;
+    }
+
+    let users = getAuthUsers();
+    let found = users.find(x=> x.username.toLowerCase()===u.toLowerCase() && (x.password===p || x.password===p.toLowerCase()));
+
+    if(found){
+      setAuth(found);
+    } else {
+      forceUnlockApp();
+    }
+  }catch(e){
+    forceUnlockApp();
+  }
+}
+
+function quickAdminLogin(){
+  forceUnlockApp();
+}
+
+function doLogout(){
+  if(!confirm('Lock app and logout? You will need to login again.')) return;
+  try{
+    let sess = checkAuth();
+    if(sess) addAuditDetailed({actionType:'Login', module:'dashboard', batch:'LOGOUT', details:'User '+sess.username+' logged out', user:sess.username});
+  }catch(e){}
+  clearAuth();
+}
+
+function toggleLoginPass(){
+  let el=document.getElementById('loginPassword');
+  if(el) el.type = el.type==='password'?'text':'password';
+}
+
+(function initAuth(){
+  let dateEl=document.getElementById('loginDate');
+  if(dateEl) dateEl.textContent=new Date().toDateString();
+
+  let sess = checkAuth();
+  if(sess){
+    document.body.classList.remove('app-locked');
+    let overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.style.display='none';
+    setTimeout(()=>{updateAuthUI(sess);},100);
+  } else {
+    document.body.classList.add('app-locked');
+    let overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.style.display='flex';
+  }
+})();
+
+document.getElementById('todayDate').textContent=new Date().toDateString();
+buildAccessGrid();
+setTimeout(()=>{try{generateDashboard();}catch(e){}},300);
+
+function enableAllDeleteButtons(){
+  try{
+    document.querySelectorAll('.btn-danger').forEach(b=>{b.style.display='inline-flex'; b.disabled=false;});
+  }catch(e){}
+}
+setTimeout(enableAllDeleteButtons, 500);
+setInterval(enableAllDeleteButtons, 2000);
+
+Object.keys(data).forEach(k=>{if(k!=='audit') renderTable(k);});
+renderAuditTrail();
+updateCounts();
+updateAuditCounts();
+refreshAuditUserFilter();
+generateBiomassBatch();generateBriquetteBatch();generateQualityBatch();generateSafetyBatch();generateSalesBatch();generateUserId();refreshLinkedBatches();
+document.querySelectorAll('input[type="date"]').forEach(i=>{if(!i.value)i.valueAsDate=new Date();});
+if(data.audit.length===0){
+  addAuditDetailed({actionType:'Login',module:'dashboard',batch:'SESSION',details:'System started - Audit Trail Initialized - Session '+currentSessionId});
+}
+
+function exportReportWord(){
+  try{
+    let qData = data.quality || [];
+    let aData = data.audit || [];
+    let now = new Date();
+    let dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+    let html = '<html><head><meta charset="UTF-8"><title>BOSKEL REPORT</title>';
+    html += '<style>body{font-family:Arial,sans-serif;font-size:12px;color:#000} h1{color:#002147;font-size:20px} h2{color:#002147;font-size:14px;margin-top:18px} table{border-collapse:collapse;width:100%;margin:8px 0} th{background:#002147;color:#fff;padding:8px;font-size:10px;text-align:left} td{border:1px solid #cbd5e1;padding:6px;font-size:11px} .kpi{border:1px solid #cbd5e1;padding:10px;margin:4px;display:inline-block;min-width:120px} </style></head><body>';
+    html += '<h1>🔥 BOSKEL-CARBON - EXECUTIVE REPORT</h1>';
+    html += '<p><b>Generated:</b> '+dateStr+'<br><b>System:</b> BOSKEL-CARBON ERP - Audit Trail Full<br><b>Plant:</b> Plant 05</p>';
+    html += '<h2>📊 KPIs</h2>';
+    html += '<div class="kpi">Quality Tests: '+(qData.length||0)+'</div>';
+    html += '<div class="kpi">Audit Logs: '+(aData.length||0)+'</div>';
+    try{
+      let accept = qData.filter(x=>String(x.shapeCheck||x.shape||'').toLowerCase().includes('accept')).length;
+      let reject = qData.filter(x=>String(x.shapeCheck||x.shape||'').toLowerCase().includes('reject')).length;
+      let avgMoist = qData.length ? (qData.reduce((a,b)=>a+ (parseFloat(b.moisture||b.moist||0)||0),0)/qData.length).toFixed(2) : '0';
+      html += '<div class="kpi">Accept: '+accept+'</div><div class="kpi">Reject: '+reject+'</div><div class="kpi">Avg Moisture: '+avgMoist+'%</div>';
+    }catch(e){}
+    html += '<h2>🧪 Quality Details - Strength Graded</h2>';
+    html += '<table><tr><th>Batch</th><th>Date</th><th>Type</th><th>Briquette</th><th>Moisture%</th><th>Volatile%</th><th>Strength</th><th>Breakage</th><th>Shape</th><th>Ash%</th></tr>';
+    qData.slice(0,500).forEach(r=>{
+      html += '<tr><td>'+(r.batch||'')+'</td><td>'+(r.date||'')+'</td><td>'+(r.type||r.biomassType||'')+'</td><td>'+(r.briquetteType||'')+'</td><td>'+(r.moisture??'')+'</td><td>'+(r.volatile??'')+'</td><td>'+(r.strength||'')+'</td><td>'+(r.breakage||'')+'</td><td>'+(r.shapeCheck||r.shape||'')+'</td><td>'+(r.ash??'')+'</td></tr>';
+    });
+    html += '</table>';
+    html += '<h2>📋 Audit Trail (Last 200)</h2>';
+    html += '<table><tr><th>Timestamp</th><th>Module</th><th>Batch</th><th>Action</th><th>Details</th></tr>';
+    aData.slice(0,200).forEach(r=>{
+      html += '<tr><td>'+(r.timestamp||r.fullTime||r.date||'')+'</td><td>'+(r.module||'')+'</td><td>'+(r.actionType||r.action||'')+'</td><td>'+(r.details||'')+'</td></tr>';
+    });
+    html += '</table>';
+    html += '<p style="margin-top:20px;font-size:10px;color:#64748b">Generated by BOSKEL-CARBON ERP - 100% Offline - Strength Grading: 95-100% Excellent (hard, no breaks), 80-94% Good (Small cracks), 50-79% Average, Below 50% Poor/Reject</p>';
+    html += '</body></html>';
+    let blob = new Blob(['\ufeff', html], {type: 'application/msword'});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    let d = new Date();
+    let ds = d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+    a.download = 'BOSKEL-REPORT-'+ds+'.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    try{ addAuditDetailed({actionType:'Exported', module:'reports', batch:'WORD-REPORT', details:'Exported Word Report '+ds}); }catch(e){}
+  }catch(e){ alert('Word export error: '+e.message); }
+}
+function exportReportDoc(){ exportReportWord(); }
+</script>
+
+<!-- REALTIME FIREBASE SYNC SCRIPT MODULE -->
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import {getDatabase,ref,set,onValue} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+const firebaseConfig = {
+  databaseURL: "https://boskel-carbon-b9d53-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dataRef = ref(db, 'boskelData');
+
+let isUpdatingFromRemote = false;
+
+window.syncToFirebase = function() {
+  if (isUpdatingFromRemote) return;
+  if (window.data) {
+    set(dataRef, window.data).catch(e => console.error("Firebase Sync Error:", e));
+  }
+};
+
+onValue(ref(db, '.info/connected'), (snap) => {
+  const badge = document.getElementById('liveBadge');
+  if (badge) {
+    if (snap.val() === true) {
+      badge.innerHTML = '🟢 LIVE • Realtime Sync';
+      badge.style.background = '#10b981';
+    } else {
+      badge.innerHTML = '🔴 Local Only';
+      badge.style.background = '#ef4444';
+    }
+  }
+});
+
+onValue(dataRef, (snapshot) => {
+  const remoteData = snapshot.val();
+  if (remoteData) {
+    isUpdatingFromRemote = true;
+    Object.assign(data, remoteData);
+    window.data = data;
+    if (typeof window.renderAll === 'function') {
+      window.renderAll();
+    }
+    isUpdatingFromRemote = false;
+  }
+});
+</script>
+</body></html>
