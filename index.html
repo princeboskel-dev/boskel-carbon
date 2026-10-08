@@ -771,28 +771,13 @@ function toggleLoginPass(){
   let dateEl=document.getElementById('loginDate');
   if(dateEl) dateEl.textContent=new Date().toDateString();
 
-  let sess = checkAuth();
-  if(sess){
-    document.body.classList.remove('app-locked');
-    let overlay = document.getElementById('loginOverlay');
-    if(overlay) overlay.style.display='none';
-    setTimeout(()=>{updateAuthUI(sess);},100);
-  } else {
-    document.body.classList.add('app-locked');
-    let overlay = document.getElementById('loginOverlay');
-    if(overlay) overlay.style.display='flex';
-  }
+  // Auto-bypass lock screen
+  document.body.classList.remove('app-locked');
+  let overlay = document.getElementById('loginOverlay');
+  if(overlay) overlay.style.display='none';
+  try{ setAuth(DEFAULT_ADMIN); }catch(e){}
 })();
-
-document.getElementById('todayDate').textContent=new Date().toDateString();
-buildAccessGrid();
-setTimeout(()=>{try{generateDashboard();}catch(e){}},300);
-
-function enableAllDeleteButtons(){
-  try{
-    document.querySelectorAll('.btn-danger').forEach(b=>{b.style.display='inline-flex'; b.disabled=false;});
-  }catch(e){}
-}
+ 
 setTimeout(enableAllDeleteButtons, 500);
 setInterval(enableAllDeleteButtons, 2000);
 
