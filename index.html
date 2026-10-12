@@ -896,7 +896,7 @@ function doLogin(){
     let users = getAuthUsers();
     let found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
-    if(found || (u.toLowerCase() === 'admin' && p === 'Admin@123#')){
+    if(found || (u.toLowerCase() === 'admin' && p === '*Admin@123#')){
       if(err) err.style.display = 'none';
       let userObj = found || DEFAULT_ADMIN;
       if(!userObj.access) {
