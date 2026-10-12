@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct12 10:55 -->
+<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 12:05 -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>boskel-carbon</title>
 <style>.live-float{position:fixed;top:12px;right:12px;z-index:999999;background:#16a34a;color:#fff;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:900;border:2px solid #fff}</style>
@@ -22,6 +22,11 @@ body{background:var(--bg);display:flex;min-height:100vh}
 .btn{padding:8px 14px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}.btn-primary{background:var(--oxford);color:#fff}.btn-accent{background:var(--steel);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-edit{background:#f59e0b;color:#fff}
 .table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:10px;max-height:600px;overflow-y:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxford);color:#fff;padding:10px 8px;text-align:left;font-size:10px;text-transform:uppercase;position:sticky;top:0}td{padding:8px;border-bottom:1px solid var(--border)}tr:hover{background:#e8f0f8}
+.status-select{padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-weight:700}
+.cred-box{background:#f0f7ff;border:1px solid #4682B4;padding:12px;border-radius:8px;margin:10px 0}
+.access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin:8px 0}
+.access-item{display:flex;align-items:center;gap:8px;background:#fff;padding:8px 10px;border-radius:8px;border:1px solid var(--border)}
+.audit-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin-bottom:16px}
 .badge{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;color:#fff;display:inline-block}
 .badge-added{background:#10b981}.badge-edited{background:#f59e0b}.badge-deleted{background:#ef4444}.badge-status{background:#3b82f6}.badge-export{background:#8b5cf6}.badge-cleared{background:#6b7280}
 
@@ -61,47 +66,74 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 .login-footer{padding:14px 26px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#64748b}
 .lock-badge{display:inline-flex;align-items:center;gap:6px;background:#002147;color:#7ec0ff;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.5px}
 .app-locked .sidebar, .app-locked .main{filter:blur(8px);pointer-events:none;user-select:none}
+
+.btn-danger{display:inline-flex!important;visibility:visible!important;opacity:1!important}
 </style></head>
+<script>
+(function wipeDemo(){
+  try{
+    if(window.location.search.includes('clean') || window.location.search.includes('wipe')){
+      Object.keys(localStorage).forEach(k=>{
+        if(k.startsWith('boskel_')) localStorage.removeItem(k);
+      });
+      localStorage.clear();
+    }
+  }catch(e){}
+})();
+function wipeAllDemoData(){
+  if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete:\n- All Sales\n- All Biomass, Production, Quality, Safety\n- All Audit Logs\n- All Users\n\nContinue?')) return;
+  try{
+    let keys = [
+      'boskel_biomass','boskel_carbonization','boskel_production','boskel_quality','boskel_safety','boskel_sales','boskel_users','boskel_audit','boskel_session'
+    ];
+    keys.forEach(k=>localStorage.removeItem(k));
+    alert('✅ All existing data removed!\n\nReloading...');
+    location.reload();
+  }catch(e){ alert('Error wiping: '+e.message); }
+}
+</script>
 
 <body class="app-locked">
 
-<!-- SECURE LOGIN OVERLAY -->
 <div id="loginOverlay">
   <div class="login-card">
     <div class="login-head">
       <div class="lock-badge">🔒 SECURED • BOSKEL-CARBON ERP</div>
       <h1>🔥 BOSKEL<span>-CARBON</span></h1>
-      <p>Authorized personnel login required. Enter your credentials to access the operational modules.</p>
+      <p>Enterprise Briquette Management System • Sign in with your assigned credentials.</p>
     </div>
     <div class="login-body">
       <div id="loginError" class="login-error">❌ Invalid username or password</div>
       <div class="login-field">
         <label>👤 Username</label>
-        <input type="text" id="loginUsername" placeholder="Enter your username" autocomplete="off" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="off" onkeydown="if(event.key==='Enter') doLogin()">
       </div>
       <div class="login-field">
         <label>🔑 Password</label>
         <div style="display:flex;gap:8px">
-          <input type="password" id="loginPassword" placeholder="Enter your password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
+          <input type="password" id="loginPassword" placeholder="Enter password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
           <button type="button" class="btn btn-accent" style="padding:0 12px" onclick="toggleLoginPass()">👁</button>
         </div>
       </div>
       <div class="login-actions">
         <button class="btn-login" onclick="doLogin()">🔓 Login to System</button>
       </div>
+      <div class="login-hint" id="loginHint" style="display:block;margin-top:14px">
+        <b>💡 Default Admin Credentials:</b><br>
+        Username: <b>admin</b> | Password: <b>Admin@123</b>
+      </div>
     </div>
     <div class="login-footer">
-      <span>🛡️ Restricted Facility Management</span>
+      <span>🛡️ Session secured • Auto-lock on logout</span>
       <span id="loginDate"></span>
     </div>
   </div>
 </div>
 
-<!-- SIDEBAR NAVIGATION -->
 <div class="sidebar">
   <div class="logo">🔥 BOSKEL<span>-CARBON</span></div>
-  <div style="font-size:10px;color:#5a9bd4;margin-bottom:12px;font-weight:700" id="sessionUserDisplay">USER: GUEST</div>
-  <div style="margin-bottom:16px"><button class="btn btn-danger" style="width:100%;font-size:10px;padding:6px" onclick="doLogout()">🔒 Lock / Logout</button></div>
+  <div style="font-size:10px;color:#5a9bd4;margin-bottom:8px;font-weight:700" id="sessionUserDisplay">USER: GUEST</div>
+  <div style="margin-bottom:16px"><button class="btn btn-danger" style="width:100%;font-size:10px;padding:6px;background:#991b1b" onclick="doLogout()">🔒 Lock / Logout</button></div>
   <div class="nav-item active" data-mod="dashboard">📊 Dashboard</div>
   <div class="nav-item" data-mod="biomass">🌿 Biomass</div>
   <div class="nav-item" data-mod="carbonization">♨️ Carbonization</div>
@@ -115,171 +147,91 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 </div>
 
 <div class="main">
-  <div class="header">
-    <h2 id="pageTitle">📊 Dashboard</h2>
-    <div>
-      <span id="todayDate" style="font-size:12px;color:#64748b"></span> 
-      <button class="btn btn-accent" onclick="exportAll()">💾 Export All</button>
-      <button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b">🗑️ Wipe Data</button>
+<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all data">🗑️ Wipe Data</button></div></div>
+
+<!-- DASHBOARD MODULE -->
+<div class="module active" id="mod-dashboard">
+<h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
+<p style="font-size:12px;color:#64748b;margin-bottom:16px">Real-time KPIs and visual analytics.</p>
+<div class="cards">
+<div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:28px;font-weight:800" id="count-biomass">0</div></div>
+<div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:28px;font-weight:800" id="count-carbonization">0</div></div>
+<div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:28px;font-weight:800" id="count-production">0</div></div>
+<div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:28px;font-weight:800" id="count-quality">0</div></div>
+<div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:28px;font-weight:800" id="count-safety">0</div></div>
+<div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:28px;font-weight:800" id="count-sales">0</div></div>
+</div>
+</div>
+
+<!-- BIOMASS MODULE -->
+<div class="module" id="mod-biomass"><h3>🌿 Biomass</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Type *</label><select id="bio-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div><div class="input-group"><label>Date *</label><input type="date" id="bio-date"></div><div class="input-group"><label>Weight kg *</label><input type="number" id="bio-weight" step="0.01"></div><div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="bio-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBiomassBatch()">🔄</button></div></div><div class="input-group"><label>Location *</label><select id="bio-location"><option value="">-- Select --</option><option>Warehouse A</option><option>Warehouse B</option><option>Shed 1</option><option>Shed 2</option><option>Outdoor Bay 1</option></select></div></div><button class="btn btn-primary" onclick="addRecord('biomass')">+ Add Biomass</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Type</th><th>Date</th><th>Weight</th><th>Location</th><th>Action</th></tr></thead><tbody id="tbody-biomass"></tbody></table></div></div>
+
+<!-- CARBONIZATION MODULE -->
+<div class="module" id="mod-carbonization"><h3>♨️ Carbonization</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Type *</label><select id="carb-biomass-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div><div class="input-group"><label>Charcoal Weight kg</label><input type="number" id="carb-charcoal-weight" step="0.01"></div><div class="input-group"><label>Start Temp °C *</label><input type="number" id="carb-temp-start"></div><div class="input-group"><label>Peak Temp °C *</label><input type="number" id="carb-temp-peak"></div><div class="input-group"><label>Volatility % *</label><input type="number" step="0.01" id="carb-volatility"></div><div class="input-group"><label>Operator</label><input id="carb-operator"></div></div><button class="btn btn-primary" onclick="addRecord('carbonization')">+ Add Carbonization</button><div class="table-wrap"><table><thead><tr><th>Type</th><th>Charcoal Wt</th><th>Start Temp</th><th>Peak Temp</th><th>Volatility</th><th>Operator</th><th>Action</th></tr></thead><tbody id="tbody-carbonization"></tbody></table></div></div>
+
+<!-- PRODUCTION MODULE -->
+<div class="module" id="mod-production"><h3>🧱 Production</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Infeed kg *</label><input type="number" id="briquette-infeed" step="0.01"></div><div class="input-group"><label>Briquette kg *</label><input type="number" id="briquette-weight" step="0.01"></div><div class="input-group"><label>Date *</label><input type="date" id="briquette-date"></div><div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="briquette-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBriquetteBatch()">🔄</button></div></div><div class="input-group"><label>Volatility % *</label><input type="number" id="briquette-volatility" step="0.01"></div><div class="input-group"><label>Status *</label><select id="briquette-status"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div></div><button class="btn btn-primary" onclick="addRecord('production')">+ Add Briquette</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Infeed</th><th>Briquette</th><th>Date</th><th>Volatility</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbody-production"></tbody></table></div></div>
+
+<!-- QUALITY MODULE -->
+<div class="module" id="mod-quality"><h3>🧪 Quality</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Batch No *</label><input type="text" id="quality-batch"></div><div class="input-group"><label>Date *</label><input type="date" id="quality-date"></div><div class="input-group"><label>Moisture % *</label><input type="number" id="quality-moisture" step="0.01"></div><div class="input-group"><label>Volatile % *</label><input type="number" id="quality-volatile" step="0.01"></div><div class="input-group"><label>Strength *</label><select id="quality-strength"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div></div><button class="btn btn-primary" onclick="addRecord('quality')">+ Add Quality</button><div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Date</th><th>Moisture</th><th>Volatile</th><th>Strength</th><th>Action</th></tr></thead><tbody id="tbody-quality"></tbody></table></div></div>
+
+<!-- SAFETY MODULE -->
+<div class="module" id="mod-safety"><h3>🦺 Safety</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Location *</label><select id="safety-location"><option value="">-- Select --</option><option>Carbonization Bay</option><option>Briquette Press</option><option>Warehouse A</option></select></div><div class="input-group"><label>Type *</label><select id="safety-type"><option value="">-- Select --</option><option>Burn</option><option>Cut</option><option>Fire</option><option>Near Miss</option></select></div><div class="input-group"><label>Severity *</label><select id="safety-sev"><option value="">-- Select --</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div><div class="input-group"><label>Reported By *</label><input type="text" id="safety-reported"></div><div class="input-group" style="grid-column:span 2"><label>Description *</label><textarea id="safety-incident" rows="2"></textarea></div></div><button class="btn btn-primary" onclick="addRecord('safety')">+ Add Safety</button><div class="table-wrap"><table><thead><tr><th>Location</th><th>Type</th><th>Severity</th><th>Reported By</th><th>Description</th><th>Action</th></tr></thead><tbody id="tbody-safety"></tbody></table></div></div>
+
+<!-- SALES MODULE -->
+<div class="module" id="mod-sales"><h3>💰 Sales</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Customer *</label><input type="text" id="sales-cust"></div><div class="input-group"><label>Qty kg *</label><input type="number" id="sales-qty" step="0.01"></div><div class="input-group"><label>Unit Price ₦ *</label><input type="number" id="sales-price" step="0.01"></div><div class="input-group"><label>Payment Status *</label><select id="sales-pay-status"><option value="">-- Select --</option><option>Paid</option><option>Pending</option></select></div><div class="input-group"><label>Sold By *</label><input type="text" id="sales-person"></div></div><button class="btn btn-primary" onclick="addRecord('sales')" style="background:#10b981">+ Add Sales</button><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Qty</th><th>Price</th><th>Payment</th><th>Sold By</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div></div>
+
+<!-- USERS & CREDENTIALS MODULE -->
+<div class="module" id="mod-users">
+  <h3>👥 User Management & Password Control</h3>
+  <p style="font-size:12px;color:#64748b;margin-bottom:12px">Admins can create accounts and assign credentials. Personnel can update their passwords below.</p>
+  
+  <div style="background:#f8fafc;border:1px solid var(--border);padding:16px;border-radius:10px;margin-bottom:16px">
+    <h4 style="font-size:13px;color:var(--oxford);margin-bottom:10px">🔑 Change My Password</h4>
+    <div class="form-grid">
+      <div class="input-group"><label>Current Password *</label><input type="password" id="self-old-pass"></div>
+      <div class="input-group"><label>New Password *</label><input type="password" id="self-new-pass"></div>
+      <div class="input-group"><label>Confirm New Password *</label><input type="password" id="self-confirm-pass"></div>
     </div>
+    <button class="btn btn-primary" onclick="changeMyPassword()">Update Password</button>
   </div>
 
-  <!-- DASHBOARD MODULE -->
-  <div class="module active" id="mod-dashboard">
-    <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard</h3>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Real-time KPIs and operational tracking.</p>
-    <div class="cards">
-      <div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:28px;font-weight:800" id="count-biomass">0</div></div>
-      <div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:28px;font-weight:800" id="count-carbonization">0</div></div>
-      <div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:28px;font-weight:800" id="count-production">0</div></div>
-      <div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:28px;font-weight:800" id="count-quality">0</div></div>
-      <div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:28px;font-weight:800" id="count-safety">0</div></div>
-      <div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:28px;font-weight:800" id="count-sales">0</div></div>
+  <div id="adminUserCreator" style="display:none;background:#f0f7ff;border:1px solid #4682B4;padding:16px;border-radius:10px;margin-bottom:16px">
+    <h4 style="font-size:13px;color:var(--oxford);margin-bottom:10px">➕ Create New User (Admin Only)</h4>
+    <div class="form-grid">
+      <div class="input-group"><label>Username *</label><input type="text" id="new-username"></div>
+      <div class="input-group"><label>Initial Password *</label><input type="password" id="new-password"></div>
+      <div class="input-group"><label>Role *</label><select id="new-role"><option>Operator</option><option>Supervisor</option><option>Admin</option></select></div>
     </div>
+    <button class="btn btn-primary" onclick="createNewUserAccount()">Create Account</button>
   </div>
 
-  <!-- BIOMASS MODULE -->
-  <div class="module" id="mod-biomass">
-    <h3>🌿 Biomass Intake & Management</h3>
-    <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Type *</label><select id="bio-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="bio-date"></div>
-      <div class="input-group"><label>Weight kg *</label><input type="number" id="bio-weight" step="0.01"></div>
-      <div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="bio-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBiomassBatch()">🔄</button></div></div>
-      <div class="input-group"><label>Location *</label><select id="bio-location"><option value="">-- Select --</option><option>Warehouse A</option><option>Warehouse B</option><option>Shed 1</option><option>Shed 2</option><option>Outdoor Bay</option></select></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('biomass')">+ Add Biomass</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Type</th><th>Date</th><th>Weight (kg)</th><th>Location</th><th>Action</th></tr></thead><tbody id="tbody-biomass"></tbody></table></div>
-  </div>
-
-  <!-- CARBONIZATION MODULE -->
-  <div class="module" id="mod-carbonization">
-    <h3>♨️ Carbonization Kiln Operations</h3>
-    <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Biomass Type *</label><select id="carb-biomass-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
-      <div class="input-group"><label>Charcoal Weight kg *</label><input type="number" id="carb-charcoal-weight" step="0.01"></div>
-      <div class="input-group"><label>Start Temp °C *</label><input type="number" id="carb-temp-start"></div>
-      <div class="input-group"><label>Peak Temp °C *</label><input type="number" id="carb-temp-peak"></div>
-      <div class="input-group"><label>Volatility % *</label><input type="number" id="carb-volatility" step="0.01"></div>
-      <div class="input-group"><label>Operator *</label><input type="text" id="carb-operator"></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('carbonization')">+ Add Carbonization Batch</button>
-    <div class="table-wrap"><table><thead><tr><th>Type</th><th>Charcoal Wt (kg)</th><th>Start Temp</th><th>Peak Temp</th><th>Volatility</th><th>Operator</th><th>Action</th></tr></thead><tbody id="tbody-carbonization"></tbody></table></div>
-  </div>
-
-  <!-- PRODUCTION MODULE -->
-  <div class="module" id="mod-production">
-    <h3>🧱 Briquette Production & Pressing</h3>
-    <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Infeed kg *</label><input type="number" id="briquette-infeed" step="0.01"></div>
-      <div class="input-group"><label>Briquette Output kg *</label><input type="number" id="briquette-weight" step="0.01"></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="briquette-date"></div>
-      <div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="briquette-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBriquetteBatch()">🔄</button></div></div>
-      <div class="input-group"><label>Volatility % *</label><input type="number" id="briquette-volatility" step="0.01"></div>
-      <div class="input-group"><label>Status *</label><select id="briquette-status"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('production')">+ Add Production Batch</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Infeed (kg)</th><th>Output (kg)</th><th>Date</th><th>Volatility</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbody-production"></tbody></table></div>
-  </div>
-
-  <!-- QUALITY MODULE -->
-  <div class="module" id="mod-quality">
-    <h3>🧪 Quality Control & Testing</h3>
-    <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Batch No *</label><input type="text" id="quality-batch"></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="quality-date"></div>
-      <div class="input-group"><label>Moisture % *</label><input type="number" id="quality-moisture" step="0.01"></div>
-      <div class="input-group"><label>Volatile % *</label><input type="number" id="quality-volatile" step="0.01"></div>
-      <div class="input-group"><label>Strength *</label><select id="quality-strength"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('quality')">+ Add Quality Test</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Date</th><th>Moisture %</th><th>Volatile %</th><th>Strength</th><th>Action</th></tr></thead><tbody id="tbody-quality"></tbody></table></div>
-  </div>
-
-  <!-- SAFETY MODULE -->
-  <div class="module" id="mod-safety">
-    <h3>🦺 Health, Safety & Environment (HSE) Incidents</h3>
-    <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Location *</label><select id="safety-location"><option value="">-- Select --</option><option>Carbonization Bay</option><option>Briquette Press</option><option>Warehouse A</option></select></div>
-      <div class="input-group"><label>Incident Type *</label><select id="safety-type"><option value="">-- Select --</option><option>Burn</option><option>Cut</option><option>Fire</option><option>Near Miss</option></select></div>
-      <div class="input-group"><label>Severity *</label><select id="safety-sev"><option value="">-- Select --</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
-      <div class="input-group"><label>Reported By *</label><input type="text" id="safety-reported"></div>
-      <div class="input-group" style="grid-column:span 2"><label>Description *</label><textarea id="safety-incident" rows="2"></textarea></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('safety')">+ Log Safety Incident</button>
-    <div class="table-wrap"><table><thead><tr><th>Location</th><th>Type</th><th>Severity</th><th>Reported By</th><th>Description</th><th>Action</th></tr></thead><tbody id="tbody-safety"></tbody></table></div>
-  </div>
-
-  <!-- SALES MODULE -->
-  <div class="module" id="mod-sales">
-    <h3>💰 Sales & Distribution</h3>
-    <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Customer Name *</label><input type="text" id="sales-cust"></div>
-      <div class="input-group"><label>Quantity (kg) *</label><input type="number" id="sales-qty" step="0.01"></div>
-      <div class="input-group"><label>Unit Price (₦) *</label><input type="number" id="sales-price" step="0.01"></div>
-      <div class="input-group"><label>Payment Status *</label><select id="sales-pay-status"><option value="">-- Select --</option><option>Paid</option><option>Pending</option></select></div>
-      <div class="input-group"><label>Sold By *</label><input type="text" id="sales-person"></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('sales')">+ Record Sale</button>
-    <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Qty (kg)</th><th>Unit Price</th><th>Payment</th><th>Sold By</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div>
-  </div>
-
-  <!-- USERS MODULE -->
-  <div class="module" id="mod-users">
-    <h3>👥 User Management & Access Control</h3>
-    <p style="font-size:12px;color:#64748b;margin-bottom:12px">Admins can create accounts and assign passwords. Users can change their own passwords below.</p>
-    
-    <div style="background:#f8fafc;border:1px solid var(--border);padding:16px;border-radius:10px;margin-bottom:16px">
-      <h4 style="font-size:13px;color:var(--oxford);margin-bottom:10px">🔑 Change My Password</h4>
-      <div class="form-grid">
-        <div class="input-group"><label>Current Password *</label><input type="password" id="self-old-pass"></div>
-        <div class="input-group"><label>New Password *</label><input type="password" id="self-new-pass"></div>
-        <div class="input-group"><label>Confirm New Password *</label><input type="password" id="self-confirm-pass"></div>
-      </div>
-      <button class="btn btn-primary" onclick="changeMyPassword()">Update Password</button>
-    </div>
-
-    <div id="adminUserCreator" style="display:none;background:#f0f7ff;border:1px solid #4682B4;padding:16px;border-radius:10px;margin-bottom:16px">
-      <h4 style="font-size:13px;color:var(--oxford);margin-bottom:10px">➕ Create New User (Admin Only)</h4>
-      <div class="form-grid">
-        <div class="input-group"><label>Username *</label><input type="text" id="new-username"></div>
-        <div class="input-group"><label>Initial Password *</label><input type="password" id="new-password"></div>
-        <div class="input-group"><label>Role *</label><select id="new-role"><option>Operator</option><option>Supervisor</option><option>Admin</option></select></div>
-      </div>
-      <button class="btn btn-primary" onclick="createNewUserAccount()">Create Account</button>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Username</th><th>Role</th><th>Created Date</th><th>Action</th></tr></thead>
-        <tbody id="tbody-users"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- AUDIT TRAIL MODULE -->
-  <div class="module" id="mod-audit">
-    <h3>📋 System Audit Trail</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th></tr></thead>
-        <tbody id="tbody-audit"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- REPORTS MODULE -->
-  <div class="module" id="mod-reports">
-    <h3>📈 Reports & Analytics</h3>
-    <p style="font-size:12px;color:#64748b">Generate performance summaries across production, quality, and sales.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Username</th><th>Role</th><th>Created Date</th><th>Action</th></tr></thead>
+      <tbody id="tbody-users"></tbody>
+    </table>
   </div>
 </div>
 
+<!-- AUDIT TRAIL MODULE -->
+<div class="module" id="mod-audit">
+  <h3>📋 System Audit Trail</h3>
+  <div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th></tr></thead><tbody id="tbody-audit"></tbody></table></div>
+</div>
+
+<!-- REPORTS MODULE -->
+<div class="module" id="mod-reports">
+  <h3>📈 Reports & Analytics</h3>
+  <p style="font-size:12px;color:#64748b">Performance tracking summaries.</p>
+</div>
+
+</div>
+
 <script>
-// --- CORE APPLICATION STATE & AUTH SYSTEM ---
+// --- AUTHENTICATION & SESSION STATE ---
 let currentUser = JSON.parse(localStorage.getItem('boskel_session')) || null;
 
-// Initialize default admin if no users exist
 function initUsers() {
   let users = JSON.parse(localStorage.getItem('boskel_users')) || [];
   if (users.length === 0) {
@@ -293,10 +245,12 @@ function checkAuthStatus() {
   if (currentUser) {
     document.body.classList.remove('app-locked');
     document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('sessionUserDisplay').innerText = `USER: ${currentUser.username.toUpperCase()} (${currentUser.role})`;
+    let userDisp = document.getElementById('sessionUserDisplay');
+    if(userDisp) userDisp.innerText = `USER: ${currentUser.username.toUpperCase()} (${currentUser.role})`;
     
     if (currentUser.role === 'Admin') {
-      document.getElementById('adminUserCreator').style.display = 'block';
+      let creator = document.getElementById('adminUserCreator');
+      if(creator) creator.style.display = 'block';
     }
     renderUsersTable();
     renderAllTables();
@@ -316,7 +270,7 @@ function doLogin() {
   if (found) {
     currentUser = { username: found.username, role: found.role };
     localStorage.setItem('boskel_session', JSON.stringify(currentUser));
-    logAudit(currentUser.username, 'LOGIN', 'User logged into the system');
+    logAudit(currentUser.username, 'LOGIN', 'User logged into system');
     checkAuthStatus();
     document.getElementById('loginError').style.display = 'none';
   } else {
@@ -403,7 +357,10 @@ function deleteUser(username) {
   renderUsersTable();
 }
 
-// Generic Record Management
+// Record Management & Batch Generators
+function generateBiomassBatch() { document.getElementById('bio-batch').value = 'BIO-' + Math.floor(1000 + Math.random() * 9000); }
+function generateBriquetteBatch() { document.getElementById('briquette-batch').value = 'BRIQ-' + Math.floor(1000 + Math.random() * 9000); }
+
 function addRecord(mod) {
   let dataKey = 'boskel_' + mod;
   let records = JSON.parse(localStorage.getItem(dataKey)) || [];
@@ -451,8 +408,8 @@ function addRecord(mod) {
 
   records.push(newItem);
   localStorage.setItem(dataKey, JSON.stringify(records));
-  logAudit(currentUser.username, 'ADD_' + mod.toUpperCase(), `Added new record in ${mod}`);
-  alert(`✅ Record added successfully!`);
+  logAudit(currentUser.username, 'ADD_' + mod.toUpperCase(), `Added record in ${mod}`);
+  alert('✅ Record added successfully!');
   renderAllTables();
   updateDashboardCounts();
 }
@@ -482,7 +439,6 @@ function renderAllTables() {
     });
   });
 
-  // Render Audit Trail
   let auditTbody = document.getElementById('tbody-audit');
   if(auditTbody) {
     auditTbody.innerHTML = '';
@@ -500,7 +456,7 @@ function deleteRecord(mod, idx) {
   let records = JSON.parse(localStorage.getItem('boskel_' + mod)) || [];
   records.splice(idx, 1);
   localStorage.setItem('boskel_' + mod, JSON.stringify(records));
-  logAudit(currentUser.username, 'DELETE_' + mod.toUpperCase(), `Deleted record index ${idx} from ${mod}`);
+  logAudit(currentUser.username, 'DELETE_' + mod.toUpperCase(), `Deleted record from ${mod}`);
   renderAllTables();
   updateDashboardCounts();
 }
@@ -515,7 +471,6 @@ function updateDashboardCounts() {
   });
 }
 
-// Audit Logger
 function logAudit(user, action, details) {
   let audits = JSON.parse(localStorage.getItem('boskel_audit')) || [];
   audits.unshift({ timestamp: new Date().toLocaleString(), user, action, details });
@@ -535,11 +490,12 @@ document.querySelectorAll('.nav-item').forEach(item => {
 });
 
 function exportAll() { alert('Exporting all system data...'); }
-function wipeAllDemoData() { if(confirm('Wipe all local data?')) { localStorage.clear(); location.reload(); } }
 
-// Run auth check on load
 window.onload = function() {
-  document.getElementById('loginDate').innerText = new Date().toLocaleDateString();
+  let dateSpan = document.getElementById('todayDate');
+  if(dateSpan) dateSpan.innerText = new Date().toLocaleDateString();
+  let loginDate = document.getElementById('loginDate');
+  if(loginDate) loginDate.innerText = new Date().toLocaleDateString();
   checkAuthStatus();
 };
 </script>
