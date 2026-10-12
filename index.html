@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct12 18:56 -->
+<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 19:06 -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>boskel-carbon</title>
 <!-- Include Chart.js for Dashboard Graphical Visualizations -->
@@ -118,19 +118,17 @@ function wipeAllDemoData(){
       <div id="loginError" class="login-error">❌ Invalid username or password</div>
       <div class="login-field">
         <label>👤 Username</label>
-        <input type="text" id="loginUsername" placeholder="Enter username (e.g. admin)" value="admin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="text" id="loginUsername" placeholder="Enter username" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter') doLogin()">
       </div>
       <div class="login-field">
         <label>🔑 Password</label>
         <div style="display:flex;gap:8px">
-          <input type="password" id="loginPassword" placeholder="Enter password" value="Admin@123" autocomplete="new-password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
+          <input type="password" id="loginPassword" placeholder="Enter password" value="" autocomplete="new-password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
           <button type="button" class="btn btn-accent" style="padding:0 12px" onclick="toggleLoginPass()">👁</button>
         </div>
       </div>
       <div class="login-actions">
         <button class="btn-login" onclick="doLogin()">🔓 Unlock App</button>
-        <button class="btn-quick" onclick="quickAdminLogin()">⚡ 1-Click Admin Login</button>
-        <button class="btn-bypass" onclick="forceUnlockApp()">🚨 Direct Open (Bypass Lock)</button>
       </div>
     </div>
     <div class="login-footer">
@@ -763,7 +761,7 @@ function generateReportPRO(){
   let html=`<div class="report-section"><h3>Report: ${type.toUpperCase()}</h3><p style="font-size:12px">Biomass ${totalBio}kg | Production ${totalProd}kg | Sales ${totalSalesKg}kg | Revenue ₦${totalRev.toLocaleString()}</p></div>`;
   let arr = f[type] || f.production;
   if(type==='executive') arr=f.production; if(type==='financial') arr=f.sales;
-  if(arr && arr.length){html+=`<div class="report-section"><h3>Details (${arr.length})</h3><div class="table-wrap"><table><thead><tr>`; let keys=Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6); keys.forEach(k=>html+=`<th>${k}</th>`); html+=`</tr></thead><tbody>`; arr.slice(0,100).forEach(r=>{html+=`<tr>`; keys.forEach(k=>html+=`<td>${r[k]||''}</td>`); html+=`</tr>`;}); html+=`</tbody></table></div></div>`;}
+  if(arr && arr.length){html+=`<div class="report-section"><h3>Details (${arr.length})</h3><div class="table-wrap"><thead><tr>`; let keys=Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6); keys.forEach(k=>html+=`<th>${k}</th>`); html+=`</tr></thead><tbody>`; arr.slice(0,100).forEach(r=>{html+=`<tr>`; keys.forEach(k=>html+=`<td>${r[k]||''}</td>`); html+=`</tr>`;}); html+=`</tbody></table></div></div>`;}
   let out=document.getElementById('reportOut'); if(out) out.innerHTML=html;
   drawReportCharts(f);
   }catch(e){console.error(e);}
@@ -917,10 +915,6 @@ function doLogin(){
   }catch(e){
     forceUnlockApp();
   }
-}
-
-function quickAdminLogin(){
-  forceUnlockApp();
 }
 
 function doLogout(){
