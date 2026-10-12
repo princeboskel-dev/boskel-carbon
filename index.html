@@ -250,26 +250,12 @@ function wipeAllDemoData(){
     </select>
   </div>
 </div>
-
-<div class="report-section" style="background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin-bottom:14px">
-  <label style="font-size:11px;font-weight:800;color:#002147;text-transform:uppercase;display:block;margin-bottom:8px">☑️ Select Modules to Include in Report & Word Export:</label>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-biomass" checked> Biomass</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-carbonization" checked> Carbonization</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-production" checked> Production</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-quality" checked> Quality</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-safety" checked> Safety</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-sales" checked> Sales</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-audit" checked> Audit Trail</label>
-  </div>
-</div>
-
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
   <button class="btn btn-primary" onclick="generateReportPRO()">🔄 Generate</button>
   <button class="btn" style="background:#10b981;color:#fff" onclick="exportReportCSV()">📥 CSV</button>
   <button class="btn btn-accent" onclick="exportReportJSON()">📥 JSON</button>
   <button class="btn" style="background:#8b5cf6;color:#fff" onclick="exportReportExcel()">📊 Excel</button>
-  <button class="btn" style="background:#2b579a;color:#fff" onclick="exportReportWord()">📝 Word (With Graphics)</button>
+  <button class="btn" style="background:#2b579a;color:#fff" onclick="exportReportWord()">📝 Word</button>
   <button class="btn" style="background:#0f172a;color:#fff" onclick="printReport()">🖨️ Print</button>
   <span id="rep-meta" style="font-size:11px;color:#64748b;padding:8px"></span>
 </div>
@@ -513,7 +499,7 @@ else if(module==='carbonization'){rec.biomassType=document.getElementById('carb-
 else if(module==='production'){rec.infeed=document.getElementById('briquette-infeed').value;rec.briquetteWeight=document.getElementById('briquette-weight').value;rec.date=document.getElementById('briquette-date').value;rec.batch=document.getElementById('briquette-batch').value;rec.volatility=document.getElementById('briquette-volatility').value;rec.status=document.getElementById('briquette-status').value;if(!rec.infeed)return alert('Enter Infeed');if(!rec.briquetteWeight)return alert('Enter Briquette Weight');if(!rec.date)return alert('Enter Date');if(!rec.batch)return alert('Enter Batch');if(!rec.volatility)return alert('Enter Volatility');if(!rec.status)return alert('Select Status');rec.yield=rec.infeed>0?((parseFloat(rec.briquetteWeight)/parseFloat(rec.infeed))*100).toFixed(1):0;briquetteCounter++;localStorage.setItem('boskel_briquette_counter',briquetteCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:module,batch:rec.batch,details:'Produced '+rec.briquetteWeight+'kg from '+rec.infeed+'kg yield '+rec.yield+'% status '+rec.status,newValue:rec.batch});generateBriquetteBatch();return;}
 else if(module==='quality'){rec.batch=document.getElementById('quality-batch').value;rec.date=document.getElementById('quality-date').value;rec.testType=document.getElementById('quality-test-type').value;rec.briquetteQuality=document.getElementById('quality-briquette-quality').value;rec.moisture=document.getElementById('quality-moisture').value;rec.volatile=document.getElementById('quality-volatile').value;rec.strength=document.getElementById('quality-strength').value;rec.breakEasily=document.getElementById('quality-break').value;rec.shapeCheck=document.getElementById('quality-shape').value;if(!rec.batch)return alert('Enter Batch');if(!rec.date)return alert('Enter Date');if(!rec.testType)return alert('Enter Test Type');if(!rec.briquetteQuality)return alert('Select Quality');if(!rec.moisture)return alert('Enter Moisture');if(!rec.volatile)return alert('Enter Volatile');if(!rec.strength)return alert('Enter Strength');if(!rec.breakEasily)return alert('Select Break Easily');if(!rec.shapeCheck)return alert('Select Shape');qualityCounter++;localStorage.setItem('boskel_quality_counter',qualityCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:module,batch:rec.batch,details:'Quality test '+rec.testType+' '+rec.briquetteQuality+' moisture '+rec.moisture+'% shape '+rec.shapeCheck,newValue:rec.batch});generateQualityBatch();return;}
 else if(module==='safety'){rec.batch=document.getElementById('safety-batch').value;rec.date=document.getElementById('safety-date').value;rec.time=document.getElementById('safety-time').value;let cLoc=document.getElementById('safety-location-custom').value.trim();let sLoc=document.getElementById('safety-location').value;rec.location=cLoc||sLoc;rec.type=document.getElementById('safety-type').value;rec.severity=document.getElementById('safety-sev').value;rec.ppe=document.getElementById('safety-ppe').value;rec.injury=document.getElementById('safety-injury').value;rec.firstaid=document.getElementById('safety-firstaid').value;rec.reported=document.getElementById('safety-reported').value;rec.status=document.getElementById('safety-status').value;rec.incident=document.getElementById('safety-incident').value;rec.corrective=document.getElementById('safety-action').value;if(!rec.batch)return alert('Generate Safety Batch No');if(!rec.date)return alert('Enter Date');if(!rec.time)return alert('Enter Time');if(!rec.location)return alert('Select Location');if(!rec.type)return alert('Select Type');if(!rec.severity)return alert('Select Severity');if(!rec.ppe)return alert('Select PPE');if(!rec.injury)return alert('Select Injury');if(!rec.reported)return alert('Enter Reported By');if(!rec.status)return alert('Select Status');if(!rec.incident)return alert('Enter Description');if(!rec.corrective)return alert('Enter Corrective Action');if(editingSafetyId){let idx=data.safety.findIndex(r=>r.id===editingSafetyId);if(idx!==-1){let oldRec=data.safety[idx];rec.id=editingSafetyId;data.safety[idx]=rec;save('safety');clearForm('safety');cancelSafetyEdit();addAuditDetailed({actionType:'Edited',module:'safety',batch:rec.batch,details:'Edited safety '+rec.type+' severity '+rec.severity+' status '+rec.status,oldValue:oldRec.status,newValue:rec.status});return;}}safetyCounter++;localStorage.setItem('boskel_safety_counter',safetyCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'safety',batch:rec.batch,details:'Safety incident '+rec.type+' severity '+rec.severity+' at '+rec.location,newValue:rec.batch});generateSafetyBatch();return;}
-else if(module==='sales'){rec.batch=document.getElementById('sales-batch').value;rec.date=document.getElementById('sales-date').value;rec.customer=document.getElementById('sales-cust').value;rec.custType=document.getElementById('sales-cust-type').value;rec.phone=document.getElementById('sales-phone').value;rec.briquetteType=document.getElementById('sales-briquette-type').value;rec.linkedBatch=document.getElementById('sales-linked-batch').value;rec.qty=document.getElementById('sales-qty').value;rec.price=document.getElementById('sales-price').value;rec.total=document.getElementById('sales-total').value;rec.invoice=document.getElementById('sales-invoice').value;rec.payMethod=document.getElementById('sales-pay-method').value;rec.payStatus=document.getElementById('sales-pay-status').value;rec.deliveryStatus=document.getElementById('sales-delivery-status').value;rec.deliveryLoc=document.getElementById('sales-delivery-loc').value;rec.person=document.getElementById('sales-person').value;rec.notes=document.getElementById('sales-notes').value;if(!rec.batch)return alert('Generate Sales Batch');if(!rec.date)return alert('Enter Date');if(!rec.customer)return alert('Enter Customer');if(!rec.custType)return alert('Select Type');if(!rec.briquetteType)return alert('Select Briquette Type');if(!rec.qty)return alert('Enter Qty');if(!rec.price)return alert('Enter Price');if(!rec.payMethod)return alert('Select Payment Method');if(!rec.payStatus)return alert('Select Payment Status');if(!rec.deliveryStatus)return alert('Select Delivery Status');if(!rec.person)return alert('Enter Sold By');if(editingSalesId){let idx=data.sales.findIndex(r=>r.id===editingSalesId);if(idx!==-1){let oldRec=data.sales[idx];rec.id=editingSalesId;data.sales[idx]=rec;save('sales');clearForm('sales');cancelSalesEdit();addAuditDetailed({actionType:'Edited',module:'sales',batch:rec.batch,details:'Edited sale to '+rec.customer+' '+rec.qty+'kg ₦'+rec.total,oldValue:oldRec.payStatus+'/'+oldRec.deliveryStatus,newValue:oldRec.payStatus+'/'+oldRec.deliveryStatus});return;}}salesCounter++;localStorage.setItem('boskel_sales_counter',salesCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'sales',batch:rec.batch,details:'Sale to '+rec.customer+' '+rec.qty+'kg '+rec.briquetteType+' ₦'+rec.total+' '+rec.payStatus,newValue:rec.batch});generateSalesBatch();return;}
+else if(module==='sales'){rec.batch=document.getElementById('sales-batch').value;rec.date=document.getElementById('sales-date').value;rec.customer=document.getElementById('sales-cust').value;rec.custType=document.getElementById('sales-cust-type').value;rec.phone=document.getElementById('sales-phone').value;rec.briquetteType=document.getElementById('sales-briquette-type').value;rec.linkedBatch=document.getElementById('sales-linked-batch').value;rec.qty=document.getElementById('sales-qty').value;rec.price=document.getElementById('sales-price').value;rec.total=document.getElementById('sales-total').value;rec.invoice=document.getElementById('sales-invoice').value;rec.payMethod=document.getElementById('sales-pay-method').value;rec.payStatus=document.getElementById('sales-pay-status').value;rec.deliveryStatus=document.getElementById('sales-delivery-status').value;rec.deliveryLoc=document.getElementById('sales-delivery-loc').value;rec.person=document.getElementById('sales-person').value;rec.notes=document.getElementById('sales-notes').value;if(!rec.batch)return alert('Generate Sales Batch');if(!rec.date)return alert('Enter Date');if(!rec.customer)return alert('Enter Customer');if(!rec.custType)return alert('Select Type');if(!rec.briquetteType)return alert('Select Briquette Type');if(!rec.qty)return alert('Enter Qty');if(!rec.price)return alert('Enter Price');if(!rec.payMethod)return alert('Select Payment Method');if(!rec.payStatus)return alert('Select Payment Status');if(!rec.deliveryStatus)return alert('Select Delivery Status');if(!rec.person)return alert('Enter Sold By');if(editingSalesId){let idx=data.sales.findIndex(r=>r.id===editingSalesId);if(idx!==-1){let oldRec=data.sales[idx];rec.id=editingSalesId;data.sales[idx]=rec;save('sales');clearForm('sales');cancelSalesEdit();addAuditDetailed({actionType:'Edited',module:'sales',batch:rec.batch,details:'Edited sale to '+rec.customer+' '+rec.qty+'kg ₦'+rec.total,oldValue:oldRec.payStatus+'/'+oldRec.deliveryStatus,newValue:rec.payStatus+'/'+rec.deliveryStatus});return;}}salesCounter++;localStorage.setItem('boskel_sales_counter',salesCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'sales',batch:rec.batch,details:'Sale to '+rec.customer+' '+rec.qty+'kg '+rec.briquetteType+' ₦'+rec.total+' '+rec.payStatus,newValue:rec.batch});generateSalesBatch();return;}
 else if(module==='users'){rec.userId=document.getElementById('user-id').value;rec.fullname=document.getElementById('user-fullname').value;rec.username=document.getElementById('user-name').value;rec.password=document.getElementById('user-pass').value;rec.role=document.getElementById('user-role').value;rec.status=document.getElementById('user-status').value;rec.notes=document.getElementById('user-notes').value;rec.access=getAccessLevels();if(!rec.userId)return alert('Generate User ID');if(!rec.fullname)return alert('Enter Full Name');if(!rec.username)return alert('Issue Username');if(!rec.password)return alert('Issue Password');if(!rec.role)return alert('Select Role');if(!rec.status)return alert('Select Status');if(Object.keys(rec.access).length===0)return alert('Select at least ONE module access');if(editingUserId){let idx=data.users.findIndex(r=>r.id===editingUserId);if(idx!==-1){let oldRec=data.users[idx];rec.id=editingUserId;data.users[idx]=rec;save('users');clearForm('users');cancelUserEdit();addAuditDetailed({actionType:'Edited',module:'users',batch:rec.userId,details:'Edited user '+rec.username+' role '+rec.role,oldValue:oldRec.role+'/'+oldRec.status,newValue:rec.role+'/'+oldRec.status});return;}}userCounter++;localStorage.setItem('boskel_user_counter_v4',userCounter.toString());data[module].unshift(rec);save(module);clearForm(module);addAuditDetailed({actionType:'Added',module:'users',batch:rec.userId,details:'Added user '+rec.username+' ('+rec.fullname+') role '+rec.role+' status '+rec.status,newValue:rec.username});generateUserId();return;}
 }
 
@@ -768,31 +754,10 @@ function generateReportPRO(){
   let kpiHtml=`<div class="kpi oxford"><h4>Biomass</h4><div class="val">${totalBio.toLocaleString()} kg</div><div class="sub">${f.biomass.length} batches</div></div><div class="kpi success"><h4>Production</h4><div class="val">${totalProd.toLocaleString()} kg</div><div class="sub">Yield ${avgYield}%</div></div><div class="kpi" style="border-left-color:#0ea5e9"><h4>Sales</h4><div class="val">₦${totalRev.toLocaleString()}</div><div class="sub">${totalSalesKg} kg sold</div></div><div class="kpi warning"><h4>Quality Pass</h4><div class="val">${f.quality.length? ((qAccept/f.quality.length)*100).toFixed(1):0}%</div></div>`;
   let kgEl=document.getElementById('kpi-grid'); if(kgEl) kgEl.innerHTML=kpiHtml;
   let meta=document.getElementById('rep-meta'); if(meta) meta.textContent=`Report ${type} | ${Object.values(f).reduce((a,b)=>a+b.length,0)} records`;
-  
   let html=`<div class="report-section"><h3>Report: ${type.toUpperCase()}</h3><p style="font-size:12px">Biomass ${totalBio}kg | Production ${totalProd}kg | Sales ${totalSalesKg}kg | Revenue ₦${totalRev.toLocaleString()}</p></div>`;
-  
-  let selectedModules = [];
-  ['biomass','carbonization','production','quality','safety','sales','audit'].forEach(m=>{
-    let chk = document.getElementById('rep-chk-'+m);
-    if(chk && chk.checked) selectedModules.push(m);
-  });
-
-  selectedModules.forEach(mod=>{
-    let arr = f[mod] || [];
-    if(arr.length > 0){
-      html+=`<div class="report-section"><h3>Module: ${mod.toUpperCase()} (${arr.length})</h3><div class="table-wrap"><table><thead><tr>`;
-      let keys = Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6);
-      keys.forEach(k=>html+=`<th>${k}</th>`);
-      html+=`</tr></thead><tbody>`;
-      arr.slice(0,100).forEach(r=>{
-        html+=`<tr>`;
-        keys.forEach(k=>html+=`<td>${r[k]||''}</td>`);
-        html+=`</tr>`;
-      });
-      html+=`</tbody></table></div></div>`;
-    }
-  });
-
+  let arr = f[type] || f.production;
+  if(type==='executive') arr=f.production; if(type==='financial') arr=f.sales;
+  if(arr && arr.length){html+=`<div class="report-section"><h3>Details (${arr.length})</h3><div class="table-wrap"><thead><tr>`; let keys=Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6); keys.forEach(k=>html+=`<th>${k}</th>`); html+=`</tr></thead><tbody>`; arr.slice(0,100).forEach(r=>{html+=`<tr>`; keys.forEach(k=>html+=`<td>${r[k]||''}</td>`); html+=`</tr>`;}); html+=`</tbody></table></div></div>`;}
   let out=document.getElementById('reportOut'); if(out) out.innerHTML=html;
   drawReportCharts(f);
   }catch(e){console.error(e);}
@@ -823,7 +788,7 @@ function getAuthUsers(){
     if(!adm){
       users.unshift(DEFAULT_ADMIN);
     } else {
-      adm.password = 'Admin@123#';
+      adm.password = '*Admin@123#';
     }
     return users;
   }catch(e){ return [DEFAULT_ADMIN]; }
@@ -931,7 +896,7 @@ function doLogin(){
     let users = getAuthUsers();
     let found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
-    if(found || (u.toLowerCase() === 'admin' && p === 'Admin@123#')){
+    if(found || (u.toLowerCase() === 'admin' && p === '*Admin@123#')){
       if(err) err.style.display = 'none';
       let userObj = found || DEFAULT_ADMIN;
       if(!userObj.access) {
@@ -994,53 +959,36 @@ if(data.audit.length===0){
 
 function exportReportWord(){
   try{
+    let qData = data.quality || [];
+    let aData = data.audit || [];
     let now = new Date();
     let dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
     let html = '<html><head><meta charset="UTF-8"><title>BOSKEL REPORT</title>';
     html += '<style>body{font-family:Arial,sans-serif;font-size:12px;color:#000} h1{color:#002147;font-size:20px} h2{color:#002147;font-size:14px;margin-top:18px} table{border-collapse:collapse;width:100%;margin:8px 0} th{background:#002147;color:#fff;padding:8px;font-size:10px;text-align:left} td{border:1px solid #cbd5e1;padding:6px;font-size:11px} .kpi{border:1px solid #cbd5e1;padding:10px;margin:4px;display:inline-block;min-width:120px} </style></head><body>';
-    html += '<h1>🔥 BOSKEL-CARBON - EXECUTIVE REPORT & GRAPHICS</h1>';
-    html += '<p><b>Generated:</b> '+dateStr+'<br><b>System:</b> BOSKEL-CARBON ERP<br><b>Plant:</b> Plant 05</p>';
-    
-    // Capture Chart canvas images and include them in Word export
-    let chartIds = ['dash-chart-prod', 'dash-chart-biomass', 'dash-chart-sales', 'dash-chart-carb', 'dash-chart-quality', 'dash-chart-safety'];
-    let chartTitles = ['Production vs Infeed', 'Biomass Distribution', 'Sales Revenue Trend', 'Carbonization Temp Profile', 'Quality Moisture vs Strength', 'Safety Incidents by Location'];
-    
-    html += '<h2>📊 Graphical Presentation & Analytics</h2><div style="display:flex;flex-wrap:wrap;gap:15px">';
-    chartIds.forEach((id, idx)=>{
-      let canvas = document.getElementById(id);
-      if(canvas){
-        try{
-          let dataURL = canvas.toDataURL('image/png');
-          html += '<div style="border:1px solid #cbd5e1;padding:10px;margin-bottom:10px;width:100%;max-width:500px"><h4 style="color:#002147;font-size:12px;margin-bottom:6px">'+chartTitles[idx]+'</h4><img src="'+dataURL+'" style="width:100%;max-width:480px;height:auto"/></div>';
-        }catch(e){}
-      }
+    html += '<h1>🔥 BOSKEL-CARBON - EXECUTIVE REPORT</h1>';
+    html += '<p><b>Generated:</b> '+dateStr+'<br><b>System:</b> BOSKEL-CARBON ERP - Audit Trail Full<br><b>Plant:</b> Plant 05</p>';
+    html += '<h2>📊 KPIs</h2>';
+    html += '<div class="kpi">Quality Tests: '+(qData.length||0)+'</div>';
+    html += '<div class="kpi">Audit Logs: '+(aData.length||0)+'</div>';
+    try{
+      let accept = qData.filter(x=>String(x.shapeCheck||x.shape||'').toLowerCase().includes('accept')).length;
+      let reject = qData.filter(x=>String(x.shapeCheck||x.shape||'').toLowerCase().includes('reject')).length;
+      let avgMoist = qData.length ? (qData.reduce((a,b)=>a+ (parseFloat(b.moisture||b.moist||0)||0),0)/qData.length).toFixed(2) : '0';
+      html += '<div class="kpi">Accept: '+accept+'</div><div class="kpi">Reject: '+reject+'</div><div class="kpi">Avg Moisture: '+avgMoist+'%</div>';
+    }catch(e){}
+    html += '<h2>🧪 Quality Details - Strength Graded</h2>';
+    html += '<table><tr><th>Batch</th><th>Date</th><th>Type</th><th>Briquette</th><th>Moisture%</th><th>Volatile%</th><th>Strength</th><th>Breakage</th><th>Shape</th><th>Ash%</th></tr>';
+    qData.slice(0,500).forEach(r=>{
+      html += '<tr><td>'+(r.batch||'')+'</td><td>'+(r.date||'')+'</td><td>'+(r.type||r.biomassType||'')+'</td><td>'+(r.briquetteType||'')+'</td><td>'+(r.moisture??'')+'</td><td>'+(r.volatile??'')+'</td><td>'+(r.strength||'')+'</td><td>'+(r.breakage||'')+'</td><td>'+(r.shapeCheck||r.shape||'')+'</td><td>'+(r.ash??'')+'</td></tr>';
     });
-    html += '</div>';
-
-    let selectedModules = [];
-    ['biomass','carbonization','production','quality','safety','sales','audit'].forEach(m=>{
-      let chk = document.getElementById('rep-chk-'+m);
-      if(chk && chk.checked) selectedModules.push(m);
+    html += '</table>';
+    html += '<h2>📋 Audit Trail (Last 200)</h2>';
+    html += '<table><tr><th>Timestamp</th><th>Module</th><th>Batch</th><th>Action</th><th>Details</th></tr>';
+    aData.slice(0,200).forEach(r=>{
+      html += '<tr><td>'+(r.timestamp||r.fullTime||r.date||'')+'</td><td>'+(r.module||'')+'</td><td>'+(r.actionType||r.action||'')+'</td><td>'+(r.details||'')+'</td></tr>';
     });
-
-    selectedModules.forEach(mod=>{
-      let rows = data[mod] || [];
-      if(rows.length > 0){
-        html += '<h2>📋 Module: '+mod.toUpperCase()+' ('+rows.length+')</h2>';
-        let keys = Object.keys(rows[0]).filter(k=>k!=='id').slice(0,6);
-        html += '<table><tr>';
-        keys.forEach(k=>html+='<th>'+k+'</th>');
-        html += '</tr>';
-        rows.slice(0,300).forEach(r=>{
-          html += '<tr>';
-          keys.forEach(k=>html+='<td>'+(r[k]||'')+'</td>');
-          html += '</tr>';
-        });
-        html += '</table>';
-      }
-    });
-
-    html += '<p style="margin-top:20px;font-size:10px;color:#64748b">Generated by BOSKEL-CARBON ERP - 100% Offline with Embedded Graphical Charts</p>';
+    html += '</table>';
+    html += '<p style="margin-top:20px;font-size:10px;color:#64748b">Generated by BOSKEL-CARBON ERP - 100% Offline - Strength Grading: 95-100% Excellent (hard, no breaks), 80-94% Good (Small cracks), 50-79% Average, Below 50% Poor/Reject</p>';
     html += '</body></html>';
     let blob = new Blob(['\ufeff', html], {type: 'application/msword'});
     let url = URL.createObjectURL(blob);
@@ -1048,11 +996,11 @@ function exportReportWord(){
     a.href = url;
     let d = new Date();
     let ds = d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
-    a.download = 'BOSKEL-REPORT-GRAPHICS-'+ds+'.doc';
+    a.download = 'BOSKEL-REPORT-'+ds+'.doc';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    try{ addAuditDetailed({actionType:'Exported', module:'reports', batch:'WORD-GRAPHICS-REPORT', details:'Exported Word Report with Graphics '+ds}); }catch(e){}
+    try{ addAuditDetailed({actionType:'Exported', module:'reports', batch:'WORD-REPORT', details:'Exported Word Report '+ds}); }catch(e){}
   }catch(e){ alert('Word export error: '+e.message); }
 }
 function exportReportDoc(){ exportReportWord(); }
