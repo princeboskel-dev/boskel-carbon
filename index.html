@@ -813,7 +813,7 @@ function generateReport(){generateReportPRO();}
 
 // AUTH LOCK SYSTEM
 const AUTH_KEY = 'boskel_auth_session_v1';
-const DEFAULT_ADMIN = {username:'admin', password:'Admin@123#', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
+const DEFAULT_ADMIN = {username:'admin', password:'Admin@6341', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
 
 function getAuthUsers(){
   try{
@@ -823,7 +823,7 @@ function getAuthUsers(){
     if(!adm){
       users.unshift(DEFAULT_ADMIN);
     } else {
-      adm.password = 'Admin@6341#';
+      adm.password = 'Admin@6341';
     }
     return users;
   }catch(e){ return [DEFAULT_ADMIN]; }
@@ -931,7 +931,7 @@ function doLogin(){
     let users = getAuthUsers();
     let found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
-    if(found || (u.toLowerCase() === 'admin' && p === 'Admin@123#')){
+    if(found || (u.toLowerCase() === 'admin' && p === 'Admin@6341')){
       if(err) err.style.display = 'none';
       let userObj = found || DEFAULT_ADMIN;
       if(!userObj.access) {
