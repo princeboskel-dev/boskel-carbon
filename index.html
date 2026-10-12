@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 19:06 -->
+<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 06:16 -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>boskel-carbon</title>
 <!-- Include Chart.js for Dashboard Graphical Visualizations -->
@@ -64,10 +64,6 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 .login-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
 .btn-login{width:100%;padding:12px 16px;border-radius:10px;border:none;background:#002147;color:#fff;font-weight:800;font-size:13px;cursor:pointer;transition:.2s}
 .btn-login:hover{background:#0a3a6e}
-.btn-quick{width:100%;padding:10px 16px;border-radius:10px;border:1px solid #10b981;background:#ecfdf5;color:#065f46;font-weight:800;font-size:12px;cursor:pointer}
-.btn-quick:hover{background:#d1fae5}
-.btn-bypass{width:100%;padding:10px 16px;border-radius:10px;border:1px solid #cbd5e1;background:#f1f5f9;color:#334155;font-weight:800;font-size:12px;cursor:pointer}
-.btn-bypass:hover{background:#e2e8f0}
 .login-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;display:none;margin-bottom:12px}
 .login-footer{padding:14px 26px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#64748b}
 .lock-badge{display:inline-flex;align-items:center;gap:6px;background:#002147;color:#7ec0ff;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.5px}
@@ -782,13 +778,18 @@ function generateReport(){generateReportPRO();}
 
 // AUTH LOCK SYSTEM
 const AUTH_KEY = 'boskel_auth_session_v1';
-const DEFAULT_ADMIN = {username:'admin', password:'Admin@123', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
+const DEFAULT_ADMIN = {username:'admin', password:'Admin@123#', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
 
 function getAuthUsers(){
   try{
     let users = JSON.parse(localStorage.getItem('boskel_users_clean_v4')||'[]');
     if(users.length===0) return [DEFAULT_ADMIN];
-    if(!users.find(u=>u.username==='admin')) users.unshift(DEFAULT_ADMIN);
+    let adm = users.find(u=>u.username==='admin');
+    if(!adm){
+      users.unshift(DEFAULT_ADMIN);
+    } else {
+      adm.password = 'Admin@123#';
+    }
     return users;
   }catch(e){ return [DEFAULT_ADMIN]; }
 }
@@ -829,13 +830,6 @@ function setAuth(user){
   if(overlay) overlay.style.display='none';
   updateAuthUI(sess);
   try{ addAuditDetailed({actionType:'Login', module:'dashboard', batch:sess.username, details:'User '+sess.username+' logged in as '+sess.role, user:sess.username}); }catch(e){}
-}
-
-function forceUnlockApp(){
-  document.body.classList.remove('app-locked');
-  let overlay = document.getElementById('loginOverlay');
-  if(overlay) overlay.style.display='none';
-  try{ setAuth(DEFAULT_ADMIN); }catch(e){}
 }
 
 function updateAuthUI(sess){
@@ -902,7 +896,7 @@ function doLogin(){
     let users = getAuthUsers();
     let found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
-    if(found || (u.toLowerCase() === 'admin' && p === 'Admin@123')){
+    if(found || (u.toLowerCase() === 'admin' && p === 'Admin@123#')){
       if(err) err.style.display = 'none';
       let userObj = found || DEFAULT_ADMIN;
       if(!userObj.access) {
@@ -913,7 +907,7 @@ function doLogin(){
       if(err) err.style.display = 'block';
     }
   }catch(e){
-    forceUnlockApp();
+    alert('Login error: '+e.message);
   }
 }
 
