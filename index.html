@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 12:05 -->
+<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct12 12:22 -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>boskel-carbon</title>
 <style>.live-float{position:fixed;top:12px;right:12px;z-index:999999;background:#16a34a;color:#fff;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:900;border:2px solid #fff}</style>
@@ -62,6 +62,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 .login-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
 .btn-login{width:100%;padding:12px 16px;border-radius:10px;border:none;background:#002147;color:#fff;font-weight:800;font-size:13px;cursor:pointer;transition:.2s}
 .btn-login:hover{background:#0a3a6e}
+.btn-quick{width:100%;padding:10px 16px;border-radius:10px;border:1px solid #10b981;background:#ecfdf5;color:#065f46;font-weight:800;font-size:12px;cursor:pointer}
+.btn-quick:hover{background:#d1fae5}
+.btn-bypass{width:100%;padding:10px 16px;border-radius:10px;border:1px solid #cbd5e1;background:#f1f5f9;color:#334155;font-weight:800;font-size:12px;cursor:pointer}
+.btn-bypass:hover{background:#e2e8f0}
+.login-hint{background:#f0f7ff;border:1px dashed #4682B4;border-radius:10px;padding:10px 12px;font-size:11px;color:#334155;margin-top:14px;line-height:1.5}
 .login-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;display:none;margin-bottom:12px}
 .login-footer{padding:14px 26px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#64748b}
 .lock-badge{display:inline-flex;align-items:center;gap:6px;background:#002147;color:#7ec0ff;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.5px}
@@ -100,26 +105,28 @@ function wipeAllDemoData(){
     <div class="login-head">
       <div class="lock-badge">🔒 SECURED • BOSKEL-CARBON ERP</div>
       <h1>🔥 BOSKEL<span>-CARBON</span></h1>
-      <p>Enterprise Briquette Management System • Sign in with your assigned credentials.</p>
+      <p>Enterprise Briquette Management System • Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.</p>
     </div>
     <div class="login-body">
       <div id="loginError" class="login-error">❌ Invalid username or password</div>
       <div class="login-field">
         <label>👤 Username</label>
-        <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="off" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="text" id="loginUsername" placeholder="Enter username (e.g. admin)" value="admin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter') doLogin()">
       </div>
       <div class="login-field">
         <label>🔑 Password</label>
         <div style="display:flex;gap:8px">
-          <input type="password" id="loginPassword" placeholder="Enter password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
+          <input type="password" id="loginPassword" placeholder="Enter password" value="Admin@123" autocomplete="new-password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
           <button type="button" class="btn btn-accent" style="padding:0 12px" onclick="toggleLoginPass()">👁</button>
         </div>
       </div>
       <div class="login-actions">
-        <button class="btn-login" onclick="doLogin()">🔓 Login to System</button>
+        <button class="btn-login" onclick="doLogin()">🔓 Unlock App</button>
+        <button class="btn-quick" onclick="quickAdminLogin()">⚡ 1-Click Admin Login</button>
+        <button class="btn-bypass" onclick="forceUnlockApp()">🚨 Direct Open (Bypass Lock)</button>
       </div>
       <div class="login-hint" id="loginHint" style="display:block;margin-top:14px">
-        <b>💡 Default Admin Credentials:</b><br>
+        <b>💡 Master Admin Credentials:</b><br>
         Username: <b>admin</b> | Password: <b>Admin@123</b>
       </div>
     </div>
@@ -141,7 +148,7 @@ function wipeAllDemoData(){
   <div class="nav-item" data-mod="quality">🧪 Quality</div>
   <div class="nav-item" data-mod="safety">🦺 Safety</div>
   <div class="nav-item" data-mod="sales">💰 Sales</div>
-  <div class="nav-item" data-mod="users">👥 Users & Credentials</div>
+  <div class="nav-item" data-mod="users">👥 Users</div>
   <div class="nav-item" data-mod="audit">📋 Audit Trail</div>
   <div class="nav-item" data-mod="reports">📈 Reports</div>
 </div>
@@ -181,10 +188,10 @@ function wipeAllDemoData(){
 <!-- SALES MODULE -->
 <div class="module" id="mod-sales"><h3>💰 Sales</h3><div class="form-grid" style="margin-top:16px"><div class="input-group"><label>Customer *</label><input type="text" id="sales-cust"></div><div class="input-group"><label>Qty kg *</label><input type="number" id="sales-qty" step="0.01"></div><div class="input-group"><label>Unit Price ₦ *</label><input type="number" id="sales-price" step="0.01"></div><div class="input-group"><label>Payment Status *</label><select id="sales-pay-status"><option value="">-- Select --</option><option>Paid</option><option>Pending</option></select></div><div class="input-group"><label>Sold By *</label><input type="text" id="sales-person"></div></div><button class="btn btn-primary" onclick="addRecord('sales')" style="background:#10b981">+ Add Sales</button><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Qty</th><th>Price</th><th>Payment</th><th>Sold By</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div></div>
 
-<!-- USERS & CREDENTIALS MODULE -->
+<!-- USERS MODULE -->
 <div class="module" id="mod-users">
-  <h3>👥 User Management & Password Control</h3>
-  <p style="font-size:12px;color:#64748b;margin-bottom:12px">Admins can create accounts and assign credentials. Personnel can update their passwords below.</p>
+  <h3>👥 Users & Access Control</h3>
+  <p style="font-size:12px;color:#64748b;margin-bottom:12px">Manage system credentials and user accounts.</p>
   
   <div style="background:#f8fafc;border:1px solid var(--border);padding:16px;border-radius:10px;margin-bottom:16px">
     <h4 style="font-size:13px;color:var(--oxford);margin-bottom:10px">🔑 Change My Password</h4>
@@ -229,7 +236,7 @@ function wipeAllDemoData(){
 </div>
 
 <script>
-// --- AUTHENTICATION & SESSION STATE ---
+// --- AUTHENTICATION & FULL SCRIPT INTEGRATION ---
 let currentUser = JSON.parse(localStorage.getItem('boskel_session')) || null;
 
 function initUsers() {
@@ -244,7 +251,8 @@ initUsers();
 function checkAuthStatus() {
   if (currentUser) {
     document.body.classList.remove('app-locked');
-    document.getElementById('loginOverlay').style.display = 'none';
+    let overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.style.display = 'none';
     let userDisp = document.getElementById('sessionUserDisplay');
     if(userDisp) userDisp.innerText = `USER: ${currentUser.username.toUpperCase()} (${currentUser.role})`;
     
@@ -257,7 +265,8 @@ function checkAuthStatus() {
     updateDashboardCounts();
   } else {
     document.body.classList.add('app-locked');
-    document.getElementById('loginOverlay').style.display = 'flex';
+    let overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.style.display = 'flex';
   }
 }
 
@@ -272,10 +281,24 @@ function doLogin() {
     localStorage.setItem('boskel_session', JSON.stringify(currentUser));
     logAudit(currentUser.username, 'LOGIN', 'User logged into system');
     checkAuthStatus();
-    document.getElementById('loginError').style.display = 'none';
+    let err = document.getElementById('loginError');
+    if(err) err.style.display = 'none';
   } else {
-    document.getElementById('loginError').style.display = 'block';
+    let err = document.getElementById('loginError');
+    if(err) err.style.display = 'block';
   }
+}
+
+function quickAdminLogin() {
+  document.getElementById('loginUsername').value = 'admin';
+  document.getElementById('loginPassword').value = 'Admin@123';
+  doLogin();
+}
+
+function forceUnlockApp() {
+  currentUser = { username: 'admin', role: 'Admin' };
+  localStorage.setItem('boskel_session', JSON.stringify(currentUser));
+  checkAuthStatus();
 }
 
 function doLogout() {
@@ -287,10 +310,9 @@ function doLogout() {
 
 function toggleLoginPass() {
   let pw = document.getElementById('loginPassword');
-  pw.type = pw.type === 'password' ? 'text' : 'password';
+  if(pw) pw.type = pw.type === 'password' ? 'text' : 'password';
 }
 
-// Password Management
 function changeMyPassword() {
   let oldP = document.getElementById('self-old-pass').value;
   let newP = document.getElementById('self-new-pass').value;
@@ -357,9 +379,14 @@ function deleteUser(username) {
   renderUsersTable();
 }
 
-// Record Management & Batch Generators
-function generateBiomassBatch() { document.getElementById('bio-batch').value = 'BIO-' + Math.floor(1000 + Math.random() * 9000); }
-function generateBriquetteBatch() { document.getElementById('briquette-batch').value = 'BRIQ-' + Math.floor(1000 + Math.random() * 9000); }
+function generateBiomassBatch() { 
+  let el = document.getElementById('bio-batch');
+  if(el) el.value = 'BIO-' + Math.floor(1000 + Math.random() * 9000); 
+}
+function generateBriquetteBatch() { 
+  let el = document.getElementById('briquette-batch');
+  if(el) el.value = 'BRIQ-' + Math.floor(1000 + Math.random() * 9000); 
+}
 
 function addRecord(mod) {
   let dataKey = 'boskel_' + mod;
@@ -477,15 +504,16 @@ function logAudit(user, action, details) {
   localStorage.setItem('boskel_audit', JSON.stringify(audits));
 }
 
-// Navigation switcher
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
     item.classList.add('active');
     let mod = item.getAttribute('data-mod');
-    document.getElementById('mod-' + mod).classList.add('active');
-    document.getElementById('pageTitle').innerText = item.innerText;
+    let targetMod = document.getElementById('mod-' + mod);
+    if(targetMod) targetMod.classList.add('active');
+    let title = document.getElementById('pageTitle');
+    if(title) title.innerText = item.innerText;
   });
 });
 
