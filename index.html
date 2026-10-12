@@ -788,7 +788,7 @@ function getAuthUsers(){
     if(!adm){
       users.unshift(DEFAULT_ADMIN);
     } else {
-      adm.password = 'Admin@123#';
+      adm.password = '*Admin@123#';
     }
     return users;
   }catch(e){ return [DEFAULT_ADMIN]; }
