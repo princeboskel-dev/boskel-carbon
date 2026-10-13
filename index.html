@@ -81,6 +81,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
   }catch(e){}
 })();
 function wipeAllDemoData(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can wipe system data.');
+    return;
+  }
   if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete:\n- All Sales\n- All Biomass, Production, Quality, Safety\n- All Audit Logs\n- All Users\n\nContinue?')) return;
   try{
     let keys = [
@@ -147,7 +152,7 @@ function wipeAllDemoData(){
 <div class="nav-item" data-mod="reports">📈 Reports</div>
 </div>
 <div class="main">
-<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo sales data">🗑️ Wipe Data</button></div></div>
+<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export" id="btnExportAll">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo sales data" id="btnWipeData">🗑️ Wipe Data</button></div></div>
 
 <div class="module active" id="mod-dashboard">
 <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
@@ -264,7 +269,7 @@ function wipeAllDemoData(){
   </div>
 </div>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="reportExportBar">
   <button class="btn btn-primary" onclick="generateReportPRO()">🔄 Generate</button>
   <button class="btn" style="background:#10b981;color:#fff" onclick="exportReportCSV()">📥 CSV</button>
   <button class="btn btn-accent" onclick="exportReportJSON()">📥 JSON</button>
@@ -468,6 +473,11 @@ function resetAuditFilters(){
 }
 
 function exportAuditCSV(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can export audit data.');
+    return;
+  }
   let csv='Timestamp,Date,Time,User,ActionType,Module,Batch,Details,OldNew,IP,SessionId\n';
   data.audit.forEach(r=>{
     csv+=`"${r.fullTime}","${r.date}","${r.time}","${r.user}","${r.actionType}","${r.module}","${r.batch}","${(r.details||'').replace(/"/g,'""')}","${(r.oldNew||'').replace(/"/g,'""')}","${r.ip}","${r.sessionId}"\n`;
@@ -477,11 +487,21 @@ function exportAuditCSV(){
 }
 
 function exportAuditJSON(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can export audit data.');
+    return;
+  }
   const blob=new Blob([JSON.stringify(data.audit,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='BOSKEL-AUDIT-TRAIL-'+new Date().toISOString().slice(0,10)+'.json';a.click();
   addAuditDetailed({actionType:'Exported',module:'audit',batch:'JSON',details:'Exported audit trail to JSON'});
 }
 
 function clearAuditTrail(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can clear the audit trail.');
+    return;
+  }
   if(!confirm('Clear ALL audit trail? This will delete all logs permanently. Continue?')) return;
   const oldCount=data.audit.length;
   data.audit=[];
@@ -586,7 +606,21 @@ function switchModule(m){
 
 document.querySelectorAll('.nav-item').forEach(el=>{el.addEventListener('click',()=>switchModule(el.dataset.mod));});
 
-function exportAll(){const b=JSON.stringify(data,null,2);const blob=new Blob([b],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='BOSKEL-BACKUP-'+new Date().toISOString().slice(0,10)+'.json';a.click();addAuditDetailed({actionType:'Exported',module:'reports',batch:'ALL',details:'Exported all data backup'});}
+function exportAll(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can export system backups.');
+    return;
+  }
+  const b=JSON.stringify(data,null,2);
+  const blob=new Blob([b],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='BOSKEL-BACKUP-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  addAuditDetailed({actionType:'Exported',module:'reports',batch:'ALL',details:'Exported all data backup'});
+}
 
 // Dashboard graphical engine
 function generateDashboard(){
@@ -805,8 +839,20 @@ function drawReportCharts(f){
 }
 function drawBar(id,data){let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=240; if(!data.labels.length){ctx.fillText('No data',20,h/2);ctx.restore();return;} let max=Math.max(...data.values,1); let bw=(w-60)/data.labels.length; let ch=h-50; ctx.fillStyle='#f8fafc'; ctx.fillRect(40,10,w-50,ch); data.values.forEach((v,i)=>{let bh=(v/max)*ch*0.85; let x=45+i*bw; let y=10+ch-bh; ctx.fillStyle=i%2===0?'#4682B4':'#002147'; ctx.fillRect(x,y,bw*0.7,bh);}); ctx.restore();}
 function drawPie(id,map){let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=480; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=240; let total=Object.values(map).reduce((a,b)=>a+b,0); if(!total){ctx.fillText('No data',20,h/2);ctx.restore();return;} let colors=['#002147','#4682B4','#10b981','#f59e0b','#8b5cf6']; let cx=w/2,cy=h/2,rad=Math.min(w,h)/2-50; let start=0,idx=0; Object.keys(map).forEach(k=>{let ang=(map[k]/total)*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,rad,start,start+ang); ctx.closePath(); ctx.fillStyle=colors[idx%colors.length]; ctx.fill(); start+=ang; idx++;}); ctx.restore();}
-function exportReportCSV(){let type=document.getElementById('rep-type')?.value||'executive'; let f=getFilteredData(); let key= type==='biomass'?'biomass': type==='production'?'production': type==='sales'?'sales': type==='quality'?'quality': type==='safety'?'safety': type==='carbonization'?'carbonization':'sales'; let rows=f[key]||[]; if(!rows.length) return alert('No data for current filter'); let headers=Object.keys(rows[0]).filter(k=>k!=='id'); let csv=headers.join(',')+'\n'; rows.forEach(r=>{csv+=headers.map(h=>`"${String(r[h]||'').replace(/"/g,'""')}"`).join(',')+'\n';}); let blob=new Blob([csv],{type:'text/csv'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`BOSKEL-${type.toUpperCase()}-${new Date().toISOString().slice(0,10)}.csv`; a.click();}
-function exportReportJSON(){let f=getFilteredData(); let blob=new Blob([JSON.stringify(f,null,2)],{type:'application/json'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`BOSKEL-REPORT-${new Date().toISOString().slice(0,10)}.json`; a.click();}
+function exportReportCSV(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can export report data.');
+    return;
+  }
+  let type=document.getElementById('rep-type')?.value||'executive'; let f=getFilteredData(); let key= type==='biomass'?'biomass': type==='production'?'production': type==='sales'?'sales': type==='quality'?'quality': type==='safety'?'safety': type==='carbonization'?'carbonization':'sales'; let rows=f[key]||[]; if(!rows.length) return alert('No data for current filter'); let headers=Object.keys(rows[0]).filter(k=>k!=='id'); let csv=headers.join(',')+'\n'; rows.forEach(r=>{csv+=headers.map(h=>`"${String(r[h]||'').replace(/"/g,'""')}"`).join(',')+'\n';}); let blob=new Blob([csv],{type:'text/csv'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`BOSKEL-${type.toUpperCase()}-${new Date().toISOString().slice(0,10)}.csv`; a.click();}
+function exportReportJSON(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can export report data.');
+    return;
+  }
+  let f=getFilteredData(); let blob=new Blob([JSON.stringify(f,null,2)],{type:'application/json'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`BOSKEL-REPORT-${new Date().toISOString().slice(0,10)}.json`; a.click();}
 function exportReportExcel(){exportReportCSV();}
 function printReport(){window.print();}
 function generateReport(){generateReportPRO();}
@@ -886,6 +932,19 @@ function updateAuthUI(sess){
 function applyAccessControl(sess){
   let access = sess.access || {};
   let role = (sess.role||'').toLowerCase();
+
+  // Restrict Wipe Data and Export All buttons in header for admins only
+  let btnWipe = document.getElementById('btnWipeData');
+  let btnExport = document.getElementById('btnExportAll');
+  if(btnWipe) btnWipe.style.display = (role === 'admin') ? 'inline-block' : 'none';
+  if(btnExport) btnExport.style.display = (role === 'admin') ? 'inline-block' : 'none';
+
+  // Restrict report export buttons in reports module for admins only
+  let repExportBar = document.getElementById('reportExportBar');
+  if(repExportBar) {
+    let exportBtns = repExportBar.querySelectorAll('button:not(:first-child)');
+    exportBtns.forEach(b => b.style.display = (role === 'admin') ? 'inline-block' : 'none');
+  }
 
   document.querySelectorAll('.nav-item').forEach(el=>{
     let mod = el.dataset.mod;
@@ -993,6 +1052,11 @@ if(data.audit.length===0){
 }
 
 function exportReportWord(){
+  let sess = checkAuth();
+  if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
+    alert('⛔ Permission Denied: Only the Administrator can export report data.');
+    return;
+  }
   try{
     let now = new Date();
     let dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
