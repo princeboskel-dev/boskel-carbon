@@ -865,6 +865,31 @@ function generateReport(){generateReportPRO();}
 const AUTH_KEY = 'boskel_auth_session_v1';
 const DEFAULT_ADMIN = {username:'admin', password:'Admin@6341', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
 
+let inactivityTimer = null;
+function resetInactivityTimer(){
+  if(inactivityTimer) clearTimeout(inactivityTimer);
+  let sess = checkAuth();
+  if(!sess) return;
+  let role = (sess.role||'').toLowerCase();
+  if(role === 'admin') return; // Admin is exempt from inactivity timeout
+
+  // 5 minutes = 300,000 milliseconds
+  inactivityTimer = setTimeout(()=>{
+    let currentSess = checkAuth();
+    if(currentSess && (currentSess.role||'').toLowerCase() !== 'admin'){
+      alert('⚠️ Your session has expired due to 5 minutes of inactivity.');
+      clearAuth();
+    }
+  }, 5 * 60 * 1000);
+}
+
+// Track user activity events
+['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(evt => {
+  window.addEventListener(evt, () => {
+    resetInactivityTimer();
+  }, { passive: true });
+});
+
 function getAuthUsers(){
   try{
     let users = JSON.parse(localStorage.getItem('boskel_users_clean_v4')||'[]');
@@ -894,6 +919,7 @@ function checkAuth(){
 
 function clearAuth(){
   localStorage.removeItem(AUTH_KEY);
+  if(inactivityTimer) clearTimeout(inactivityTimer);
   document.body.classList.add('app-locked');
   let overlay = document.getElementById('loginOverlay');
   if(overlay) overlay.style.display='flex';
@@ -914,6 +940,7 @@ function setAuth(user){
   let overlay = document.getElementById('loginOverlay');
   if(overlay) overlay.style.display='none';
   updateAuthUI(sess);
+  resetInactivityTimer();
   try{ addAuditDetailed({actionType:'Login', module:'dashboard', batch:sess.username, details:'User '+sess.username+' logged in as '+sess.role, user:sess.username}); }catch(e){}
 }
 
@@ -1038,7 +1065,7 @@ function toggleLoginPass(){
     document.body.classList.remove('app-locked');
     let overlay = document.getElementById('loginOverlay');
     if(overlay) overlay.style.display='none';
-    setTimeout(()=>{updateAuthUI(sess);},100);
+    setTimeout(()=>{updateAuthUI(sess); resetInactivityTimer();},100);
   } else {
     document.body.classList.add('app-locked');
     let overlay = document.getElementById('loginOverlay');
@@ -1185,7 +1212,7 @@ onValue(dataRef, (snapshot) => {
     });
     if (remoteData.audit) {
       window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
-      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
     }
   } else {
     Object.keys(STORAGE_KEYS).forEach(k => {
