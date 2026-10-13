@@ -265,7 +265,7 @@ function wipeAllDemoData(){
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-quality" checked> Quality</label>
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-safety" checked> Safety</label>
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-sales" checked> Sales</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-audit" checked> Audit Trail</label>
+    <label style="font-size:12px;font-weight:600" id="rep-chk-audit-wrap"><input type="checkbox" id="rep-chk-audit" checked> Audit Trail</label>
   </div>
 </div>
 
@@ -515,7 +515,6 @@ function checkUserPermission(mod){
   if(!sess) return false;
   let acc = sess.access || {};
   let perm = acc[mod];
-  // Strict enforcement: if explicitly set to view_only, deny write access
   if(perm === 'view_only') return false;
   if(perm === 'add_edit' || perm === 'full') return true;
   if((sess.role||'').toLowerCase() === 'admin') return true;
@@ -806,15 +805,20 @@ function generateReportPRO(){
   let html=`<div class="report-section"><h3>Report: ${type.toUpperCase()}</h3><p style="font-size:12px">Biomass ${totalBio}kg | Production ${totalProd}kg | Sales ${totalSalesKg}kg | Revenue ₦${totalRev.toLocaleString()}</p></div>`;
   
   let selectedModules = [];
+  let sess = checkAuth();
+  let role = sess ? (sess.role||'').toLowerCase() : '';
   ['biomass','carbonization','production','quality','safety','sales','audit'].forEach(m=>{
     let chk = document.getElementById('rep-chk-'+m);
-    if(chk && chk.checked) selectedModules.push(m);
+    if(chk && chk.checked) {
+      if(m === 'audit' && role !== 'admin') return;
+      selectedModules.push(m);
+    }
   });
 
   selectedModules.forEach(mod=>{
     let arr = f[mod] || [];
     if(arr.length > 0){
-      html+=`<div class="report-section"><h3>Module: ${mod.toUpperCase()} (${arr.length})</h3><div class="table-wrap"><table><thead><tr>`;
+      html+=`<div class="report-section"><h3>Module: ${mod.toUpperCase()} (${arr.length})</h3><div class="table-wrap"><thead><tr>`;
       let keys = Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6);
       keys.forEach(k=>html+=`<th>${k}</th>`);
       html+=`</tr></thead><tbody>`;
@@ -937,6 +941,9 @@ function applyAccessControl(sess){
   let btnExport = document.getElementById('btnExportAll');
   if(btnWipe) btnWipe.style.display = (role === 'admin') ? 'inline-block' : 'none';
   if(btnExport) btnExport.style.display = (role === 'admin') ? 'inline-block' : 'none';
+
+  let auditWrap = document.getElementById('rep-chk-audit-wrap');
+  if(auditWrap) auditWrap.style.display = (role === 'admin') ? 'inline-block' : 'none';
 
   let repExportBar = document.getElementById('reportExportBar');
   if(repExportBar) {
@@ -1084,9 +1091,13 @@ function exportReportWord(){
     html += '</div>';
 
     let selectedModules = [];
+    let role = sess ? (sess.role||'').toLowerCase() : '';
     ['biomass','carbonization','production','quality','safety','sales','audit'].forEach(m=>{
       let chk = document.getElementById('rep-chk-'+m);
-      if(chk && chk.checked) selectedModules.push(m);
+      if(chk && chk.checked) {
+        if(m === 'audit' && role !== 'admin') return;
+        selectedModules.push(m);
+      }
     });
 
     selectedModules.forEach(mod=>{
@@ -1174,7 +1185,7 @@ onValue(dataRef, (snapshot) => {
     });
     if (remoteData.audit) {
       window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
-      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
     }
   } else {
     Object.keys(STORAGE_KEYS).forEach(k => {
