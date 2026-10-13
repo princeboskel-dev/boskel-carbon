@@ -933,13 +933,11 @@ function applyAccessControl(sess){
   let access = sess.access || {};
   let role = (sess.role||'').toLowerCase();
 
-  // Restrict Wipe Data and Export All buttons in header for admins only
   let btnWipe = document.getElementById('btnWipeData');
   let btnExport = document.getElementById('btnExportAll');
   if(btnWipe) btnWipe.style.display = (role === 'admin') ? 'inline-block' : 'none';
   if(btnExport) btnExport.style.display = (role === 'admin') ? 'inline-block' : 'none';
 
-  // Restrict report export buttons in reports module for admins only
   let repExportBar = document.getElementById('reportExportBar');
   if(repExportBar) {
     let exportBtns = repExportBar.querySelectorAll('button:not(:first-child)');
@@ -1065,7 +1063,6 @@ function exportReportWord(){
     html += '<h1>🔥 BOSKEL-CARBON - EXECUTIVE REPORT & GRAPHICS</h1>';
     html += '<p><b>Generated:</b> '+dateStr+'<br><b>System:</b> BOSKEL-CARBON ERP<br><b>Plant:</b> Plant 05</p>';
     
-    // Capture Chart canvas images and include them in Word export
     let chartIds = ['dash-chart-prod', 'dash-chart-biomass', 'dash-chart-sales', 'dash-chart-carb', 'dash-chart-quality', 'dash-chart-safety'];
     let chartTitles = ['Production vs Infeed', 'Biomass Distribution', 'Sales Revenue Trend', 'Carbonization Temp Profile', 'Quality Moisture vs Strength', 'Safety Incidents by Location'];
     
@@ -1161,8 +1158,12 @@ onValue(dataRef, (snapshot) => {
   const remoteData = snapshot.val();
   if (remoteData) {
     isUpdatingFromRemote = true;
-    Object.assign(data, remoteData);
-    window.data = data;
+    Object.assign(window.data, remoteData);
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      if (window.data[k]) {
+        localStorage.setItem(STORAGE_KEYS[k], JSON.stringify(window.data[k]));
+      }
+    });
     if (typeof window.renderAll === 'function') {
       window.renderAll();
     }
