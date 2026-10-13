@@ -513,11 +513,13 @@ function clearAuditTrail(){
 function checkUserPermission(mod){
   let sess = checkAuth();
   if(!sess) return false;
-  if((sess.role||'').toLowerCase() === 'admin') return true;
   let acc = sess.access || {};
   let perm = acc[mod];
-  if(perm === 'view_only' || !perm) return false;
-  return true;
+  // Strict enforcement: if explicitly set to view_only, deny write access
+  if(perm === 'view_only') return false;
+  if(perm === 'add_edit' || perm === 'full') return true;
+  if((sess.role||'').toLowerCase() === 'admin') return true;
+  return false;
 }
 
 function addRecord(module){
@@ -938,13 +940,18 @@ function applyAccessControl(sess){
 
   let repExportBar = document.getElementById('reportExportBar');
   if(repExportBar) {
-    let exportBtns = repExportBar.querySelectorAll('button:not(:first-child)');
+    let printBtn = repExportBar.querySelector('button[onclick="printReport()"]');
+    let exportBtns = repExportBar.querySelectorAll('button:not(:first-child):not([onclick="printReport()"])');
     exportBtns.forEach(b => b.style.display = (role === 'admin') ? 'inline-block' : 'none');
+    if(printBtn) printBtn.style.display = 'inline-block';
   }
 
   document.querySelectorAll('.nav-item').forEach(el=>{
     let mod = el.dataset.mod;
-    if(mod==='dashboard' || mod==='reports'){ el.style.display='flex'; return; }
+    if(mod==='dashboard' || mod==='reports'){ 
+      el.style.display = (role === 'admin' || access[mod] || access['reports']) ? 'flex' : 'none'; 
+      return; 
+    }
     
     if(mod === 'users' || mod === 'audit'){
       if(role === 'admin'){
@@ -1167,7 +1174,7 @@ onValue(dataRef, (snapshot) => {
     });
     if (remoteData.audit) {
       window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
-      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
     }
   } else {
     Object.keys(STORAGE_KEYS).forEach(k => {
