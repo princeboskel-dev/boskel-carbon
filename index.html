@@ -349,10 +349,8 @@ window.renderAll = function(){
 function save(k){
   localStorage.setItem(STORAGE_KEYS[k],JSON.stringify(data[k]));
   if(k==='users'){localStorage.setItem('boskel_user_counter_v4',userCounter.toString());}
-  updateCounts();
-  renderTable(k);
+  window.renderAll();
   if(k==='production')refreshLinkedBatches();
-  try{generateDashboard();}catch(e){}
   if(typeof window.syncToFirebase === 'function') window.syncToFirebase();
 }
 
@@ -1158,12 +1156,14 @@ onValue(dataRef, (snapshot) => {
   const remoteData = snapshot.val();
   if (remoteData) {
     isUpdatingFromRemote = true;
-    Object.assign(window.data, remoteData);
     Object.keys(STORAGE_KEYS).forEach(k => {
-      if (window.data[k]) {
-        localStorage.setItem(STORAGE_KEYS[k], JSON.stringify(window.data[k]));
-      }
+      window.data[k] = remoteData[k] || [];
+      localStorage.setItem(STORAGE_KEYS[k], JSON.stringify(window.data[k]));
     });
+    if (remoteData.audit) {
+      window.data.audit = remoteData.audit;
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
+    }
     if (typeof window.renderAll === 'function') {
       window.renderAll();
     }
