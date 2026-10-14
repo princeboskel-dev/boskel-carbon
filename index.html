@@ -16,7 +16,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="🔥 BOSKEL-CARBON ERP">
 <meta name="twitter:description" content="Enterprise Briquette Management System • Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.">
-<meta name="twitter:image" content="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='630' viewBox='0 0 1200 630'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230a1030'/%3E%3Cstop offset='50%25' stop-color='%23122050'/%3E%3Cstop offset='100%25' stop-color='%2305081c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='630' fill='url(%23bg)'/%3E%3Cg transform='translate(150, 90)'%3E%3Crect x='0' y='0' width='420' height='55' rx='27' fill='%231a2e6e' stroke='%233b5998' stroke-width='2'/%3E%3Ctext x='45' y='33' fill='%23ffffff' font-family='Inter, Arial, sans-serif' font-size='16' font-weight='700' letter-spacing='5'%3ESECURED • BOSKEL-CARBON ERP%3E%3Ctext x='0' y='180' fill='%23ffffff' font-family='Inter, Arial, sans-serif' font-size='54' font-weight='900'%3EBOSKEL -CARBON 🔥%3E%3Ctext x='0' y='240' fill='%237a8cff' font-family='Inter, Arial, sans-serif' font-size='24' font-weight='700'%3EEnterprise Briquette Management System%3E%3Ctext x='0' y='300' fill='%23cbd5e1' font-family='Inter, Arial, sans-serif' font-size='22'%3ESign in to access Dashboard, Production, Sales, Quality &amp; Audit Trail.%3E%3C/g%3E%3C/svg%3E">
 
 <!-- Include Chart.js for Graphical Visualizations -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -25,13 +24,23 @@
 <style>
 :root{--oxford:#002147;--steel:#4682B4;--bg:#0a1030;--border:#cbd5e1;--danger:#ef4444}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif}
-body{background:var(--bg);display:flex;min-height:100vh}
-.sidebar{width:260px;background:var(--oxford);color:#fff;padding:20px;position:fixed;height:100vh;overflow-y:auto}
+body{background:var(--bg);display:flex;min-height:100vh;flex-direction:row}
+
+/* Responsive Layout Fixes */
+.sidebar{width:260px;background:var(--oxford);color:#fff;padding:20px;position:fixed;height:100vh;overflow-y:auto;z-index:50;transition:transform .3s ease}
+.main{margin-left:260px;flex:1;padding:24px;max-width:1400px;width:calc(100% - 260px)}
+
+@media(max-width: 768px) {
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main{margin-left:0;width:100%;padding:14px;}
+  .mobile-menu-btn{display:inline-block!important}
+}
+
 .logo{font-size:22px;font-weight:900;margin-bottom:20px}.logo span{color:#5a9bd4}
 .nav-item{padding:12px 14px;border-radius:8px;cursor:pointer;margin-bottom:6px;display:flex;gap:10px}
 .nav-item:hover{background:rgba(70,130,180,.15)}.nav-item.active{background:var(--steel);font-weight:700}
-.main{margin-left:260px;flex:1;padding:24px;max-width:1400px}
-.header{background:#fff;padding:18px 24px;border-radius:12px;border:1px solid var(--border);border-top:3px solid var(--oxford);display:flex;justify-content:space-between;margin-bottom:20px}
+.header{background:#fff;padding:18px 24px;border-radius:12px;border:1px solid var(--border);border-top:3px solid var(--oxford);display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
 .card{background:#fff;padding:20px;border-radius:12px;border:1px solid var(--border);border-top:3px solid var(--steel)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
 .module{display:none;background:#fff;border-radius:12px;padding:24px;border:1px solid var(--border)}.module.active{display:block}
@@ -41,30 +50,17 @@ body{background:var(--bg);display:flex;min-height:100vh}
 .btn{padding:8px 14px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}.btn-primary{background:var(--oxford);color:#fff}.btn-accent{background:var(--steel);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-edit{background:#f59e0b;color:#fff}
 .table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:10px;max-height:600px;overflow-y:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxford);color:#fff;padding:10px 8px;text-align:left;font-size:10px;text-transform:uppercase;position:sticky;top:0}td{padding:8px;border-bottom:1px solid var(--border)}tr:hover{background:#e8f0f8}
-.status-select{padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-weight:700}
-.cred-box{background:#f0f7ff;border:1px solid #4682B4;padding:12px;border-radius:8px;margin:10px 0}
-.access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin:8px 0}
-.access-item{display:flex;align-items:center;gap:8px;background:#fff;padding:8px 10px;border-radius:8px;border:1px solid var(--border)}
-.audit-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;background:#f8fafc;border:1px solid var(--border);padding:14px;border-radius:10px;margin-bottom:16px}
-.badge{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;color:#fff;display:inline-block}
-.badge-added{background:#10b981}.badge-edited{background:#f59e0b}.badge-deleted{background:#ef4444}.badge-status{background:#3b82f6}.badge-export{background:#8b5cf6}.badge-cleared{background:#6b7280}
 
-.report-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;background:linear-gradient(135deg,#f8fafc 0%,#eef2f7 100%);border:1.5px solid var(--border);padding:18px;border-radius:12px;margin-bottom:18px}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:18px 0}
 .kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;border-left:4px solid var(--steel)}
-.kpi h4{font-size:10px;text-transform:uppercase;color:#64748b;font-weight:800;letter-spacing:.5px}
+.kpi h4{font-size:10px;text-transform:uppercase;color:#64748b;font-weight:800}
 .kpi .val{font-size:22px;font-weight:900;color:var(--oxford);margin:6px 0}
-.kpi .sub{font-size:11px;color:#64748b}
-.kpi.success{border-left-color:#10b981}.kpi.warning{border-left-color:#f59e0b}.kpi.danger{border-left-color:#ef4444}.kpi.oxford{border-left-color:#002147}
-.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin:18px 0}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin:18px 0}
 .chart-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
 .chart-card h4{font-size:12px;font-weight:800;color:var(--oxford);margin-bottom:10px;text-transform:uppercase}
 .chart-card canvas{width:100%!important;height:240px!important;display:block}
-.report-section{margin:18px 0;background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px}
-.progress-bar{height:8px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin:6px 0}
-.progress-fill{height:100%;background:var(--steel);border-radius:10px;transition:width .5s}
 
-/* ===== UPDATED LOGIN LOCK SCREEN MATCHING YOUR SCREENSHOT ===== */
+/* LOGIN LOCK SCREEN */
 #loginOverlay{position:fixed;inset:0;background:radial-gradient(circle at top right,#1e3a8a_0%,#0a1030_60%);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
 .glass{background:linear-gradient(180deg,rgba(23,35,90,0.95),rgba(13,22,64,0.98));border:1px solid rgba(99,125,255,0.15)}
 .input-field{background:#c8d0f0;border-radius:9999px;transition:all.2s}
@@ -75,19 +71,17 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 </style>
 </head>
 
-<body class="app-locked min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(circle_at_top_right,#1e3a8a_0%,#0a1030_60%)]">
+<body class="app-locked min-h-screen flex">
 
 <!-- LOGIN SCREEN OVERLAY -->
 <div id="loginOverlay">
   <div id="loginCard" class="w-full max-w-[420px] glass rounded-[28px] overflow-hidden shadow-2xl">
-    <!-- Secured Header -->
     <div class="h-[52px] bg-gradient-to-r from-[#1a2e6e] to-[#2a4a9a]/40 border-b border-white/10 flex items-center justify-center gap-2 px-4">
       <span class="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center">🔒</span>
       <p class="text-[12px] tracking-[0.35em] text-white/90 font-semibold">SECURED • BOSKEL-CARBON ERP</p>
     </div>
 
     <div class="px-8 pt-10 pb-8 text-center">
-      <!-- Logo Flame -->
       <div class="mx-auto w-[92px] h-[92px] rounded-full bg-gradient-to-br from-[#ff6b35]/30 to-[#ff2d00]/40 flex items-center justify-center shadow-[0_0_40px_rgba(255,90,0,0.5)] mb-8">
         <span class="text-5xl">🔥</span>
       </div>
@@ -98,34 +92,32 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 
       <div id="loginError" class="bg-red-500/20 border border-red-500 text-red-200 p-3 rounded-xl text-xs font-semibold hidden mt-4">❌ Invalid username or password</div>
 
-      <!-- Form -->
       <div class="mt-8 text-left space-y-6">
         <div>
           <label class="text-[#7a8cff] text-[15px] font-semibold ml-1">Username</label>
           <div class="input-field mt-2 h-[54px] flex items-center px-5 gap-3">
             <span class="text-xl opacity-60">👤</span>
-            <input id="username" class="flex-1 bg-transparent outline-none text-[#1a254a] placeholder-[#1a254a]/70 text-[15px] font-medium" placeholder="Enter your username" value="admin" onkeydown="if(event.key==='Enter') doLogin()" />
+            <input id="username" class="flex-1 bg-transparent outline-none text-[#1a254a] placeholder-[#1a254a]/70 text-[15px] font-medium" placeholder="Enter username" value="admin" onkeydown="if(event.key==='Enter') doLogin()" />
           </div>
         </div>
         <div>
           <label class="text-[#7a8cff] text-[15px] font-semibold ml-1">Password</label>
           <div class="input-field mt-2 h-[54px] flex items-center px-5 gap-3">
             <span class="text-lg opacity-70">🔒</span>
-            <input id="password" type="password" class="flex-1 bg-transparent outline-none text-[#1a254a] placeholder-[#1a254a]/70 text-[15px] font-medium" placeholder="Enter your password" value="Admin@6341" onkeydown="if(event.key==='Enter') doLogin()" />
+            <input id="password" type="password" class="flex-1 bg-transparent outline-none text-[#1a254a] placeholder-[#1a254a]/70 text-[15px] font-medium" placeholder="Enter password" value="Admin@6341" onkeydown="if(event.key==='Enter') doLogin()" />
             <button type="button" onclick="togglePass()" class="text-[#1a254a] text-xl">👁️</button>
           </div>
         </div>
 
         <button onclick="doLogin()" id="unlockBtn" class="btn-unlock w-full h-[58px] rounded-[14px] text-white font-bold text-[18px] mt-2">Unlock App</button>
-
-        <p class="text-center text-[#7a8cff] text-[14px] mt-4">Forgot password? • Need help?</p>
         <p class="text-center text-white/40 text-[11px] mt-6 tracking-wide">v2.1.0 • Secured with 256-bit encryption</p>
       </div>
     </div>
   </div>
 </div>
 
-<div class="sidebar">
+<!-- SIDEBAR -->
+<div class="sidebar" id="appSidebar">
   <div class="logo">🔥 BOSKEL<span>-CARBON</span></div>
   <div style="font-size:10px;color:#5a9bd4;margin-bottom:16px;font-weight:700">MAIN • LIVE SYSTEM</div>
   <div class="nav-item active" data-mod="dashboard">📊 Dashboard</div>
@@ -140,178 +132,70 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
   <div class="nav-item" data-mod="reports">📈 Reports</div>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="main">
   <div class="header">
-    <h2 id="pageTitle" class="text-xl font-bold text-[#002147]">📊 Dashboard</h2>
-    <div>
-      <span id="todayDate" style="font-size:12px;color:#64748b;margin-right:10px"></span>
-      <button class="btn btn-accent" onclick="exportAll()" title="Export" id="btnExportAll">💾 Export All</button>
-      <button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Wipe Data" id="btnWipeData">🗑️ Wipe Data</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="mobile-menu-btn btn btn-accent" style="display:none;padding:6px 10px" onclick="toggleMobileSidebar()">☰</button>
+      <h2 id="pageTitle" class="text-xl font-bold text-[#002147]">📊 Dashboard</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="todayDate" style="font-size:12px;color:#64748b"></span>
+      <button class="btn btn-accent" onclick="exportAll()" id="btnExportAll">💾 Export</button>
+      <button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" id="btnWipeData">🗑️ Wipe</button>
     </div>
   </div>
 
   <!-- DASHBOARD MODULE -->
   <div class="module active" id="mod-dashboard">
-    <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Real-time KPIs and visual analytics.</p>
-    <div class="cards">
-      <div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:28px;font-weight:800" id="count-biomass">0</div><div style="font-size:11px;color:#64748b" id="dash-biomass-sub">0 kg total</div><canvas id="dash-spark-biomass" height="40"></canvas></div>
-      <div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:28px;font-weight:800" id="count-carbonization">0</div><div style="font-size:11px;color:#64748b" id="dash-carb-sub">Avg volatility -</div><canvas id="dash-spark-carb" height="40"></canvas></div>
-      <div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:28px;font-weight:800" id="count-production">0</div><div style="font-size:11px;color:#64748b" id="dash-prod-sub">Yield 0%</div><canvas id="dash-spark-prod" height="40"></canvas></div>
-      <div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:28px;font-weight:800" id="count-quality">0</div><div style="font-size:11px;color:#64748b" id="dash-qual-sub">Pass 0%</div><canvas id="dash-spark-qual" height="40"></canvas></div>
-      <div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:28px;font-weight:800" id="count-safety">0</div><div style="font-size:11px;color:#64748b" id="dash-safety-sub">Open 0</div><canvas id="dash-spark-safety" height="40"></canvas></div>
-      <div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:28px;font-weight:800" id="count-sales">0</div><div style="font-size:11px;color:#64748b" id="dash-sales-sub">₦0 revenue</div><canvas id="dash-spark-sales" height="40"></canvas></div>
-      <div class="card" id="card-users"><h3>👥 Users</h3><div style="font-size:28px;font-weight:800" id="count-users">0</div><div style="font-size:11px;color:#64748b">Active system users</div></div>
-      <div class="card" id="card-audit" style="background:#002147;color:#fff;border-top-color:#5a9bd4"><h3 style="color:#fff">📋 Audit Logs</h3><div style="font-size:28px;font-weight:800;color:#5a9bd4" id="count-audit">0</div><div style="font-size:10px;font-weight:700;color:#5a9bd4">FULL TRAIL DEVELOPED</div></div>
-    </div>
-    <div class="kpi-grid">
-      <div class="kpi success"><h4>Production Efficiency</h4><div class="val" id="dash-kpi-yield">0%</div><div class="sub" id="dash-kpi-yield-sub">Briquette yield</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-yield-bar" style="width:0%;background:#10b981"></div></div></div>
-      <div class="kpi warning"><h4>Revenue Collected</h4><div class="val" id="dash-kpi-rev">₦0</div><div class="sub" id="dash-kpi-rev-sub">0% collection rate</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-rev-bar" style="width:0%;background:#f59e0b"></div></div></div>
-      <div class="kpi oxford"><h4>Quality Health</h4><div class="val" id="dash-kpi-qual">0%</div><div class="sub" id="dash-kpi-qual-sub">Accept rate</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-qual-bar" style="width:0%"></div></div></div>
-      <div class="kpi danger"><h4>Safety Risk</h4><div class="val" id="dash-kpi-safety">0</div><div class="sub" id="dash-kpi-safety-sub">Critical/High incidents</div><div class="progress-bar"><div class="progress-fill" id="dash-kpi-safety-bar" style="width:0%;background:#ef4444"></div></div></div>
+    <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Overview</h3>
+    <div class="cards" style="margin-top:16px">
+      <div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:24px;font-weight:800" id="count-biomass">0</div></div>
+      <div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:24px;font-weight:800" id="count-carbonization">0</div></div>
+      <div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:24px;font-weight:800" id="count-production">0</div></div>
+      <div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:24px;font-weight:800" id="count-quality">0</div></div>
+      <div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:24px;font-weight:800" id="count-safety">0</div></div>
+      <div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:24px;font-weight:800" id="count-sales">0</div></div>
     </div>
     <div class="chart-grid">
       <div class="chart-card"><h4>📈 Production vs Infeed</h4><canvas id="dash-chart-prod"></canvas></div>
-      <div class="chart-card"><h4>🌿 Biomass Distribution by Type</h4><canvas id="dash-chart-biomass"></canvas></div>
       <div class="chart-card"><h4>💰 Sales Revenue Trend</h4><canvas id="dash-chart-sales"></canvas></div>
-      <div class="chart-card"><h4>♨️ Carbonization Temp Profile</h4><canvas id="dash-chart-carb"></canvas></div>
     </div>
   </div>
 
   <!-- BIOMASS MODULE -->
   <div class="module" id="mod-biomass">
     <h3>🌿 Biomass Inventory</h3>
-    <div class="form-grid" id="form-biomass" style="margin-top:16px">
+    <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>Type *</label><select id="bio-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
       <div class="input-group"><label>Date *</label><input type="date" id="bio-date"></div>
       <div class="input-group"><label>Weight kg *</label><input type="number" id="bio-weight" step="0.01"></div>
-      <div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="bio-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBiomassBatch()">🔄</button></div></div>
-      <div class="input-group"><label>Location *</label><select id="bio-location"><option value="">-- Select --</option><option>Warehouse A</option><option>Warehouse B</option><option>Shed 1</option><option>Outdoor Bay</option></select></div>
+      <div class="input-group"><label>Batch No *</label><input type="text" id="bio-batch"></div>
+      <div class="input-group"><label>Location *</label><input type="text" id="bio-location"></div>
     </div>
-    <button class="btn btn-primary" id="btn-add-biomass" onclick="addRecord('biomass')">+ Add Biomass</button>
+    <button class="btn btn-primary" onclick="addRecord('biomass')">+ Add Biomass</button>
     <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Type</th><th>Date</th><th>Weight</th><th>Location</th><th>Action</th></tr></thead><tbody id="tbody-biomass"></tbody></table></div>
-  </div>
-
-  <!-- CARBONIZATION MODULE -->
-  <div class="module" id="mod-carbonization">
-    <h3>♨️ Carbonization</h3>
-    <div class="form-grid" id="form-carbonization" style="margin-top:16px">
-      <div class="input-group"><label>Type *</label><select id="carb-biomass-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
-      <div class="input-group"><label>Start Temp °C *</label><input type="number" id="carb-temp-start"></div>
-      <div class="input-group"><label>Peak Temp °C *</label><input type="number" id="carb-temp-peak"></div>
-      <div class="input-group"><label>Peak Time *</label><input type="time" id="carb-peak-time"></div>
-      <div class="input-group"><label>Start DT *</label><input type="datetime-local" id="carb-start-dt"></div>
-      <div class="input-group"><label>Finish DT *</label><input type="datetime-local" id="carb-finish-dt"></div>
-      <div class="input-group"><label>Date Carb *</label><input type="date" id="carb-date"></div>
-      <div class="input-group"><label>Volatility % *</label><input type="number" step="0.01" id="carb-volatility"></div>
-      <div class="input-group"><label>Charcoal Weight kg *</label><input type="number" step="0.01" id="carb-charcoal-weight"></div>
-      <div class="input-group"><label>Operator</label><input id="carb-operator"></div>
-    </div>
-    <button class="btn btn-primary" id="btn-add-carbonization" onclick="addRecord('carbonization')">+ Add Carbonization</button>
-    <div class="table-wrap"><table><thead><tr><th>Type</th><th>Start</th><th>Peak</th><th>Peak Time</th><th>Start DT</th><th>Finish DT</th><th>Date</th><th>Volatility</th><th>Charcoal Weight</th><th>Operator</th><th>Action</th></tr></thead><tbody id="tbody-carbonization"></tbody></table></div>
-  </div>
-
-  <!-- PRODUCTION MODULE -->
-  <div class="module" id="mod-production">
-    <h3>🧱 Production</h3>
-    <div class="form-grid" id="form-production" style="margin-top:16px">
-      <div class="input-group"><label>Infeed kg *</label><input type="number" id="briquette-infeed" step="0.01"></div>
-      <div class="input-group"><label>Briquette kg *</label><input type="number" id="briquette-weight" step="0.01"></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="briquette-date"></div>
-      <div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="briquette-batch" style="flex:1"><button class="btn btn-accent" onclick="generateBriquetteBatch()">🔄</button></div></div>
-      <div class="input-group"><label>Volatility % *</label><input type="number" id="briquette-volatility" step="0.01"></div>
-      <div class="input-group"><label>Status *</label><select id="briquette-status"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div>
-    </div>
-    <button class="btn btn-primary" id="btn-add-production" onclick="addRecord('production')">+ Add Briquette</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Infeed</th><th>Briquette</th><th>Date</th><th>Volatility</th><th>Status</th><th>Yield</th><th>Action</th></tr></thead><tbody id="tbody-production"></tbody></table></div>
-  </div>
-
-  <!-- QUALITY MODULE -->
-  <div class="module" id="mod-quality">
-    <h3>🧪 Quality Assurance</h3>
-    <div class="form-grid" id="form-quality" style="margin-top:16px">
-      <div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="quality-batch" style="flex:1"><button class="btn btn-accent" onclick="generateQualityBatch()">🔄</button></div></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="quality-date"></div>
-      <div class="input-group"><label>Type *</label><select id="quality-test-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
-      <div class="input-group"><label>Briquette Quality *</label><select id="quality-briquette-quality"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
-      <div class="input-group"><label>Moisture % *</label><input type="number" id="quality-moisture" step="0.01"></div>
-      <div class="input-group"><label>Volatile % *</label><input type="number" id="quality-volatile" step="0.01"></div>
-      <div class="input-group"><label>Strength *</label><select id="quality-strength"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
-      <div class="input-group"><label>Break Easily? *</label><select id="quality-break"><option value="">-- Select --</option><option>No - Strong</option><option>Yes</option></select></div>
-      <div class="input-group"><label>Shape Check *</label><select id="quality-shape"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div>
-    </div>
-    <button class="btn btn-primary" id="btn-add-quality" onclick="addRecord('quality')">+ Add Quality</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Date</th><th>Type</th><th>Quality</th><th>Moisture</th><th>Volatile</th><th>Strength</th><th>Break?</th><th>Shape</th><th>Action</th></tr></thead><tbody id="tbody-quality"></tbody></table></div>
-  </div>
-
-  <!-- SAFETY MODULE -->
-  <div class="module" id="mod-safety">
-    <h3>🦺 Safety & Compliance</h3>
-    <div class="form-grid" id="form-safety" style="margin-top:16px">
-      <div class="input-group"><label>Batch No *</label><div style="display:flex;gap:6px"><input type="text" id="safety-batch" style="flex:1"><button class="btn btn-accent" onclick="generateSafetyBatch()">🔄</button></div></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="safety-date"></div>
-      <div class="input-group"><label>Time *</label><input type="time" id="safety-time"></div>
-      <div class="input-group"><label>Location *</label><select id="safety-location"><option value="">-- Select --</option><option>Carbonization Bay</option><option>Briquette Press</option><option>Warehouse A</option></select></div>
-      <div class="input-group"><label>Type *</label><select id="safety-type"><option value="">-- Select --</option><option>Burn</option><option>Slip/Fall</option><option>Fire</option><option>Near Miss</option></select></div>
-      <div class="input-group"><label>Severity *</label><select id="safety-sev"><option value="">-- Select --</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
-      <div class="input-group"><label>PPE? *</label><select id="safety-ppe"><option value="">-- Select --</option><option>Yes - Full</option><option>No</option></select></div>
-      <div class="input-group"><label>Injury? *</label><select id="safety-injury"><option value="">-- Select --</option><option>Yes</option><option>No</option></select></div>
-      <div class="input-group"><label>Reported By *</label><input type="text" id="safety-reported"></div>
-      <div class="input-group"><label>Status *</label><select id="safety-status"><option value="">-- Select --</option><option>Open</option><option>Resolved</option><option>Closed</option></select></div>
-      <div class="input-group" style="grid-column:span 2"><label>Description *</label><textarea id="safety-incident" rows="2"></textarea></div>
-      <div class="input-group" style="grid-column:span 2"><label>Corrective Action *</label><textarea id="safety-action" rows="2"></textarea></div>
-    </div>
-    <button class="btn btn-primary" id="safety-submit-btn" onclick="addRecord('safety')">+ Add Safety</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Date</th><th>Location</th><th>Type</th><th>Severity</th><th>PPE</th><th>Injury</th><th>Status</th><th>Reported By</th><th>Action</th></tr></thead><tbody id="tbody-safety"></tbody></table></div>
   </div>
 
   <!-- SALES MODULE -->
   <div class="module" id="mod-sales">
     <h3>💰 Sales & Dispatch</h3>
-    <div class="form-grid" id="form-sales" style="margin-top:16px">
-      <div class="input-group"><label>Sales Batch *</label><div style="display:flex;gap:6px"><input type="text" id="sales-batch" style="flex:1"><button class="btn btn-accent" onclick="generateSalesBatch()">🔄</button></div></div>
+    <div class="form-grid" style="margin-top:16px">
+      <div class="input-group"><label>Batch *</label><input type="text" id="sales-batch"></div>
       <div class="input-group"><label>Date *</label><input type="date" id="sales-date"></div>
       <div class="input-group"><label>Customer *</label><input type="text" id="sales-cust"></div>
-      <div class="input-group"><label>Customer Type *</label><select id="sales-cust-type"><option value="">-- Select --</option><option>Retailer</option><option>Distributor</option><option>Factory</option></select></div>
       <div class="input-group"><label>Qty kg *</label><input type="number" id="sales-qty" step="0.01" oninput="calcSalesTotal()"></div>
       <div class="input-group"><label>Unit Price ₦ *</label><input type="number" id="sales-price" step="0.01" oninput="calcSalesTotal()"></div>
-      <div class="input-group"><label>Total Auto *</label><div id="sales-total-display" style="background:#f0fdf4;border:2px solid #10b981;padding:10px;border-radius:8px;font-weight:800">₦ 0.00</div><input type="hidden" id="sales-total"></div>
-      <div class="input-group"><label>Payment Status *</label><select id="sales-pay-status"><option value="">-- Select --</option><option>Paid</option><option>Pending</option></select></div>
-      <div class="input-group"><label>Delivery Status *</label><select id="sales-delivery-status"><option value="">-- Select --</option><option>Delivered</option><option>Pending</option></select></div>
-      <div class="input-group"><label>Sold By *</label><input type="text" id="sales-person"></div>
+      <div class="input-group"><label>Total Auto</label><div id="sales-total-display" style="background:#f0fdf4;padding:8px;font-weight:bold">₦ 0.00</div><input type="hidden" id="sales-total"></div>
     </div>
-    <button class="btn btn-primary" id="sales-submit-btn" onclick="addRecord('sales')" style="background:#10b981">+ Add Sales</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch</th><th>Date</th><th>Customer</th><th>Type</th><th>Qty</th><th>Total</th><th>Payment</th><th>Delivery</th><th>Sold By</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div>
-  </div>
-
-  <!-- USERS MODULE -->
-  <div class="module" id="mod-users">
-    <h3>👥 Users Management</h3>
-    <div class="form-grid">
-      <div class="input-group"><label>User ID *</label><input type="text" id="user-id"></div>
-      <div class="input-group"><label>Full Name *</label><input type="text" id="user-fullname"></div>
-      <div class="input-group"><label>Username *</label><input type="text" id="user-name"></div>
-      <div class="input-group"><label>Password *</label><input type="password" id="user-pass"></div>
-      <div class="input-group"><label>Role *</label><select id="user-role"><option value="admin">admin</option><option value="operator">operator</option></select></div>
-      <div class="input-group"><label>Status *</label><select id="user-status"><option>Active</option><option>Inactive</option></select></div>
-    </div>
-    <button class="btn btn-primary" onclick="addRecord('users')">+ Issue User</button>
-    <div class="table-wrap"><table><thead><tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbody-users"></tbody></table></div>
-  </div>
-
-  <!-- AUDIT TRAIL -->
-  <div class="module" id="mod-audit">
-    <h3>📋 Audit Trail</h3>
-    <div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Module</th><th>Details</th></tr></thead><tbody id="tbody-audit"></tbody></table></div>
+    <button class="btn btn-primary" onclick="addRecord('sales')" style="background:#10b981">+ Add Sales</button>
+    <div class="table-wrap"><table><thead><tr><th>Batch</th><th>Date</th><th>Customer</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div>
   </div>
 
   <!-- REPORTS MODULE -->
   <div class="module" id="mod-reports">
     <h3>📈 Reports PRO</h3>
-    <div class="report-filters">
-      <div class="input-group"><label>Report Type</label><select id="rep-type" onchange="generateReportPRO()"><option value="executive">Executive Summary</option></select></div>
-    </div>
-    <div id="reportOut"></div>
+    <p style="margin-top:10px">System logs and analytics overview.</p>
   </div>
 </div>
 
@@ -321,6 +205,7 @@ let data={}; window.data=data;
 Object.keys(STORAGE_KEYS).forEach(k=>{try{data[k]=JSON.parse(localStorage.getItem(STORAGE_KEYS[k])||'[]')}catch{data[k]=[]}});
 
 function togglePass(){let p=document.getElementById('password'); p.type=p.type==='password'?'text':'password';}
+function toggleMobileSidebar(){document.getElementById('appSidebar').classList.toggle('mobile-open');}
 
 function doLogin(){
   let u=(document.getElementById('username').value||'').trim();
@@ -336,7 +221,7 @@ function doLogin(){
       document.getElementById('loginOverlay').style.display='none';
       localStorage.setItem('boskel_auth_session_v1', JSON.stringify({username:u, role:'Admin'}));
       renderAll();
-    }, 600);
+    }, 500);
   } else {
     if(err) err.style.display='block';
   }
@@ -347,23 +232,24 @@ function calcSalesTotal(){let q=parseFloat(document.getElementById('sales-qty').
 window.renderAll=function(){
   Object.keys(STORAGE_KEYS).forEach(k=>{if(window.data[k]) renderTable(k);});
   updateCounts();
+  try{renderCharts();}catch(e){}
 };
 
 function renderTable(m){
   let tb=document.getElementById('tbody-'+m); if(!tb) return; tb.innerHTML='';
   (data[m]||[]).forEach(r=>{
-    tb.innerHTML+=`<tr><td>${r.batch||r.userId||''}</td><td>${r.type||r.customer||r.fullname||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    if(m==='biomass') tb.innerHTML+=`<tr><td>${r.batch}</td><td>${r.type}</td><td>${r.date}</td><td>${r.weight}kg</td><td>${r.location}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    if(m==='sales') tb.innerHTML+=`<tr><td>${r.batch}</td><td>${r.date}</td><td>${r.customer}</td><td>${r.qty}kg</td><td>₦${Number(r.total).toLocaleString()}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
   });
 }
 
-function updateCounts(){Object.keys(data).forEach(k=>{let el=document.getElementById('count-'+k); if(el) el.textContent=data[k].length;});}
+function updateCounts(){Object.keys(data).forEach(k=>{let el=document.getElementById('count-'+k); if(el) el.textContent=(data[k]||[]).length;});}
 
 function addRecord(m){
   let rec={id:Date.now()};
-  if(m==='biomass'){rec.batch=document.getElementById('bio-batch').value; rec.type=document.getElementById('bio-type').value; rec.date=document.getElementById('bio-date').value;}
-  else if(m==='sales'){rec.batch=document.getElementById('sales-batch').value; rec.customer=document.getElementById('sales-cust').value; rec.total=document.getElementById('sales-total').value;}
-  // Add fallback record creator for other modules
-  else { rec.batch='BATCH-'+Date.now(); }
+  if(m==='biomass'){rec.batch=document.getElementById('bio-batch').value; rec.type=document.getElementById('bio-type').value; rec.date=document.getElementById('bio-date').value; rec.weight=document.getElementById('bio-weight').value; rec.location=document.getElementById('bio-location').value;}
+  else if(m==='sales'){rec.batch=document.getElementById('sales-batch').value; rec.customer=document.getElementById('sales-cust').value; rec.date=document.getElementById('sales-date').value; rec.qty=document.getElementById('sales-qty').value; rec.total=document.getElementById('sales-total').value;}
+  else {rec.batch='BATCH-'+Date.now();}
   
   data[m].unshift(rec);
   localStorage.setItem(STORAGE_KEYS[m], JSON.stringify(data[m]));
@@ -381,10 +267,29 @@ document.querySelectorAll('.nav-item').forEach(el=>{
     document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('pageTitle').textContent=el.textContent;
+    if(window.innerWidth<=768) toggleMobileSidebar();
   });
 });
 
+let dashCharts={};
+function renderCharts(){
+  if(typeof Chart==='undefined') return;
+  let pCtx=document.getElementById('dash-chart-prod')?.getContext('2d');
+  if(pCtx){
+    if(dashCharts['prod']) dashCharts['prod'].destroy();
+    let p=data.production||[];
+    dashCharts['prod']=new Chart(pCtx,{type:'bar',data:{labels:p.slice(-5).map(r=>r.batch||'Batch'),datasets:[{label:'Briquette (kg)',data:p.slice(-5).map(r=>parseFloat(r.briquetteWeight||0)),backgroundColor:'#10b981'}]},options:{responsive:true,maintainAspectRatio:false}});
+  }
+  let sCtx=document.getElementById('dash-chart-sales')?.getContext('2d');
+  if(sCtx){
+    if(dashCharts['sales']) dashCharts['sales'].destroy();
+    let s=data.sales||[];
+    dashCharts['sales']=new Chart(sCtx,{type:'line',data:{labels:s.slice(-5).map(r=>r.date||'Date'),datasets:[{label:'Revenue (₦)',data:s.slice(-5).map(r=>parseFloat(r.total||0)),borderColor:'#0ea5e9',tension:0.1}]},options:{responsive:true,maintainAspectRatio:false}});
+  }
+}
+
 document.getElementById('todayDate').textContent=new Date().toDateString();
+document.querySelectorAll('input[type="date"]').forEach(i=>{if(!i.value)i.valueAsDate=new Date();});
 renderAll();
 </script>
 </body>
