@@ -14,12 +14,15 @@
 
 <!-- Include Chart.js for Dashboard Graphical Visualizations -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>.live-float{position:fixed;top:12px;right:12px;z-index:999999;background:#16a34a;color:#fff;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:900;border:2px solid #fff}</style>
-</head><body><div class="live-float" id="liveBadge">● LIVE • Connecting...</div>
+</head>
+<body class="app-locked bg-[#060a17]">
+<div class="live-float" id="liveBadge">● LIVE • Connecting...</div>
 <style>
 :root{--oxford:#002147;--steel:#4682B4;--bg:#eef2f7;--border:#cbd5e1;--danger:#ef4444}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif}
-body{background:var(--bg);display:flex;min-height:100vh}
+body{display:flex;min-height:100vh}
 .sidebar{width:260px;background:var(--oxford);color:#fff;padding:20px;position:fixed;height:100vh;overflow-y:auto}
 .logo{font-size:22px;font-weight:900;margin-bottom:20px}.logo span{color:#5a9bd4}
 .nav-item{padding:12px 14px;border-radius:8px;cursor:pointer;margin-bottom:6px;display:flex;gap:10px}
@@ -59,47 +62,28 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 .progress-bar{height:8px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin:6px 0}
 .progress-fill{height:100%;background:var(--steel);border-radius:10px;transition:width .5s}
 
-/* ===== NEW LOGIN LOCK SCREEN ===== */
-#loginOverlay{position:fixed;inset:0;background:radial-gradient(circle at top right,#1e3a8a_0%,#0a1030_60%);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
-.glass{background:linear-gradient(180deg,rgba(23,35,90,0.95),rgba(13,22,64,0.98));border:1px solid rgba(99,125,255,0.15)}
-.input-field{background:#c8d0f0;border-radius:9999px;transition:all.2s}
-.input-field:focus-within{box-shadow:0 0 0 3px rgba(99,125,255,.4);transform:translateY(-1px)}
-.btn-unlock{background:linear-gradient(180deg,#1a3a7a,#122a5a);box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.btn-unlock:active{transform:scale(.98)}
+/* ===== EXACT MATCH GLASS PHONE LOGIN SCREEN ===== */
+#loginOverlay{position:fixed;inset:0;background:radial-gradient(circle at top,#112255 0%,#060a17 70%);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.phone-mockup{width:100%;max-width:390px;background:linear-gradient(180deg,rgba(15,25,65,0.95) 0%,rgba(6,10,23,0.98) 100%);border:1px solid rgba(120,150,255,0.2);border-radius:36px;box-shadow:0 25px 60px rgba(0,0,0,0.7);overflow:hidden;position:relative}
+.phone-notch{height:28px;width:140px;background:#030612;border-bottom-left-radius:14px;border-bottom-right-radius:14px;margin:0 auto}
+.fire-badge{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,53,0.35) 0%,rgba(255,45,0,0.1) 70%);border:1px solid rgba(255,107,53,0.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 35px rgba(255,90,0,0.4);margin:16px auto 12px auto}
+.login-input{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);border-radius:9999px;height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;transition:all .2s}
+.login-input:focus-within{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,0.25)}
+.login-btn{background:linear-gradient(180deg,#1e3a8a 0%,#172554 100%);box-shadow:0 8px 20px rgba(29,78,216,0.4);transition:transform .1s}
+.login-btn:active{transform:scale(0.98)}
 .app-locked .sidebar, .app-locked .main{filter:blur(8px);pointer-events:none;user-select:none}
-</style></head>
+</style>
 <script>
-(function wipeDemo(){
-  try{
-    if(window.location.search.includes('clean') || window.location.search.includes('wipe')){
-      Object.keys(localStorage).forEach(k=>{
-        if(k.startsWith('boskel_')) localStorage.removeItem(k);
-      });
-      localStorage.clear();
-    }
-  }catch(e){}
-})();
 function wipeAllDemoData(){
   let sess = checkAuth();
   if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
     alert('⛔ Permission Denied: Only the Administrator can wipe system data.');
     return;
   }
-  if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete:\n- All Sales\n- All Biomass, Production, Quality, Safety\n- All Audit Logs\n- All Users\n\nContinue?')) return;
+  if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete all Sales, Biomass, Production, Quality, Safety, and Audit Logs.\n\nContinue?')) return;
   try{
-    let keys = [
-      'boskel_biomass','boskel_carbonization','boskel_production','boskel_quality','boskel_safety','boskel_sales','boskel_users','boskel_users_clean_v4','boskel_audit','boskel_audit_trail_full_v1','boskel_audit_fixed_v1',
-      'boskel_quality_fixed_v1','boskel_biomass_counter','boskel_briquette_counter','boskel_quality_counter','boskel_quality_counter_fixed_v1','boskel_safety_counter','boskel_sales_counter','boskel_user_counter_v4','boskel_session','boskel_session_id','boskelData'
-    ];
+    let keys = ['boskel_biomass','boskel_carbonization','boskel_production','boskel_quality','boskel_safety','boskel_sales','boskel_users','boskel_audit','boskel_audit_trail_full_v1'];
     keys.forEach(k=>localStorage.removeItem(k));
-    Object.keys(localStorage).forEach(k=>{
-      if(k.toLowerCase().includes('boskel') || k.toLowerCase().includes('briquette') || k.toLowerCase().includes('biomass')) localStorage.removeItem(k);
-    });
-    if(window.data){
-      Object.keys(window.data).forEach(k=>window.data[k]=[]);
-      if(window.syncToFirebase) window.syncToFirebase();
-    }
-    alert('✅ All existing data removed!\n\nReloading...');
     location.reload();
   }catch(e){ alert('Error wiping: '+e.message); }
 }
@@ -108,42 +92,52 @@ function wipeAllDemoData(){
 <body class="app-locked">
 
 <div id="loginOverlay">
-  <div id="loginCard" class="w-full max-w-[420px] glass rounded-[28px] overflow-hidden shadow-2xl">
-    <div class="h-[52px] bg-gradient-to-r from-[#1a2e6e] to-[#2a4a9a]/40 border-b border-white/10 flex items-center justify-center gap-2 px-4">
-      <span class="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center">🔒</span>
-      <p class="text-[12px] tracking-[0.35em] text-white/90 font-semibold">SECURED • BOSKEL-CARBON ERP</p>
+  <div class="phone-mockup">
+    <!-- Top Bar -->
+    <div class="pt-3 px-6 flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="text-[10px] tracking-[0.25em] text-white/80 font-bold uppercase">SECURED</span>
+      </div>
+      <span class="text-[10px] tracking-[0.1em] text-white/60 font-semibold">BOSKEL-CARBON ERP</span>
     </div>
 
-    <div class="px-8 pt-10 pb-8 text-center">
-      <div class="mx-auto w-[92px] h-[92px] rounded-full bg-gradient-to-br from-[#ff6b35]/30 to-[#ff2d00]/40 flex items-center justify-center shadow-[0_0_40px_rgba(255,90,0,0.5)] mb-8">
-        <span class="text-5xl">🔥</span>
+    <!-- Login Body -->
+    <div class="px-7 pt-6 pb-8 text-center">
+      <div class="fire-badge">
+        <span class="text-4xl">🔥</span>
       </div>
 
-      <h1 class="text-[32px] font-extrabold text-white tracking-tight leading-none">BOSKEL -CARBON <span>🔥</span></h1>
-      <p class="text-[#7a8cff] text-[14px] font-semibold mt-2">Enterprise Briquette Management System</p>
-      <p class="text-white/60 text-[15px] leading-[1.5] mt-6">Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.</p>
+      <h1 class="text-[26px] font-black text-white tracking-tight">BOSKEL -CARBON <span class="text-orange-500">🔥</span></h1>
+      <p class="text-[#8ba4f9] text-[13px] font-semibold mt-1">Enterprise Briquette Management System</p>
+      <p class="text-white/60 text-[12px] leading-snug mt-3">Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.</p>
 
-      <div id="loginError" class="bg-red-500/20 border border-red-500 text-red-200 p-3 rounded-xl text-xs font-semibold hidden mt-4">❌ Invalid username or password</div>
+      <div id="loginError" class="bg-red-500/20 border border-red-500 text-red-200 p-2.5 rounded-xl text-xs font-semibold hidden mt-3">❌ Invalid username or password</div>
 
-      <div class="mt-8 text-left space-y-6">
+      <div class="mt-6 text-left space-y-4">
         <div>
-          <label class="text-[#7a8cff] text-[15px] font-semibold ml-1">Username</label>
-          <div class="input-field mt-2 h-[54px] flex items-center px-5 gap-3">
-            <span class="text-xl opacity-60">👤</span>
-            <input id="loginUsername" class="flex-1 bg-transparent outline-none text-[#1a254a] placeholder-[#1a254a]/70 text-[15px] font-medium" placeholder="Enter username" value="admin" onkeydown="if(event.key==='Enter') doLogin()" />
+          <label class="text-[#8ba4f9] text-[12px] font-semibold ml-3 block mb-1">Username</label>
+          <div class="login-input">
+            <span class="text-base text-white/60">👤</span>
+            <input id="loginUsername" class="flex-1 bg-transparent outline-none text-white placeholder-white/40 text-[14px]" placeholder="Enter your username" value="admin" onkeydown="if(event.key==='Enter') doLogin()" />
           </div>
         </div>
         <div>
-          <label class="text-[#7a8cff] text-[15px] font-semibold ml-1">Password</label>
-          <div class="input-field mt-2 h-[54px] flex items-center px-5 gap-3">
-            <span class="text-lg opacity-70">🔒</span>
-            <input id="loginPassword" type="password" class="flex-1 bg-transparent outline-none text-[#1a254a] placeholder-[#1a254a]/70 text-[15px] font-medium" placeholder="Enter password" value="Admin@6341" onkeydown="if(event.key==='Enter') doLogin()" />
-            <button type="button" onclick="toggleLoginPass()" class="text-[#1a254a] text-xl">👁️</button>
+          <label class="text-[#8ba4f9] text-[12px] font-semibold ml-3 block mb-1">Password</label>
+          <div class="login-input">
+            <span class="text-base text-white/60">🔒</span>
+            <input id="loginPassword" type="password" class="flex-1 bg-transparent outline-none text-white placeholder-white/40 text-[14px]" placeholder="Enter your password" value="Admin@6341" onkeydown="if(event.key==='Enter') doLogin()" />
+            <button type="button" onclick="toggleLoginPass()" class="text-white/60 hover:text-white text-lg">👁️</button>
           </div>
         </div>
 
-        <button onclick="doLogin()" id="unlockBtn" class="btn-unlock w-full h-[58px] rounded-[14px] text-white font-bold text-[18px] mt-2">Unlock App</button>
-        <p class="text-center text-white/40 text-[11px] mt-6 tracking-wide">v2.1.0 • Secured with 256-bit encryption</p>
+        <button onclick="doLogin()" id="unlockBtn" class="login-btn w-full h-[52px] rounded-full text-white font-bold text-[16px] mt-3">Unlock App</button>
+        
+        <div class="text-center mt-3">
+          <a href="#" onclick="alert('Please contact your System Administrator to reset your password.')" class="text-[#8ba4f9] text-[11px] hover:underline">Forgot password? • Need help?</a>
+        </div>
+        
+        <p class="text-center text-white/30 text-[10px] mt-4 tracking-wide">v2.1.0 • Secured with 256-bit encryption</p>
       </div>
     </div>
   </div>
@@ -881,9 +875,8 @@ function resetInactivityTimer(){
   let sess = checkAuth();
   if(!sess) return;
   let role = (sess.role||'').toLowerCase();
-  if(role === 'admin') return; // Admin is exempt from inactivity timeout
+  if(role === 'admin') return;
 
-  // 5 minutes = 300,000 milliseconds
   inactivityTimer = setTimeout(()=>{
     let currentSess = checkAuth();
     if(currentSess && (currentSess.role||'').toLowerCase() !== 'admin'){
@@ -893,7 +886,6 @@ function resetInactivityTimer(){
   }, 5 * 60 * 1000);
 }
 
-// Track user activity events
 ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(evt => {
   window.addEventListener(evt, () => {
     resetInactivityTimer();
