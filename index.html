@@ -148,14 +148,17 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 
   <!-- DASHBOARD MODULE -->
   <div class="module active" id="mod-dashboard">
-    <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Overview</h3>
-    <div class="cards" style="margin-top:16px">
-      <div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:24px;font-weight:800" id="count-biomass">0</div></div>
-      <div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:24px;font-weight:800" id="count-carbonization">0</div></div>
-      <div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:24px;font-weight:800" id="count-production">0</div></div>
-      <div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:24px;font-weight:800" id="count-quality">0</div></div>
-      <div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:24px;font-weight:800" id="count-safety">0</div></div>
-      <div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:24px;font-weight:800" id="count-sales">0</div></div>
+    <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
+    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Real-time KPIs and visual analytics.</p>
+    <div class="cards">
+      <div class="card" style="border-top-color:#10b981"><h3>🌿 Biomass</h3><div style="font-size:28px;font-weight:800" id="count-biomass">0</div><div style="font-size:11px;color:#64748b" id="dash-biomass-sub">0 kg total</div></div>
+      <div class="card" style="border-top-color:#ef4444"><h3>♨️ Carbonization</h3><div style="font-size:28px;font-weight:800" id="count-carbonization">0</div><div style="font-size:11px;color:#64748b" id="dash-carb-sub">Avg volatility -</div></div>
+      <div class="card" style="border-top-color:#002147"><h3>🧱 Briquette</h3><div style="font-size:28px;font-weight:800" id="count-production">0</div><div style="font-size:11px;color:#64748b" id="dash-prod-sub">Yield 0%</div></div>
+      <div class="card" style="border-top-color:#8b5cf6"><h3>🧪 Quality</h3><div style="font-size:28px;font-weight:800" id="count-quality">0</div><div style="font-size:11px;color:#64748b" id="dash-qual-sub">Pass 0%</div></div>
+      <div class="card" style="border-top-color:#f59e0b"><h3>🦺 Safety</h3><div style="font-size:28px;font-weight:800" id="count-safety">0</div><div style="font-size:11px;color:#64748b" id="dash-safety-sub">Open 0</div></div>
+      <div class="card" style="border-top-color:#0ea5e9"><h3>💰 Sales</h3><div style="font-size:28px;font-weight:800" id="count-sales">0</div><div style="font-size:11px;color:#64748b" id="dash-sales-sub">₦0 revenue</div></div>
+      <div class="card" id="card-users"><h3>👥 Users</h3><div style="font-size:28px;font-weight:800" id="count-users">0</div><div style="font-size:11px;color:#64748b">Active system users</div></div>
+      <div class="card" id="card-audit" style="background:#002147;color:#fff;border-top-color:#5a9bd4"><h3 style="color:#fff">📋 Audit Logs</h3><div style="font-size:28px;font-weight:800;color:#5a9bd4" id="count-audit">0</div><div style="font-size:10px;font-weight:700;color:#5a9bd4">FULL TRAIL DEVELOPED</div></div>
     </div>
     <div class="chart-grid">
       <div class="chart-card"><h4>📈 Production vs Infeed</h4><canvas id="dash-chart-prod"></canvas></div>
@@ -165,13 +168,13 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 
   <!-- BIOMASS MODULE -->
   <div class="module" id="mod-biomass">
-    <h3>🌿 Biomass Inventory</h3>
+    <h3>🌿 Biomass Inventory Management</h3>
     <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>Type *</label><select id="bio-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
       <div class="input-group"><label>Date *</label><input type="date" id="bio-date"></div>
       <div class="input-group"><label>Weight kg *</label><input type="number" id="bio-weight" step="0.01"></div>
       <div class="input-group"><label>Batch No *</label><input type="text" id="bio-batch"></div>
-      <div class="input-group"><label>Location *</label><input type="text" id="bio-location"></div>
+      <div class="input-group"><label>Location *</label><select id="bio-location"><option value="">-- Select --</option><option>Warehouse A</option><option>Warehouse B</option><option>Shed 1</option><option>Outdoor Bay</option></select></div>
     </div>
     <button class="btn btn-primary" onclick="addRecord('biomass')">+ Add Biomass</button>
     <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Type</th><th>Date</th><th>Weight</th><th>Location</th><th>Action</th></tr></thead><tbody id="tbody-biomass"></tbody></table></div>
@@ -179,22 +182,24 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 
   <!-- CARBONIZATION MODULE -->
   <div class="module" id="mod-carbonization">
-    <h3>♨️ Carbonization</h3>
+    <h3>♨️ Carbonization & Thermal Processing</h3>
     <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>Type *</label><select id="carb-biomass-type"><option value="">-- Select --</option><option>Palm kernel shell</option><option>Saw dust</option><option>Coconut shell</option></select></div>
       <div class="input-group"><label>Start Temp °C *</label><input type="number" id="carb-temp-start"></div>
       <div class="input-group"><label>Peak Temp °C *</label><input type="number" id="carb-temp-peak"></div>
+      <div class="input-group"><label>Peak Time *</label><input type="time" id="carb-peak-time"></div>
       <div class="input-group"><label>Volatility % *</label><input type="number" step="0.01" id="carb-volatility"></div>
       <div class="input-group"><label>Charcoal Weight kg *</label><input type="number" step="0.01" id="carb-charcoal-weight"></div>
+      <div class="input-group"><label>Operator *</label><input type="text" id="carb-operator"></div>
       <div class="input-group"><label>Date *</label><input type="date" id="carb-date"></div>
     </div>
     <button class="btn btn-primary" onclick="addRecord('carbonization')">+ Add Carbonization</button>
-    <div class="table-wrap"><table><thead><tr><th>Type</th><th>Start Temp</th><th>Peak Temp</th><th>Volatility</th><th>Charcoal Weight</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-carbonization"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Type</th><th>Start Temp</th><th>Peak Temp</th><th>Peak Time</th><th>Volatility</th><th>Charcoal Weight</th><th>Operator</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-carbonization"></tbody></table></div>
   </div>
 
   <!-- PRODUCTION MODULE -->
   <div class="module" id="mod-production">
-    <h3>🧱 Production</h3>
+    <h3>🧱 Briquette Production & Pressing</h3>
     <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>Batch No *</label><input type="text" id="briquette-batch"></div>
       <div class="input-group"><label>Infeed kg *</label><input type="number" id="briquette-infeed" step="0.01"></div>
@@ -209,50 +214,56 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 
   <!-- QUALITY MODULE -->
   <div class="module" id="mod-quality">
-    <h3>🧪 Quality Assurance</h3>
+    <h3>🧪 Quality Assurance & Lab Testing</h3>
     <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>Batch No *</label><input type="text" id="quality-batch"></div>
+      <div class="input-group"><label>Briquette Quality *</label><select id="quality-briquette-quality"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
       <div class="input-group"><label>Moisture % *</label><input type="number" id="quality-moisture" step="0.01"></div>
       <div class="input-group"><label>Volatile % *</label><input type="number" id="quality-volatile" step="0.01"></div>
+      <div class="input-group"><label>Strength *</label><select id="quality-strength"><option value="">-- Select --</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
       <div class="input-group"><label>Shape Check *</label><select id="quality-shape"><option value="">-- Select --</option><option>Accept</option><option>Reject</option></select></div>
       <div class="input-group"><label>Date *</label><input type="date" id="quality-date"></div>
     </div>
     <button class="btn btn-primary" onclick="addRecord('quality')">+ Add Quality</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Moisture</th><th>Volatile</th><th>Shape</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-quality"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Quality</th><th>Moisture</th><th>Volatile</th><th>Strength</th><th>Shape</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-quality"></tbody></table></div>
   </div>
 
   <!-- SAFETY MODULE -->
   <div class="module" id="mod-safety">
-    <h3>🦺 Safety & Compliance</h3>
+    <h3>🦺 Safety & Incident Compliance</h3>
     <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>Batch No *</label><input type="text" id="safety-batch"></div>
-      <div class="input-group"><label>Location *</label><input type="text" id="safety-location"></div>
+      <div class="input-group"><label>Location *</label><select id="safety-location"><option value="">-- Select --</option><option>Carbonization Bay</option><option>Briquette Press</option><option>Warehouse A</option></select></div>
+      <div class="input-group"><label>Type *</label><select id="safety-type"><option value="">-- Select --</option><option>Burn</option><option>Slip/Fall</option><option>Fire</option><option>Near Miss</option></select></div>
       <div class="input-group"><label>Severity *</label><select id="safety-sev"><option value="">-- Select --</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
-      <div class="input-group"><label>Status *</label><select id="safety-status"><option value="">-- Select --</option><option>Open</option><option>Resolved</option></select></div>
+      <div class="input-group"><label>Status *</label><select id="safety-status"><option value="">-- Select --</option><option>Open</option><option>Resolved</option><option>Closed</option></select></div>
+      <div class="input-group"><label>Reported By *</label><input type="text" id="safety-reported"></div>
       <div class="input-group"><label>Date *</label><input type="date" id="safety-date"></div>
     </div>
     <button class="btn btn-primary" onclick="addRecord('safety')">+ Add Safety</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Location</th><th>Severity</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-safety"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Batch No</th><th>Location</th><th>Type</th><th>Severity</th><th>Status</th><th>Reported By</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-safety"></tbody></table></div>
   </div>
 
   <!-- SALES MODULE -->
   <div class="module" id="mod-sales">
-    <h3>💰 Sales & Dispatch</h3>
+    <h3>💰 Sales & Dispatch Operations</h3>
     <div class="form-grid" style="margin-top:16px">
-      <div class="input-group"><label>Batch *</label><input type="text" id="sales-batch"></div>
-      <div class="input-group"><label>Date *</label><input type="date" id="sales-date"></div>
+      <div class="input-group"><label>Sales Batch *</label><input type="text" id="sales-batch"></div>
       <div class="input-group"><label>Customer *</label><input type="text" id="sales-cust"></div>
+      <div class="input-group"><label>Customer Type *</label><select id="sales-cust-type"><option value="">-- Select --</option><option>Retailer</option><option>Distributor</option><option>Factory</option></select></div>
       <div class="input-group"><label>Qty kg *</label><input type="number" id="sales-qty" step="0.01" oninput="calcSalesTotal()"></div>
       <div class="input-group"><label>Unit Price ₦ *</label><input type="number" id="sales-price" step="0.01" oninput="calcSalesTotal()"></div>
-      <div class="input-group"><label>Total Auto</label><div id="sales-total-display" style="background:#f0fdf4;padding:8px;font-weight:bold">₦ 0.00</div><input type="hidden" id="sales-total"></div>
+      <div class="input-group"><label>Total Auto ₦</label><div id="sales-total-display" style="background:#f0fdf4;padding:8px;font-weight:bold">₦ 0.00</div><input type="hidden" id="sales-total"></div>
+      <div class="input-group"><label>Payment Status *</label><select id="sales-pay-status"><option value="">-- Select --</option><option>Paid</option><option>Pending</option></select></div>
+      <div class="input-group"><label>Date *</label><input type="date" id="sales-date"></div>
     </div>
     <button class="btn btn-primary" onclick="addRecord('sales')" style="background:#10b981">+ Add Sales</button>
-    <div class="table-wrap"><table><thead><tr><th>Batch</th><th>Date</th><th>Customer</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Batch</th><th>Customer</th><th>Type</th><th>Qty</th><th>Total</th><th>Payment</th><th>Date</th><th>Action</th></tr></thead><tbody id="tbody-sales"></tbody></table></div>
   </div>
 
   <!-- USERS MODULE -->
   <div class="module" id="mod-users">
-    <h3>👥 Users Management</h3>
+    <h3>👥 Users Management & Access Control</h3>
     <div class="form-grid" style="margin-top:16px">
       <div class="input-group"><label>User ID *</label><input type="text" id="user-id"></div>
       <div class="input-group"><label>Full Name *</label><input type="text" id="user-fullname"></div>
@@ -267,7 +278,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 
   <!-- AUDIT TRAIL -->
   <div class="module" id="mod-audit">
-    <h3>📋 Audit Trail</h3>
+    <h3>📋 Full System Audit Trail</h3>
     <div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Module</th></tr></thead><tbody id="tbody-audit"></tbody></table></div>
   </div>
 
@@ -329,12 +340,13 @@ function renderTable(m){
   let tb=document.getElementById('tbody-'+m); if(!tb) return; tb.innerHTML='';
   (data[m]||[]).forEach(r=>{
     if(m==='biomass') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.type||''}</td><td>${r.date||''}</td><td>${r.weight||''}kg</td><td>${r.location||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
-    else if(m==='carbonization') tb.innerHTML+=`<tr><td>${r.biomassType||''}</td><td>${r.tempStart||''}°C</td><td>${r.tempPeak||''}°C</td><td>${r.volatility||''}</td><td>${r.charcoalWeight||''}kg</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    else if(m==='carbonization') tb.innerHTML+=`<tr><td>${r.biomassType||''}</td><td>${r.tempStart||''}°C</td><td>${r.tempPeak||''}°C</td><td>${r.peakTime||''}</td><td>${r.volatility||''}</td><td>${r.charcoalWeight||''}kg</td><td>${r.operator||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
     else if(m==='production') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.infeed||''}kg</td><td>${r.briquetteWeight||''}kg</td><td>${r.volatility||''}</td><td>${r.status||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
-    else if(m==='quality') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.shapeCheck||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
-    else if(m==='safety') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.location||''}</td><td>${r.severity||''}</td><td>${r.status||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
-    else if(m==='sales') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.date||''}</td><td>${r.customer||''}</td><td>${r.qty||''}kg</td><td>₦${Number(r.total||0).toLocaleString()}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
-    else if(m==='users') tb.innerHTML+=`<tr><td>${r.userId||''}</td><td>${r.fullname||''}</td><td>${r.username||''}</td><td>${r.role||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    else if(m==='quality') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.briquetteQuality||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.strength||''}</td><td>${r.shapeCheck||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    else if(m==='safety') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.location||''}</td><td>${r.type||''}</td><td>${r.severity||''}</td><td>${r.status||''}</td><td>${r.reportedBy||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    else if(m==='sales') tb.innerHTML+=`<tr><td>${r.batch||''}</td><td>${r.customer||''}</td><td>${r.custType||''}</td><td>${r.qty||''}kg</td><td>₦${Number(r.total||0).toLocaleString()}</td><td>${r.payStatus||''}</td><td>${r.date||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    else if(m==='users') tb.innerHTML+=`<tr><td>${r.userId||''}</td><td>${r.fullname||''}</td><td>${r.username||''}</td><td>${r.role||''}</td><td>${r.status||''}</td><td><button class="btn btn-danger" onclick="deleteRecord('${m}',${r.id})">Del</button></td></tr>`;
+    else if(m==='audit') tb.innerHTML+=`<tr><td>${new Date(r.id).toLocaleString()}</td><td>System</td><td>Action Log</td><td>General</td></tr>`;
   });
 }
 
@@ -343,12 +355,12 @@ function updateCounts(){Object.keys(data).forEach(k=>{let el=document.getElement
 function addRecord(m){
   let rec={id:Date.now()};
   if(m==='biomass'){rec.batch=document.getElementById('bio-batch').value; rec.type=document.getElementById('bio-type').value; rec.date=document.getElementById('bio-date').value; rec.weight=document.getElementById('bio-weight').value; rec.location=document.getElementById('bio-location').value;}
-  else if(m==='carbonization'){rec.biomassType=document.getElementById('carb-biomass-type').value; rec.tempStart=document.getElementById('carb-temp-start').value; rec.tempPeak=document.getElementById('carb-temp-peak').value; rec.volatility=document.getElementById('carb-volatility').value; rec.charcoalWeight=document.getElementById('carb-charcoal-weight').value; rec.date=document.getElementById('carb-date').value;}
+  else if(m==='carbonization'){rec.biomassType=document.getElementById('carb-biomass-type').value; rec.tempStart=document.getElementById('carb-temp-start').value; rec.tempPeak=document.getElementById('carb-temp-peak').value; rec.peakTime=document.getElementById('carb-peak-time').value; rec.volatility=document.getElementById('carb-volatility').value; rec.charcoalWeight=document.getElementById('carb-charcoal-weight').value; rec.operator=document.getElementById('carb-operator').value; rec.date=document.getElementById('carb-date').value;}
   else if(m==='production'){rec.batch=document.getElementById('briquette-batch').value; rec.infeed=document.getElementById('briquette-infeed').value; rec.briquetteWeight=document.getElementById('briquette-weight').value; rec.volatility=document.getElementById('briquette-volatility').value; rec.status=document.getElementById('briquette-status').value; rec.date=document.getElementById('briquette-date').value;}
-  else if(m==='quality'){rec.batch=document.getElementById('quality-batch').value; rec.moisture=document.getElementById('quality-moisture').value; rec.volatile=document.getElementById('quality-volatile').value; rec.shapeCheck=document.getElementById('quality-shape').value; rec.date=document.getElementById('quality-date').value;}
-  else if(m==='safety'){rec.batch=document.getElementById('safety-batch').value; rec.location=document.getElementById('safety-location').value; rec.severity=document.getElementById('safety-sev').value; rec.status=document.getElementById('safety-status').value; rec.date=document.getElementById('safety-date').value;}
-  else if(m==='sales'){rec.batch=document.getElementById('sales-batch').value; rec.customer=document.getElementById('sales-cust').value; rec.date=document.getElementById('sales-date').value; rec.qty=document.getElementById('sales-qty').value; rec.total=document.getElementById('sales-total').value;}
-  else if(m==='users'){rec.userId=document.getElementById('user-id').value; rec.fullname=document.getElementById('user-fullname').value; rec.username=document.getElementById('user-name').value; rec.role=document.getElementById('user-role').value;}
+  else if(m==='quality'){rec.batch=document.getElementById('quality-batch').value; rec.briquetteQuality=document.getElementById('quality-briquette-quality').value; rec.moisture=document.getElementById('quality-moisture').value; rec.volatile=document.getElementById('quality-volatile').value; rec.strength=document.getElementById('quality-strength').value; rec.shapeCheck=document.getElementById('quality-shape').value; rec.date=document.getElementById('quality-date').value;}
+  else if(m==='safety'){rec.batch=document.getElementById('safety-batch').value; rec.location=document.getElementById('safety-location').value; rec.type=document.getElementById('safety-type').value; rec.severity=document.getElementById('safety-sev').value; rec.status=document.getElementById('safety-status').value; rec.reportedBy=document.getElementById('safety-reported').value; rec.date=document.getElementById('safety-date').value;}
+  else if(m==='sales'){rec.batch=document.getElementById('sales-batch').value; rec.customer=document.getElementById('sales-cust').value; rec.custType=document.getElementById('sales-cust-type').value; rec.qty=document.getElementById('sales-qty').value; rec.total=document.getElementById('sales-total').value; rec.payStatus=document.getElementById('sales-pay-status').value; rec.date=document.getElementById('sales-date').value;}
+  else if(m==='users'){rec.userId=document.getElementById('user-id').value; rec.fullname=document.getElementById('user-fullname').value; rec.username=document.getElementById('user-name').value; rec.role=document.getElementById('user-role').value; rec.status=document.getElementById('user-status').value;}
   else {rec.batch='BATCH-'+Date.now();}
   
   data[m].unshift(rec);
