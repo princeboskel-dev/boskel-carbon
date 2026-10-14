@@ -1,6 +1,22 @@
+To embed that image directly into your app without needing an external image hosting link, we can convert your brand image into an inline Data URI (or embed it using an SVG wrapper) right inside the Open Graph meta tags in your <head>.
+Here is the complete, updated code with the Open Graph preview tags configured, along with the 5-minute inactivity timeout for non-admin users and the audit tab restrictions:
+```html
 <!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 06:16 -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>boskel-carbon</title>
+
+<!-- Open Graph / WhatsApp Preview Meta Tags -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://boskel-carbon.vercel.app/">
+<meta property="og:title" content="🔥 BOSKEL-CARBON ERP">
+<meta property="og:description" content="Enterprise Briquette Management System • Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.">
+<meta property="og:image" content="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='630' viewBox='0 0 1200 630'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23123a6d'/%3E%3Cstop offset='55%25' stop-color='%23002147'/%3E%3Cstop offset='100%25' stop-color='%2300102a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='630' fill='url(%23bg)'/%3E%3Cg transform='translate(100, 150)'%3E%3Crect x='0' y='0' width='380' height='45' rx='22' fill='%230a4a8a' stroke='%234682B4' stroke-width='2'/%3E%3Ctext x='25' y='28' fill='%237ec0ff' font-family='Arial, sans-serif' font-size='16' font-weight='bold'%3E🔒 SECURED • BOSKEL-CARBON ERP%3E%3Ctext x='0' y='140' fill='%23ffffff' font-family='Arial, sans-serif' font-size='56' font-weight='900'%3E🔥 BOSKEL-CARBON%3E%3Ctext x='0' y='210' fill='%23cbd5e1' font-family='Arial, sans-serif' font-size='22'%3EEnterprise Briquette Management System • Sign in to access%3E%3Ctext x='0' y='250' fill='%23cbd5e1' font-family='Arial, sans-serif' font-size='22'%3EDashboard, Production, Sales, Quality &amp; Audit Trail.%3E%3C/g%3E%3C/svg%3E">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="🔥 BOSKEL-CARBON ERP">
+<meta name="twitter:description" content="Enterprise Briquette Management System • Sign in to access Dashboard, Production, Sales, Quality & Audit Trail.">
+
 <!-- Include Chart.js for Dashboard Graphical Visualizations -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>.live-float{position:fixed;top:12px;right:12px;z-index:999999;background:#16a34a;color:#fff;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:900;border:2px solid #fff}</style>
@@ -265,7 +281,7 @@ function wipeAllDemoData(){
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-quality" checked> Quality</label>
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-safety" checked> Safety</label>
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-sales" checked> Sales</label>
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="rep-chk-audit" checked> Audit Trail</label>
+    <label style="font-size:12px;font-weight:600" id="rep-chk-audit-wrap"><input type="checkbox" id="rep-chk-audit" checked> Audit Trail</label>
   </div>
 </div>
 
@@ -354,7 +370,7 @@ function save(k){
   if(typeof window.syncToFirebase === 'function') window.syncToFirebase();
 }
 
-function updateCounts(){Object.keys(data).forEach(k=>{const el=document.getElementById('count-'+k);if(el)el.textContent=data[k].length;}); try{if(document.getElementById('mod-dashboard')?.classList.contains('active')) generateDashboard();}catch(e){}}
+function updateCounts(){Object.keys(data).forEach(k=>{const el=document.getElementById('count-'+k);if(el)el.textContent=Array.isArray(data[k]) ? data[k].length : 0;}); try{if(document.getElementById('mod-dashboard')?.classList.contains('active')) generateDashboard();}catch(e){}}
 function getCurrentUser(){
   try{
     let sess = JSON.parse(localStorage.getItem(AUTH_KEY)||'null');
@@ -513,11 +529,12 @@ function clearAuditTrail(){
 function checkUserPermission(mod){
   let sess = checkAuth();
   if(!sess) return false;
-  if((sess.role||'').toLowerCase() === 'admin') return true;
   let acc = sess.access || {};
   let perm = acc[mod];
-  if(perm === 'view_only' || !perm) return false;
-  return true;
+  if(perm === 'view_only') return false;
+  if(perm === 'add_edit' || perm === 'full') return true;
+  if((sess.role||'').toLowerCase() === 'admin') return true;
+  return false;
 }
 
 function addRecord(module){
@@ -580,7 +597,7 @@ function clearAllUsers(){
 if(!checkUserPermission('users')){ alert('⛔ Permission Denied: View Only access cannot clear users.'); return; }
 if(!confirm('Remove ALL users?'))return;let count=data.users.length;data.users=[];save('users');addAuditDetailed({actionType:'Cleared',module:'users',batch:'ALL',details:'Cleared all '+count+' users',oldValue:count+' users',newValue:'0'});}
 
-function renderTable(m){if(m==='audit'){renderAuditTrail();return;}const tb=document.getElementById('tbody-'+m);if(!tb)return;tb.innerHTML='';let canWrite=checkUserPermission(m);data[m].forEach(r=>{let row='';if(m==='biomass')row=`<td><b>${r.batch||''}</b></td><td>${r.type||''}</td><td>${r.date||''}</td><td>${r.weight||''} kg</td><td>${r.location||''}</td>`;if(m==='carbonization')row=`<td><b>${r.biomassType}</b></td><td>${r.tempStart}°C</td><td>${r.tempPeak}°C</td><td>${r.peakTime}</td><td>${(r.startDT||'').replace('T',' ')}</td><td>${(r.finishDT||'').replace('T',' ')}</td><td>${r.dateCarb}</td><td>${r.volatility}%</td><td>${r.charcoalWeight||''} kg</td><td>${r.operator||''}</td>`;if(m==='production'){let sc=r.status==='Accept'?'#10b981':'#ef4444';let badge=`<span style="background:${sc};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.status||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.infeed||''} kg</td><td>${r.briquetteWeight||''} kg</td><td>${r.date||''}</td><td>${r.volatility||''}%</td><td>${badge}</td><td>${r.yield||'0'}%</td>`;}if(m==='quality'){let shapeColor=r.shapeCheck==='Accept'?'#10b981':'#ef4444';let shapeBadge=`<span style="background:${shapeColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.shapeCheck||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.testType||''}</td><td>${r.briquetteQuality||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.strength||''}</td><td>${r.breakEasily||''}</td><td>${shapeBadge}</td>`;}if(m==='safety'){let sevColor=r.severity==='Critical'?'#991b1b':r.severity==='High'?'#ef4444':r.severity==='Medium'?'#f59e0b':'#10b981';let sevBadge=`<span style="background:${sevColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.severity||''}</span>`;let statusDropdown=canWrite?`<select class="status-select" onchange="quickStatusChangeSafety(${r.id},this.value)" style="background:${r.status==='Resolved'?'#d1fae5':r.status==='Closed'?'#e5e7eb':r.status==='Open'?'#fee2e2':'#fef3c7'}"><option ${r.status==='Open'?'selected':''}>Open</option><option ${r.status==='Under Review'?'selected':''}>Under Review</option><option ${r.status==='Closed'?'selected':''}>Closed</option><option ${r.status==='Resolved'?'selected':''}>Resolved</option></select>`:`<b>${r.status}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.time||''}</td><td>${r.location||''}</td><td>${r.type||''}</td><td>${sevBadge}</td><td>${r.ppe||''}</td><td>${r.injury||''}</td><td>${statusDropdown}</td><td>${r.reported||''}</td>`;}if(m==='sales'){let payColor=r.payStatus==='Paid'?'#10b981':r.payStatus==='Pending'?'#ef4444':'#f59e0b';let delColor=r.deliveryStatus==='Delivered'?'#10b981':r.deliveryStatus==='Pending'?'#ef4444':'#4682B4';let payDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'payStatus',this.value)" style="background:${payColor};color:#fff"><option ${r.payStatus==='Paid'?'selected':''}>Paid</option><option ${r.payStatus==='Pending'?'selected':''}>Pending</option><option ${r.payStatus==='Partial'?'selected':''}>Partial</option></select>`:`<b>${r.payStatus}</b>`;let delDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'deliveryStatus',this.value)" style="background:${delColor};color:#fff"><option ${r.deliveryStatus==='Delivered'?'selected':''}>Delivered</option><option ${r.deliveryStatus==='Pending'?'selected':''}>Pending</option><option ${r.deliveryStatus==='Picked Up'?'selected':''}>Picked Up</option><option ${r.deliveryStatus==='In Transit'?'selected':''}>In Transit</option></select>`:`<b>${r.deliveryStatus}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.customer||''}</td><td>${r.custType||''}</td><td>${r.briquetteType||''}</td><td>${r.linkedBatch||''}</td><td>${r.qty||''} kg</td><td>₦${r.price||''}</td><td><b>₦${(parseFloat(r.total||0)).toLocaleString()}</b></td><td>${payDrop}</td><td>${delDrop}</td><td>${r.person||''}</td>`;}if(m==='users'){let roleBadge=`<span style="background:#002147;color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700">${r.role||''}</span>`;let statusColor=r.status==='Active'?'#10b981':r.status==='Inactive'?'#6b7280':'#ef4444';let statusDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeUser(${r.id},this.value)" style="background:${statusColor};color:#fff;font-weight:700"><option ${r.status==='Active'?'selected':''}>Active</option><option ${r.status==='Inactive'?'selected':''}>Inactive</option><option ${r.status==='Suspended'?'selected':''}>Suspended</option></select>`:`<b>${r.status}</b>`;let passMask=`<span style="font-family:monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px">${(r.password||'').substring(0,2)}••••• <button style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #ccc;cursor:pointer" onclick="alert('Password for ${r.username}:\\n${r.password}')">Show</button></span>`;let accessHtml=formatAccessForTable(r.access);row=`<td><b>${r.userId||''}</b></td><td>${r.fullname||''}</td><td><b>${r.username||''}</b></td><td>${passMask}</td><td>${roleBadge}</td><td style="max-width:250px">${accessHtml}</td><td>${statusDrop}</td>`;}
+function renderTable(m){if(m==='audit'){renderAuditTrail();return;}const tb=document.getElementById('tbody-'+m);if(!tb)return;tb.innerHTML='';let canWrite=checkUserPermission(m);let rows = Array.isArray(data[m]) ? data[m] : [];rows.forEach(r=>{let row='';if(m==='biomass')row=`<td><b>${r.batch||''}</b></td><td>${r.type||''}</td><td>${r.date||''}</td><td>${r.weight||''} kg</td><td>${r.location||''}</td>`;if(m==='carbonization')row=`<td><b>${r.biomassType}</b></td><td>${r.tempStart}°C</td><td>${r.tempPeak}°C</td><td>${r.peakTime}</td><td>${(r.startDT||'').replace('T',' ')}</td><td>${(r.finishDT||'').replace('T',' ')}</td><td>${r.dateCarb}</td><td>${r.volatility}%</td><td>${r.charcoalWeight||''} kg</td><td>${r.operator||''}</td>`;if(m==='production'){let sc=r.status==='Accept'?'#10b981':'#ef4444';let badge=`<span style="background:${sc};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.status||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.infeed||''} kg</td><td>${r.briquetteWeight||''} kg</td><td>${r.date||''}</td><td>${r.volatility||''}%</td><td>${badge}</td><td>${r.yield||'0'}%</td>`;}if(m==='quality'){let shapeColor=r.shapeCheck==='Accept'?'#10b981':'#ef4444';let shapeBadge=`<span style="background:${shapeColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.shapeCheck||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.testType||''}</td><td>${r.briquetteQuality||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.strength||''}</td><td>${r.breakEasily||''}</td><td>${shapeBadge}</td>`;}if(m==='safety'){let sevColor=r.severity==='Critical'?'#991b1b':r.severity==='High'?'#ef4444':r.severity==='Medium'?'#f59e0b':'#10b981';let sevBadge=`<span style="background:${sevColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.severity||''}</span>`;let statusDropdown=canWrite?`<select class="status-select" onchange="quickStatusChangeSafety(${r.id},this.value)" style="background:${r.status==='Resolved'?'#d1fae5':r.status==='Closed'?'#e5e7eb':r.status==='Open'?'#fee2e2':'#fef3c7'}"><option ${r.status==='Open'?'selected':''}>Open</option><option ${r.status==='Under Review'?'selected':''}>Under Review</option><option ${r.status==='Closed'?'selected':''}>Closed</option><option ${r.status==='Resolved'?'selected':''}>Resolved</option></select>`:`<b>${r.status}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.time||''}</td><td>${r.location||''}</td><td>${r.type||''}</td><td>${sevBadge}</td><td>${r.ppe||''}</td><td>${r.injury||''}</td><td>${statusDropdown}</td><td>${r.reported||''}</td>`;}if(m==='sales'){let payColor=r.payStatus==='Paid'?'#10b981':r.payStatus==='Pending'?'#ef4444':'#f59e0b';let delColor=r.deliveryStatus==='Delivered'?'#10b981':r.deliveryStatus==='Pending'?'#ef4444':'#4682B4';let payDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'payStatus',this.value)" style="background:${payColor};color:#fff"><option ${r.payStatus==='Paid'?'selected':''}>Paid</option><option ${r.payStatus==='Pending'?'selected':''}>Pending</option><option ${r.payStatus==='Partial'?'selected':''}>Partial</option></select>`:`<b>${r.payStatus}</b>`;let delDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'deliveryStatus',this.value)" style="background:${delColor};color:#fff"><option ${r.deliveryStatus==='Delivered'?'selected':''}>Delivered</option><option ${r.deliveryStatus==='Pending'?'selected':''}>Pending</option><option ${r.deliveryStatus==='Picked Up'?'selected':''}>Picked Up</option><option ${r.deliveryStatus==='In Transit'?'selected':''}>In Transit</option></select>`:`<b>${r.deliveryStatus}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.customer||''}</td><td>${r.custType||''}</td><td>${r.briquetteType||''}</td><td>${r.linkedBatch||''}</td><td>${r.qty||''} kg</td><td>₦${r.price||''}</td><td><b>₦${(parseFloat(r.total||0)).toLocaleString()}</b></td><td>${payDrop}</td><td>${delDrop}</td><td>${r.person||''}</td>`;}if(m==='users'){let roleBadge=`<span style="background:#002147;color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700">${r.role||''}</span>`;let statusColor=r.status==='Active'?'#10b981':r.status==='Inactive'?'#6b7280':'#ef4444';let statusDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeUser(${r.id},this.value)" style="background:${statusColor};color:#fff;font-weight:700"><option ${r.status==='Active'?'selected':''}>Active</option><option ${r.status==='Inactive'?'selected':''}>Inactive</option><option ${r.status==='Suspended'?'selected':''}>Suspended</option></select>`:`<b>${r.status}</b>`;let passMask=`<span style="font-family:monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px">${(r.password||'').substring(0,2)}••••• <button style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #ccc;cursor:pointer" onclick="alert('Password for ${r.username}:\\n${r.password}')">Show</button></span>`;let accessHtml=formatAccessForTable(r.access);row=`<td><b>${r.userId||''}</b></td><td>${r.fullname||''}</td><td><b>${r.username||''}</b></td><td>${passMask}</td><td>${roleBadge}</td><td style="max-width:250px">${accessHtml}</td><td>${statusDrop}</td>`;}
 let btn = '';
 if(canWrite && m!=='audit'){
   if(m==='users') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editUser(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
@@ -623,7 +640,7 @@ function exportAll(){
 // Dashboard graphical engine
 function generateDashboard(){
   try{
-    const b=data.biomass||[], p=data.production||[], s=data.sales||[], q=data.quality||[], sf=data.safety||[], c=data.carbonization||[];
+    const b=Array.isArray(data.biomass)?data.biomass:[], p=Array.isArray(data.production)?data.production:[], s=Array.isArray(data.sales)?data.sales:[], q=Array.isArray(data.quality)?data.quality:[], sf=Array.isArray(data.safety)?data.safety:[], c=Array.isArray(data.carbonization)?data.carbonization:[];
     let totalBioKg=b.reduce((a,r)=>a+parseFloat(r.weight||0),0);
     let totalProdKg=p.reduce((a,r)=>a+parseFloat(r.briquetteWeight||0),0);
     let totalInfeed=p.reduce((a,r)=>a+parseFloat(r.infeed||0),0);
@@ -786,12 +803,12 @@ function renderChartJsDashboard(b, p, s, c, q, sf) {
   }
 }
 
-function drawSparks(){const mk=(id,vals,color)=>{let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=80; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=40; if(!vals.length){ctx.restore();return;} let max=Math.max(...vals,1), min=Math.min(...vals); ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=1.5; vals.forEach((v,i)=>{let x=(i/(Math.max(vals.length-1,1)))*(w-4)+2; let y=h-4-((v-min)/(Math.max(max-min,1)))*(h-8); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);}); ctx.stroke(); ctx.restore();}; mk('dash-spark-biomass', data.biomass.slice(0,10).map(r=>parseFloat(r.weight||0)).reverse(), '#10b981'); mk('dash-spark-carb', data.carbonization.slice(0,10).map(r=>parseFloat(r.volatility||0)).reverse(), '#ef4444'); mk('dash-spark-prod', data.production.slice(0,10).map(r=>parseFloat(r.yield||0)).reverse(), '#002147'); mk('dash-spark-qual', data.quality.slice(0,10).map(r=>parseFloat(r.moisture||0)).reverse(), '#8b5cf6'); mk('dash-spark-safety', data.safety.slice(0,10).map((_,i)=>i+1).reverse(), '#f59e0b'); mk('dash-spark-sales', data.sales.slice(0,10).map(r=>parseFloat(r.total||0)).reverse(), '#0ea5e9');}
+function drawSparks(){const mk=(id,vals,color)=>{let c=document.getElementById(id); if(!c) return; let ctx=c.getContext('2d'); let W=c.width=c.clientWidth*2; let H=c.height=80; ctx.clearRect(0,0,W,H); ctx.save(); ctx.scale(2,2); let w=c.clientWidth,h=40; if(!vals.length){ctx.restore();return;} let max=Math.max(...vals,1), min=Math.min(...vals); ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=1.5; vals.forEach((v,i)=>{let x=(i/(Math.max(vals.length-1,1)))*(w-4)+2; let y=h-4-((v-min)/(Math.max(max-min,1)))*(h-8); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);}); ctx.stroke(); ctx.restore();}; mk('dash-spark-biomass', (Array.isArray(data.biomass)?data.biomass:[]).slice(0,10).map(r=>parseFloat(r.weight||0)).reverse(), '#10b981'); mk('dash-spark-carb', (Array.isArray(data.carbonization)?data.carbonization:[]).slice(0,10).map(r=>parseFloat(r.volatility||0)).reverse(), '#ef4444'); mk('dash-spark-prod', (Array.isArray(data.production)?data.production:[]).slice(0,10).map(r=>parseFloat(r.yield||0)).reverse(), '#002147'); mk('dash-spark-qual', (Array.isArray(data.quality)?data.quality:[]).slice(0,10).map(r=>parseFloat(r.moisture||0)).reverse(), '#8b5cf6'); mk('dash-spark-safety', (Array.isArray(data.safety)?data.safety:[]).slice(0,10).map((_,i)=>i+1).reverse(), '#f59e0b'); mk('dash-spark-sales', (Array.isArray(data.sales)?data.sales:[]).slice(0,10).map(r=>parseFloat(r.total||0)).reverse(), '#0ea5e9');}
 function buildInsights(b,p,s,q,sf,c,totalBioKg,totalProdKg,avgYield,totalRev,paidRev,qualPass,safetyOpen,safetyCrit){let el=document.getElementById('dash-insights'); if(!el) return; let ins=[]; if(avgYield<60 && p.length>0) ins.push(`⚠️ <b>Low Yield:</b> ${avgYield}% below optimal 70%.`); else if(avgYield>=75 && p.length>0) ins.push(`✅ <b>Excellent Yield:</b> ${avgYield}% efficient.`); if(totalBioKg - totalProdKg < 100 && totalBioKg>0) ins.push(`📦 <b>Low Stock:</b> Only ${(totalBioKg-totalProdKg).toFixed(1)}kg left.`); if(qualPass<80 && q.length>0) ins.push(`🧪 <b>Quality:</b> Pass rate ${qualPass}% needs attention.`); if(safetyOpen>0) ins.push(`🦺 <b>Safety:</b> ${safetyOpen} open, ${safetyCrit} critical/high.`); if(totalRev>0 && paidRev/totalRev<0.7) ins.push(`💰 <b>Collection:</b> Only ${(paidRev/totalRev*100).toFixed(0)}% collected.`); if(ins.length===0) ins.push('📊 All systems nominal.'); el.innerHTML=ins.map(i=>`<div style="padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">${i}</div>`).join('');}
 
 // Reports PRO logic
 let currentReportData=[];
-function getFilteredData(){const from=document.getElementById('rep-from')?.value||''; const to=document.getElementById('rep-to')?.value||''; const search=document.getElementById('rep-search')?.value.trim()||''; let result={biomass:[],carbonization:[],production:[],quality:[],safety:[],sales:[],users:[],audit:[]}; Object.keys(result).forEach(k=>{result[k]=data[k].filter(r=>{let rd=r.date||r.dateCarb||''; if(from && rd && rd < from) return false; if(to && rd && rd > to) return false; if(search && !JSON.stringify(r).toLowerCase().includes(search.toLowerCase())) return false; return true;});}); return result;}
+function getFilteredData(){const from=document.getElementById('rep-from')?.value||''; const to=document.getElementById('rep-to')?.value||''; const search=document.getElementById('rep-search')?.value.trim()||''; let result={biomass:[],carbonization:[],production:[],quality:[],safety:[],sales:[],users:[],audit:[]}; Object.keys(result).forEach(k=>{let arr = Array.isArray(data[k]) ? data[k] : []; result[k]=arr.filter(r=>{let rd=r.date||r.dateCarb||''; if(from && rd && rd < from) return false; if(to && rd && rd > to) return false; if(search && !JSON.stringify(r).toLowerCase().includes(search.toLowerCase())) return false; return true;});}); return result;}
 function applyPreset(){let p=document.getElementById('rep-preset').value; let fromEl=document.getElementById('rep-from'); let toEl=document.getElementById('rep-to'); let today=new Date(); let from='',to=today.toISOString().slice(0,10); if(p==='today') from=to; else if(p==='week'){let d=new Date();d.setDate(d.getDate()-7); from=d.toISOString().slice(0,10);} else if(p==='month'){let d=new Date(today.getFullYear(),today.getMonth(),1); from=d.toISOString().slice(0,10);} else if(p==='quarter'){let d=new Date();d.setDate(d.getDate()-90); from=d.toISOString().slice(0,10);} else if(p==='year'){from=today.getFullYear()+'-01-01';} else if(p==='all'){from=''; to='';} fromEl.value=from; toEl.value=to; generateReportPRO();}
 function generateReportPRO(){
   try{
@@ -799,20 +816,25 @@ function generateReportPRO(){
   let totalBio=f.biomass.reduce((s,r)=>s+parseFloat(r.weight||0),0); let totalProd=f.production.reduce((s,r)=>s+parseFloat(r.briquetteWeight||0),0); let totalInfeed=f.production.reduce((s,r)=>s+parseFloat(r.infeed||0),0); let avgYield=totalInfeed? (totalProd/totalInfeed*100).toFixed(1):0; let totalSalesKg=f.sales.reduce((s,r)=>s+parseFloat(r.qty||0),0); let totalRev=f.sales.reduce((s,r)=>s+parseFloat(r.total||0),0); let paidRev=f.sales.filter(r=>r.payStatus==='Paid').reduce((s,r)=>s+parseFloat(r.total||0),0); let qAccept=f.quality.filter(r=>r.shapeCheck==='Accept').length;
   let kpiHtml=`<div class="kpi oxford"><h4>Biomass</h4><div class="val">${totalBio.toLocaleString()} kg</div><div class="sub">${f.biomass.length} batches</div></div><div class="kpi success"><h4>Production</h4><div class="val">${totalProd.toLocaleString()} kg</div><div class="sub">Yield ${avgYield}%</div></div><div class="kpi" style="border-left-color:#0ea5e9"><h4>Sales</h4><div class="val">₦${totalRev.toLocaleString()}</div><div class="sub">${totalSalesKg} kg sold</div></div><div class="kpi warning"><h4>Quality Pass</h4><div class="val">${f.quality.length? ((qAccept/f.quality.length)*100).toFixed(1):0}%</div></div>`;
   let kgEl=document.getElementById('kpi-grid'); if(kgEl) kgEl.innerHTML=kpiHtml;
-  let meta=document.getElementById('rep-meta'); if(meta) meta.textContent=`Report ${type} | ${Object.values(f).reduce((a,b)=>a+b.length,0)} records`;
+  let meta=document.getElementById('rep-meta'); if(meta) meta.textContent=`Report ${type} | ${Object.values(f).reduce((a,b)=>a+(Array.isArray(b)?b.length:0),0)} records`;
   
   let html=`<div class="report-section"><h3>Report: ${type.toUpperCase()}</h3><p style="font-size:12px">Biomass ${totalBio}kg | Production ${totalProd}kg | Sales ${totalSalesKg}kg | Revenue ₦${totalRev.toLocaleString()}</p></div>`;
   
   let selectedModules = [];
+  let sess = checkAuth();
+  let role = sess ? (sess.role||'').toLowerCase() : '';
   ['biomass','carbonization','production','quality','safety','sales','audit'].forEach(m=>{
     let chk = document.getElementById('rep-chk-'+m);
-    if(chk && chk.checked) selectedModules.push(m);
+    if(chk && chk.checked) {
+      if(m === 'audit' && role !== 'admin') return;
+      selectedModules.push(m);
+    }
   });
 
   selectedModules.forEach(mod=>{
     let arr = f[mod] || [];
     if(arr.length > 0){
-      html+=`<div class="report-section"><h3>Module: ${mod.toUpperCase()} (${arr.length})</h3><div class="table-wrap"><table><thead><tr>`;
+      html+=`<div class="report-section"><h3>Module: ${mod.toUpperCase()} (${arr.length})</h3><div class="table-wrap"><thead><tr>`;
       let keys = Object.keys(arr[0]).filter(k=>k!=='id').slice(0,6);
       keys.forEach(k=>html+=`<th>${k}</th>`);
       html+=`</tr></thead><tbody>`;
@@ -859,6 +881,31 @@ function generateReport(){generateReportPRO();}
 const AUTH_KEY = 'boskel_auth_session_v1';
 const DEFAULT_ADMIN = {username:'admin', password:'Admin@6341', fullname:'System Administrator', role:'Admin', userId:'USER-ADMIN-001', status:'Active', access:{dashboard:'full', biomass:'full', carbonization:'full', production:'full', quality:'full', safety:'full', sales:'full', users:'full', audit:'full', reports:'full'}};
 
+let inactivityTimer = null;
+function resetInactivityTimer(){
+  if(inactivityTimer) clearTimeout(inactivityTimer);
+  let sess = checkAuth();
+  if(!sess) return;
+  let role = (sess.role||'').toLowerCase();
+  if(role === 'admin') return; // Admin is exempt from inactivity timeout
+
+  // 5 minutes = 300,000 milliseconds
+  inactivityTimer = setTimeout(()=>{
+    let currentSess = checkAuth();
+    if(currentSess && (currentSess.role||'').toLowerCase() !== 'admin'){
+      alert('⚠️ Your session has expired due to 5 minutes of inactivity.');
+      clearAuth();
+    }
+  }, 5 * 60 * 1000);
+}
+
+// Track user activity events
+['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(evt => {
+  window.addEventListener(evt, () => {
+    resetInactivityTimer();
+  }, { passive: true });
+});
+
 function getAuthUsers(){
   try{
     let users = JSON.parse(localStorage.getItem('boskel_users_clean_v4')||'[]');
@@ -888,6 +935,7 @@ function checkAuth(){
 
 function clearAuth(){
   localStorage.removeItem(AUTH_KEY);
+  if(inactivityTimer) clearTimeout(inactivityTimer);
   document.body.classList.add('app-locked');
   let overlay = document.getElementById('loginOverlay');
   if(overlay) overlay.style.display='flex';
@@ -908,6 +956,7 @@ function setAuth(user){
   let overlay = document.getElementById('loginOverlay');
   if(overlay) overlay.style.display='none';
   updateAuthUI(sess);
+  resetInactivityTimer();
   try{ addAuditDetailed({actionType:'Login', module:'dashboard', batch:sess.username, details:'User '+sess.username+' logged in as '+sess.role, user:sess.username}); }catch(e){}
 }
 
@@ -936,15 +985,23 @@ function applyAccessControl(sess){
   if(btnWipe) btnWipe.style.display = (role === 'admin') ? 'inline-block' : 'none';
   if(btnExport) btnExport.style.display = (role === 'admin') ? 'inline-block' : 'none';
 
+  let auditWrap = document.getElementById('rep-chk-audit-wrap');
+  if(auditWrap) auditWrap.style.display = (role === 'admin') ? 'inline-block' : 'none';
+
   let repExportBar = document.getElementById('reportExportBar');
   if(repExportBar) {
-    let exportBtns = repExportBar.querySelectorAll('button:not(:first-child)');
+    let printBtn = repExportBar.querySelector('button[onclick="printReport()"]');
+    let exportBtns = repExportBar.querySelectorAll('button:not(:first-child):not([onclick="printReport()"])');
     exportBtns.forEach(b => b.style.display = (role === 'admin') ? 'inline-block' : 'none');
+    if(printBtn) printBtn.style.display = 'inline-block';
   }
 
   document.querySelectorAll('.nav-item').forEach(el=>{
     let mod = el.dataset.mod;
-    if(mod==='dashboard' || mod==='reports'){ el.style.display='flex'; return; }
+    if(mod==='dashboard' || mod==='reports'){ 
+      el.style.display = (role === 'admin' || access[mod] || access['reports']) ? 'flex' : 'none'; 
+      return; 
+    }
     
     if(mod === 'users' || mod === 'audit'){
       if(role === 'admin'){
@@ -1024,7 +1081,7 @@ function toggleLoginPass(){
     document.body.classList.remove('app-locked');
     let overlay = document.getElementById('loginOverlay');
     if(overlay) overlay.style.display='none';
-    setTimeout(()=>{updateAuthUI(sess);},100);
+    setTimeout(()=>{updateAuthUI(sess); resetInactivityTimer();},100);
   } else {
     document.body.classList.add('app-locked');
     let overlay = document.getElementById('loginOverlay');
@@ -1077,9 +1134,13 @@ function exportReportWord(){
     html += '</div>';
 
     let selectedModules = [];
+    let role = sess ? (sess.role||'').toLowerCase() : '';
     ['biomass','carbonization','production','quality','safety','sales','audit'].forEach(m=>{
       let chk = document.getElementById('rep-chk-'+m);
-      if(chk && chk.checked) selectedModules.push(m);
+      if(chk && chk.checked) {
+        if(m === 'audit' && role !== 'admin') return;
+        selectedModules.push(m);
+      }
     });
 
     selectedModules.forEach(mod=>{
@@ -1135,7 +1196,12 @@ let isUpdatingFromRemote = false;
 window.syncToFirebase = function() {
   if (isUpdatingFromRemote) return;
   if (window.data) {
-    set(dataRef, window.data).catch(e => console.error("Firebase Sync Error:", e));
+    let cleanData = {};
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      cleanData[k] = Array.isArray(window.data[k]) ? window.data[k] : [];
+    });
+    cleanData.audit = Array.isArray(window.data.audit) ? window.data.audit : [];
+    set(dataRef, cleanData).catch(e => console.error("Firebase Sync Error:", e));
   }
 };
 
@@ -1154,21 +1220,30 @@ onValue(ref(db, '.info/connected'), (snap) => {
 
 onValue(dataRef, (snapshot) => {
   const remoteData = snapshot.val();
+  isUpdatingFromRemote = true;
   if (remoteData) {
-    isUpdatingFromRemote = true;
     Object.keys(STORAGE_KEYS).forEach(k => {
-      window.data[k] = remoteData[k] || [];
+      window.data[k] = Array.isArray(remoteData[k]) ? remoteData[k] : [];
       localStorage.setItem(STORAGE_KEYS[k], JSON.stringify(window.data[k]));
     });
     if (remoteData.audit) {
-      window.data.audit = remoteData.audit;
-      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
+      window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
     }
-    if (typeof window.renderAll === 'function') {
-      window.renderAll();
-    }
-    isUpdatingFromRemote = false;
+  } else {
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      window.data[k] = [];
+      localStorage.setItem(STORAGE_KEYS[k], JSON.stringify([]));
+    });
+    window.data.audit = [];
+    localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify([]));
   }
+  if (typeof window.renderAll === 'function') {
+    window.renderAll();
+  }
+  isUpdatingFromRemote = false;
 });
 </script>
 </body></html>
+
+```
