@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- FINAL boskel-carbon LIVE GREEN Oct6 06:16 -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>boskel-carbon</title>
 <!-- Include Chart.js for Dashboard Graphical Visualizations -->
@@ -70,16 +70,32 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--oxf
 .app-locked .sidebar, .app-locked .main{filter:blur(8px);pointer-events:none;user-select:none}
 </style></head>
 <script>
+(function wipeDemo(){
+  try{
+    if(window.location.search.includes('clean') || window.location.search.includes('wipe')){
+      Object.keys(localStorage).forEach(k=>{
+        if(k.startsWith('boskel_')) localStorage.removeItem(k);
+      });
+      localStorage.clear();
+    }
+  }catch(e){}
+})();
 function wipeAllDemoData(){
   let sess = checkAuth();
   if(!sess || (sess.role || '').toLowerCase() !== 'admin') {
     alert('⛔ Permission Denied: Only the Administrator can wipe system data.');
     return;
   }
-  if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete all Sales, Biomass, Production, Quality, Safety, and Audit Logs.\n\nContinue?')) return;
+  if(!confirm('🗑️ REMOVE ALL EXISTING DATA?\n\nThis will delete:\n- All Sales\n- All Biomass, Production, Quality, Safety\n- All Audit Logs\n- All Users\n\nContinue?')) return;
   try{
-    let keys = ['boskel_biomass','boskel_carbonization','boskel_production','boskel_quality','boskel_safety','boskel_sales','boskel_users','boskel_audit','boskel_audit_trail_full_v1','boskelData'];
+    let keys = [
+      'boskel_biomass','boskel_carbonization','boskel_production','boskel_quality','boskel_safety','boskel_sales','boskel_users','boskel_users_clean_v4','boskel_audit','boskel_audit_trail_full_v1','boskel_audit_fixed_v1',
+      'boskel_quality_fixed_v1','boskel_biomass_counter','boskel_briquette_counter','boskel_quality_counter','boskel_quality_counter_fixed_v1','boskel_safety_counter','boskel_sales_counter','boskel_user_counter_v4','boskel_session','boskel_session_id','boskelData'
+    ];
     keys.forEach(k=>localStorage.removeItem(k));
+    Object.keys(localStorage).forEach(k=>{
+      if(k.toLowerCase().includes('boskel') || k.toLowerCase().includes('briquette') || k.toLowerCase().includes('biomass')) localStorage.removeItem(k);
+    });
     if(window.data){
       Object.keys(window.data).forEach(k=>window.data[k]=[]);
       if(window.syncToFirebase) window.syncToFirebase();
@@ -103,12 +119,12 @@ function wipeAllDemoData(){
       <div id="loginError" class="login-error">❌ Invalid username or password</div>
       <div class="login-field">
         <label>👤 Username</label>
-        <input type="text" id="loginUsername" placeholder="Enter username" value="" autocomplete="off" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="text" id="loginUsername" placeholder="Enter username" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter') doLogin()">
       </div>
       <div class="login-field">
         <label>🔑 Password</label>
         <div style="display:flex;gap:8px">
-          <input type="password" id="loginPassword" placeholder="Enter password" value="" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
+          <input type="password" id="loginPassword" placeholder="Enter password" value="" autocomplete="new-password" style="flex:1" onkeydown="if(event.key==='Enter') doLogin()">
           <button type="button" class="btn btn-accent" style="padding:0 12px" onclick="toggleLoginPass()">👁</button>
         </div>
       </div>
@@ -117,7 +133,7 @@ function wipeAllDemoData(){
       </div>
     </div>
     <div class="login-footer">
-      <span>🛡️ Session secured • Auto-lock on inactivity</span>
+      <span>🛡️ Session secured • Auto-lock on logout</span>
       <span id="loginDate"></span>
     </div>
   </div>
@@ -136,7 +152,7 @@ function wipeAllDemoData(){
 <div class="nav-item" data-mod="reports">📈 Reports</div>
 </div>
 <div class="main">
-<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export" id="btnExportAll">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo data" id="btnWipeData">🗑️ Wipe Data</button></div></div>
+<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export" id="btnExportAll">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo sales data" id="btnWipeData">🗑️ Wipe Data</button></div></div>
 
 <div class="module active" id="mod-dashboard">
 <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
@@ -333,8 +349,7 @@ window.renderAll = function(){
 function save(k){
   localStorage.setItem(STORAGE_KEYS[k],JSON.stringify(data[k]));
   if(k==='users'){localStorage.setItem('boskel_user_counter_v4',userCounter.toString());}
-  renderTable(k);
-  updateCounts();
+  window.renderAll();
   if(k==='production')refreshLinkedBatches();
   if(typeof window.syncToFirebase === 'function') window.syncToFirebase();
 }
@@ -410,7 +425,7 @@ function renderAuditTrail(filteredData=null){
   if(!tb) return;
   const list = filteredData || data.audit;
   tb.innerHTML='';
-  list.slice(0, 100).forEach(r=>{
+  list.forEach(r=>{
     let badgeClass='badge-added';
     if(r.actionType==='Added') badgeClass='badge-added';
     else if(r.actionType==='Edited') badgeClass='badge-edited';
@@ -422,8 +437,8 @@ function renderAuditTrail(filteredData=null){
     let oldNew = r.oldNew || (r.oldValue? r.oldValue + ' → ' + r.newValue : r.details || '-');
     tb.innerHTML+=`<tr><td style="white-space:nowrap;font-size:10px">${r.fullTime}</td><td>${r.date}</td><td>${r.time}</td><td><b>${r.user}</b></td><td>${badge}</td><td><span style="background:#002147;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px">${r.module}</span></td><td><b>${r.batch||'-'}</b></td><td style="max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.details}">${r.details}</td><td style="max-width:200px;font-size:11px" title="${oldNew}">${oldNew}</td><td style="font-size:10px;color:#64748b">${r.ip}<br>${r.sessionId}</td></tr>`;
   });
-  document.getElementById('audit-showing').textContent=Math.min(list.length, 100);
-  document.getElementById('audit-total').textContent=list.length;
+  document.getElementById('audit-showing').textContent=list.length;
+  document.getElementById('audit-total').textContent=data.audit.length;
 }
 
 function filterAudit(){
@@ -566,37 +581,17 @@ function clearAllUsers(){
 if(!checkUserPermission('users')){ alert('⛔ Permission Denied: View Only access cannot clear users.'); return; }
 if(!confirm('Remove ALL users?'))return;let count=data.users.length;data.users=[];save('users');addAuditDetailed({actionType:'Cleared',module:'users',batch:'ALL',details:'Cleared all '+count+' users',oldValue:count+' users',newValue:'0'});}
 
-function renderTable(m){
-  if(m==='audit'){renderAuditTrail();return;}
-  const tb=document.getElementById('tbody-'+m);
-  if(!tb)return;
-  tb.innerHTML='';
-  let canWrite=checkUserPermission(m);
-  let rows = Array.isArray(data[m]) ? data[m] : [];
-  let displayRows = rows.slice(0, 100);
-  let htmlString = '';
-  displayRows.forEach(r=>{
-    let row='';
-    if(m==='biomass')row=`<td><b>${r.batch||''}</b></td><td>${r.type||''}</td><td>${r.date||''}</td><td>${r.weight||''} kg</td><td>${r.location||''}</td>`;
-    else if(m==='carbonization')row=`<td><b>${r.biomassType}</b></td><td>${r.tempStart}°C</td><td>${r.tempPeak}°C</td><td>${r.peakTime}</td><td>${(r.startDT||'').replace('T',' ')}</td><td>${(r.finishDT||'').replace('T',' ')}</td><td>${r.dateCarb}</td><td>${r.volatility}%</td><td>${r.charcoalWeight||''} kg</td><td>${r.operator||''}</td>`;
-    else if(m==='production'){let sc=r.status==='Accept'?'#10b981':'#ef4444';let badge=`<span style="background:${sc};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.status||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.infeed||''} kg</td><td>${r.briquetteWeight||''} kg</td><td>${r.date||''}</td><td>${r.volatility||''}%</td><td>${badge}</td><td>${r.yield||'0'}%</td>`;}
-    else if(m==='quality'){let shapeColor=r.shapeCheck==='Accept'?'#10b981':'#ef4444';let shapeBadge=`<span style="background:${shapeColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.shapeCheck||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.testType||''}</td><td>${r.briquetteQuality||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.strength||''}</td><td>${r.breakEasily||''}</td><td>${shapeBadge}</td>`;}
-    else if(m==='safety'){let sevColor=r.severity==='Critical'?'#991b1b':r.severity==='High'?'#ef4444':r.severity==='Medium'?'#f59e0b':'#10b981';let sevBadge=`<span style="background:${sevColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.severity||''}</span>`;let statusDropdown=canWrite?`<select class="status-select" onchange="quickStatusChangeSafety(${r.id},this.value)" style="background:${r.status==='Resolved'?'#d1fae5':r.status==='Closed'?'#e5e7eb':r.status==='Open'?'#fee2e2':'#fef3c7'}"><option ${r.status==='Open'?'selected':''}>Open</option><option ${r.status==='Under Review'?'selected':''}>Under Review</option><option ${r.status==='Closed'?'selected':''}>Closed</option><option ${r.status==='Resolved'?'selected':''}>Resolved</option></select>`:`<b>${r.status}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.time||''}</td><td>${r.location||''}</td><td>${r.type||''}</td><td>${sevBadge}</td><td>${r.ppe||''}</td><td>${r.injury||''}</td><td>${statusDropdown}</td><td>${r.reported||''}</td>`;}
-    else if(m==='sales'){let payColor=r.payStatus==='Paid'?'#10b981':r.payStatus==='Pending'?'#ef4444':'#f59e0b';let delColor=r.deliveryStatus==='Delivered'?'#10b981':r.deliveryStatus==='Pending'?'#ef4444':'#4682B4';let payDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'payStatus',this.value)" style="background:${payColor};color:#fff"><option ${r.payStatus==='Paid'?'selected':''}>Paid</option><option ${r.payStatus==='Pending'?'selected':''}>Pending</option><option ${r.payStatus==='Partial'?'selected':''}>Partial</option></select>`:`<b>${r.payStatus}</b>`;let delDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'deliveryStatus',this.value)" style="background:${delColor};color:#fff"><option ${r.deliveryStatus==='Delivered'?'selected':''}>Delivered</option><option ${r.deliveryStatus==='Pending'?'selected':''}>Pending</option><option ${r.deliveryStatus==='Picked Up'?'selected':''}>Picked Up</option><option ${r.deliveryStatus==='In Transit'?'selected':''}>In Transit</option></select>`:`<b>${r.deliveryStatus}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.customer||''}</td><td>${r.custType||''}</td><td>${r.briquetteType||''}</td><td>${r.linkedBatch||''}</td><td>${r.qty||''} kg</td><td>₦${r.price||''}</td><td><b>₦${(parseFloat(r.total||0)).toLocaleString()}</b></td><td>${payDrop}</td><td>${delDrop}</td><td>${r.person||''}</td>`;}
-    else if(m==='users'){let roleBadge=`<span style="background:#002147;color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700">${r.role||''}</span>`;let statusColor=r.status==='Active'?'#10b981':r.status==='Inactive'?'#6b7280':'#ef4444';let statusDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeUser(${r.id},this.value)" style="background:${statusColor};color:#fff;font-weight:700"><option ${r.status==='Active'?'selected':''}>Active</option><option ${r.status==='Inactive'?'selected':''}>Inactive</option><option ${r.status==='Suspended'?'selected':''}>Suspended</option></select>`:`<b>${r.status}</b>`;let passMask=`<span style="font-family:monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px">${(r.password||'').substring(0,2)}••••• <button style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #ccc;cursor:pointer" onclick="alert('Password for ${r.username}:\\n${r.password}')">Show</button></span>`;let accessHtml=formatAccessForTable(r.access);row=`<td><b>${r.userId||''}</b></td><td>${r.fullname||''}</td><td><b>${r.username||''}</b></td><td>${passMask}</td><td>${roleBadge}</td><td style="max-width:250px">${accessHtml}</td><td>${statusDrop}</td>`;}
-    let btn = '';
-    if(canWrite && m!=='audit'){
-      if(m==='users') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editUser(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
-      else if(m==='safety') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editSafety(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
-      else if(m==='sales') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editSales(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
-      else btn=`<td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></td>`;
-    } else if(m!=='audit') {
-      btn=`<td style="color:#94a3b8;font-size:11px">View Only</td>`;
-    }
-    htmlString+=`<tr>${row}${btn}</tr>`;
-  });
-  tb.innerHTML = htmlString;
+function renderTable(m){if(m==='audit'){renderAuditTrail();return;}const tb=document.getElementById('tbody-'+m);if(!tb)return;tb.innerHTML='';let canWrite=checkUserPermission(m);let rows = Array.isArray(data[m]) ? data[m] : [];rows.forEach(r=>{let row='';if(m==='biomass')row=`<td><b>${r.batch||''}</b></td><td>${r.type||''}</td><td>${r.date||''}</td><td>${r.weight||''} kg</td><td>${r.location||''}</td>`;if(m==='carbonization')row=`<td><b>${r.biomassType}</b></td><td>${r.tempStart}°C</td><td>${r.tempPeak}°C</td><td>${r.peakTime}</td><td>${(r.startDT||'').replace('T',' ')}</td><td>${(r.finishDT||'').replace('T',' ')}</td><td>${r.dateCarb}</td><td>${r.volatility}%</td><td>${r.charcoalWeight||''} kg</td><td>${r.operator||''}</td>`;if(m==='production'){let sc=r.status==='Accept'?'#10b981':'#ef4444';let badge=`<span style="background:${sc};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.status||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.infeed||''} kg</td><td>${r.briquetteWeight||''} kg</td><td>${r.date||''}</td><td>${r.volatility||''}%</td><td>${badge}</td><td>${r.yield||'0'}%</td>`;}if(m==='quality'){let shapeColor=r.shapeCheck==='Accept'?'#10b981':'#ef4444';let shapeBadge=`<span style="background:${shapeColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.shapeCheck||''}</span>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.testType||''}</td><td>${r.briquetteQuality||''}</td><td>${r.moisture||''}%</td><td>${r.volatile||''}%</td><td>${r.strength||''}</td><td>${r.breakEasily||''}</td><td>${shapeBadge}</td>`;}if(m==='safety'){let sevColor=r.severity==='Critical'?'#991b1b':r.severity==='High'?'#ef4444':r.severity==='Medium'?'#f59e0b':'#10b981';let sevBadge=`<span style="background:${sevColor};color:#fff;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">${r.severity||''}</span>`;let statusDropdown=canWrite?`<select class="status-select" onchange="quickStatusChangeSafety(${r.id},this.value)" style="background:${r.status==='Resolved'?'#d1fae5':r.status==='Closed'?'#e5e7eb':r.status==='Open'?'#fee2e2':'#fef3c7'}"><option ${r.status==='Open'?'selected':''}>Open</option><option ${r.status==='Under Review'?'selected':''}>Under Review</option><option ${r.status==='Closed'?'selected':''}>Closed</option><option ${r.status==='Resolved'?'selected':''}>Resolved</option></select>`:`<b>${r.status}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.time||''}</td><td>${r.location||''}</td><td>${r.type||''}</td><td>${sevBadge}</td><td>${r.ppe||''}</td><td>${r.injury||''}</td><td>${statusDropdown}</td><td>${r.reported||''}</td>`;}if(m==='sales'){let payColor=r.payStatus==='Paid'?'#10b981':r.payStatus==='Pending'?'#ef4444':'#f59e0b';let delColor=r.deliveryStatus==='Delivered'?'#10b981':r.deliveryStatus==='Pending'?'#ef4444':'#4682B4';let payDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'payStatus',this.value)" style="background:${payColor};color:#fff"><option ${r.payStatus==='Paid'?'selected':''}>Paid</option><option ${r.payStatus==='Pending'?'selected':''}>Pending</option><option ${r.payStatus==='Partial'?'selected':''}>Partial</option></select>`:`<b>${r.payStatus}</b>`;let delDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeSales(${r.id},'deliveryStatus',this.value)" style="background:${delColor};color:#fff"><option ${r.deliveryStatus==='Delivered'?'selected':''}>Delivered</option><option ${r.deliveryStatus==='Pending'?'selected':''}>Pending</option><option ${r.deliveryStatus==='Picked Up'?'selected':''}>Picked Up</option><option ${r.deliveryStatus==='In Transit'?'selected':''}>In Transit</option></select>`:`<b>${r.deliveryStatus}</b>`;row=`<td><b>${r.batch||''}</b></td><td>${r.date||''}</td><td>${r.customer||''}</td><td>${r.custType||''}</td><td>${r.briquetteType||''}</td><td>${r.linkedBatch||''}</td><td>${r.qty||''} kg</td><td>₦${r.price||''}</td><td><b>₦${(parseFloat(r.total||0)).toLocaleString()}</b></td><td>${payDrop}</td><td>${delDrop}</td><td>${r.person||''}</td>`;}if(m==='users'){let roleBadge=`<span style="background:#002147;color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700">${r.role||''}</span>`;let statusColor=r.status==='Active'?'#10b981':r.status==='Inactive'?'#6b7280':'#ef4444';let statusDrop=canWrite?`<select class="status-select" onchange="quickStatusChangeUser(${r.id},this.value)" style="background:${statusColor};color:#fff;font-weight:700"><option ${r.status==='Active'?'selected':''}>Active</option><option ${r.status==='Inactive'?'selected':''}>Inactive</option><option ${r.status==='Suspended'?'selected':''}>Suspended</option></select>`:`<b>${r.status}</b>`;let passMask=`<span style="font-family:monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px">${(r.password||'').substring(0,2)}••••• <button style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #ccc;cursor:pointer" onclick="alert('Password for ${r.username}:\\n${r.password}')">Show</button></span>`;let accessHtml=formatAccessForTable(r.access);row=`<td><b>${r.userId||''}</b></td><td>${r.fullname||''}</td><td><b>${r.username||''}</b></td><td>${passMask}</td><td>${roleBadge}</td><td style="max-width:250px">${accessHtml}</td><td>${statusDrop}</td>`;}
+let btn = '';
+if(canWrite && m!=='audit'){
+  if(m==='users') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editUser(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
+  else if(m==='safety') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editSafety(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
+  else if(m==='sales') btn=`<td><div style="display:flex;gap:4px"><button class="btn btn-edit" style="padding:4px 8px;font-size:11px" onclick="editSales(${r.id})">Edit</button><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></div></td>`;
+  else btn=`<td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteRecord('${m}',${r.id})">Del</button></td>`;
+} else if(m!=='audit') {
+  btn=`<td style="color:#94a3b8;font-size:11px">View Only</td>`;
 }
+tb.innerHTML+=`<tr>${row}${btn}</tr>`;});}
 
 function switchModule(m){
   document.querySelectorAll('.module').forEach(x=>x.classList.remove('active'));
@@ -876,8 +871,9 @@ function resetInactivityTimer(){
   let sess = checkAuth();
   if(!sess) return;
   let role = (sess.role||'').toLowerCase();
-  if(role === 'admin') return;
+  if(role === 'admin') return; // Admin is exempt from inactivity timeout
 
+  // 5 minutes = 300,000 milliseconds
   inactivityTimer = setTimeout(()=>{
     let currentSess = checkAuth();
     if(currentSess && (currentSess.role||'').toLowerCase() !== 'admin'){
@@ -887,6 +883,7 @@ function resetInactivityTimer(){
   }, 5 * 60 * 1000);
 }
 
+// Track user activity events
 ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(evt => {
   window.addEventListener(evt, () => {
     resetInactivityTimer();
@@ -1154,4 +1151,81 @@ function exportReportWord(){
     let a = document.createElement('a');
     a.href = url;
     let d = new Date();
-    let ds = d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(
+    let ds = d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+    a.download = 'BOSKEL-REPORT-GRAPHICS-'+ds+'.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    try{ addAuditDetailed({actionType:'Exported', module:'reports', batch:'WORD-GRAPHICS-REPORT', details:'Exported Word Report with Graphics '+ds}); }catch(e){}
+  }catch(e){ alert('Word export error: '+e.message); }
+}
+function exportReportDoc(){ exportReportWord(); }
+</script>
+
+<!-- REALTIME FIREBASE SYNC SCRIPT MODULE -->
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import {getDatabase,ref,set,onValue} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+const firebaseConfig = {
+  databaseURL: "https://boskel-carbon-b9d53-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dataRef = ref(db, 'boskelData');
+
+let isUpdatingFromRemote = false;
+
+window.syncToFirebase = function() {
+  if (isUpdatingFromRemote) return;
+  if (window.data) {
+    let cleanData = {};
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      cleanData[k] = Array.isArray(window.data[k]) ? window.data[k] : [];
+    });
+    cleanData.audit = Array.isArray(window.data.audit) ? window.data.audit : [];
+    set(dataRef, cleanData).catch(e => console.error("Firebase Sync Error:", e));
+  }
+};
+
+onValue(ref(db, '.info/connected'), (snap) => {
+  const badge = document.getElementById('liveBadge');
+  if (badge) {
+    if (snap.val() === true) {
+      badge.innerHTML = '🟢 LIVE • Realtime Sync';
+      badge.style.background = '#10b981';
+    } else {
+      badge.innerHTML = '🔴 Local Only';
+      badge.style.background = '#ef4444';
+    }
+  }
+});
+
+onValue(dataRef, (snapshot) => {
+  const remoteData = snapshot.val();
+  isUpdatingFromRemote = true;
+  if (remoteData) {
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      window.data[k] = Array.isArray(remoteData[k]) ? remoteData[k] : [];
+      localStorage.setItem(STORAGE_KEYS[k], JSON.stringify(window.data[k]));
+    });
+    if (remoteData.audit) {
+      window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
+    }
+  } else {
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      window.data[k] = [];
+      localStorage.setItem(STORAGE_KEYS[k], JSON.stringify([]));
+    });
+    window.data.audit = [];
+    localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify([]));
+  }
+  if (typeof window.renderAll === 'function') {
+    window.renderAll();
+  }
+  isUpdatingFromRemote = false;
+});
+</script>
+</body></html>
