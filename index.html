@@ -139,7 +139,24 @@ function wipeAllDemoData(){
   </div>
 </div>
 
-<div class="sidebar"><div class="logo">🔥 BOSKEL<span>-CARBON</span></div><div style="font-size:10px;color:#5a9bd4;margin-bottom:16px;font-weight:700">MAIN • LIVE SYSTEM • BOSKEL-CARBON</div>
+<div class="sidebar"><div class="logo" style="display:flex;align-items:center;gap:10px;">
+  <!-- Pillow Shape Logo SVG -->
+  <svg width="32" height="24" viewBox="0 0 100 75" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3))">
+    <defs>
+      <linearGradient id="pillowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2a2a2a"/>
+        <stop offset="50%" stop-color="#141414"/>
+        <stop offset="100%" stop-color="#0a0a0a"/>
+      </linearGradient>
+    </defs>
+    <!-- Pillow briquette shape -->
+    <path d="M 50 2 C 75 2, 98 22, 98 37.5 C 98 53, 75 73, 50 73 C 25 73, 2 53, 2 37.5 C 2 22, 25 2, 50 2 Z" fill="url(#pillowGrad)" stroke="#444" stroke-width="2"/>
+    <!-- Pillow texture highlight lines -->
+    <path d="M 25 37.5 Q 50 25, 75 37.5" fill="none" stroke="#333" stroke-width="2" opacity="0.6"/>
+    <path d="M 25 37.5 Q 50 50, 75 37.5" fill="none" stroke="#000" stroke-width="2" opacity="0.8"/>
+  </svg>
+  <div>🔥 BOSKEL<span>-CARBON</span></div>
+</div><div style="font-size:10px;color:#5a9bd4;margin-bottom:16px;font-weight:700">MAIN • LIVE SYSTEM • BOSKEL-CARBON</div>
 <div class="nav-item active" data-mod="dashboard">📊 Dashboard</div>
 <div class="nav-item" data-mod="biomass">🌿 Biomass</div>
 <div class="nav-item" data-mod="carbonization">♨️ Carbonization</div>
@@ -152,7 +169,22 @@ function wipeAllDemoData(){
 <div class="nav-item" data-mod="reports">📈 Reports</div>
 </div>
 <div class="main">
-<div class="header"><h2 id="pageTitle">📊 Dashboard</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export" id="btnExportAll">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo sales data" id="btnWipeData">🗑️ Wipe Data</button></div></div>
+<div class="header"><h2 id="pageTitle" style="display:flex;align-items:center;gap:12px;">
+  <!-- Pillow Shape Header Symbol matching user request[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span) -->
+  <svg width="40" height="30" viewBox="0 0 100 75" style="display:inline-block;vertical-align:middle;filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.2))">
+    <defs>
+      <linearGradient id="pillowGradHead" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#333333"/>
+        <stop offset="50%" stop-color="#1b1b1b"/>
+        <stop offset="100%" stop-color="#0f0f0f"/>
+      </linearGradient>
+    </defs>
+    <path d="M 50 2 C 75 2, 98 22, 98 37.5 C 98 53, 75 73, 50 73 C 25 73, 2 53, 2 37.5 C 2 22, 25 2, 50 2 Z" fill="url(#pillowGradHead)" stroke="#555" stroke-width="2.5"/>
+    <path d="M 20 37.5 Q 50 22, 80 37.5" fill="none" stroke="#222" stroke-width="2.5" opacity="0.7"/>
+    <path d="M 20 37.5 Q 50 53, 80 37.5" fill="none" stroke="#000" stroke-width="2.5" opacity="0.9"/>
+  </svg>
+  <span>📊 Dashboard</span>
+</h2><div><span id="todayDate" style="font-size:12px;color:#64748b"></span> <button class="btn btn-accent" onclick="exportAll()" title="Export" id="btnExportAll">💾 Export All</button><button class="btn btn-danger" onclick="wipeAllDemoData()" style="background:#991b1b" title="Remove all demo sales data" id="btnWipeData">🗑️ Wipe Data</button></div></div>
 
 <div class="module active" id="mod-dashboard">
 <h3 style="font-size:18px;font-weight:900;color:#002147;margin-bottom:4px">📊 Executive Dashboard - Live Graphical Overview</h3>
@@ -797,7 +829,21 @@ function switchModule(m){
   document.getElementById('mod-'+m)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   document.querySelector(`.nav-item[data-mod="${m}"]`)?.classList.add('active');
-  document.getElementById('pageTitle').textContent=m==='production'?'Briquette':m;
+  document.getElementById('pageTitle').innerHTML = m==='production' ? `
+    <!-- Pillow Shape Header Symbol -->
+    <svg width="40" height="30" viewBox="0 0 100 75" style="display:inline-block;vertical-align:middle;filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.2))">
+      <defs>
+        <linearGradient id="pillowGradHead2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#333333"/>
+          <stop offset="50%" stop-color="#1b1b1b"/>
+          <stop offset="100%" stop-color="#0f0f0f"/>
+        </linearGradient>
+      </defs>
+      <path d="M 50 2 C 75 2, 98 22, 98 37.5 C 98 53, 75 73, 50 73 C 25 73, 2 53, 2 37.5 C 2 22, 25 2, 50 2 Z" fill="url(#pillowGradHead2)" stroke="#555" stroke-width="2.5"/>
+      <path d="M 20 37.5 Q 50 22, 80 37.5" fill="none" stroke="#222" stroke-width="2.5" opacity="0.7"/>
+      <path d="M 20 37.5 Q 50 53, 80 37.5" fill="none" stroke="#000" stroke-width="2.5" opacity="0.9"/>
+    </svg>
+    <span>Briquette</span>` : `<span>📊 ${m.charAt(0).toUpperCase() + m.slice(1)}</span>`;
   if(m==='dashboard') setTimeout(generateDashboard,50);
   if(m==='reports') setTimeout(generateReportPRO,50);
 }
@@ -1388,7 +1434,7 @@ onValue(dataRef, (snapshot) => {
     });
     if (remoteData.audit) {
       window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
-      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
     }
   } else {
     Object.keys(STORAGE_KEYS).forEach(k => {
@@ -1401,6 +1447,7 @@ onValue(dataRef, (snapshot) => {
   if (typeof window.renderAll === 'function') {
     window.renderAll();
   }
+  isUpdatingFromRest = false; // Note: isUpdatingFromRemote = false
   isUpdatingFromRemote = false;
 });
 </script>
