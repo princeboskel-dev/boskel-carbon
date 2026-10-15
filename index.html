@@ -644,11 +644,13 @@ function clearAuditTrail(){
 function checkUserPermission(mod){
   let sess = checkAuth();
   if(!sess) return false;
+  let role = (sess.role||'').toLowerCase();
+  if(role === 'admin') return true; // Administrator bypasses all permission checks
+
   let acc = sess.access || {};
   let perm = acc[mod];
   if(perm === 'view_only') return false;
   if(perm === 'add_edit' || perm === 'full') return true;
-  if((sess.role||'').toLowerCase() === 'admin') return true;
   return false;
 }
 
@@ -1344,7 +1346,7 @@ onValue(dataRef, (snapshot) => {
     });
     if (remoteData.audit) {
       window.data.audit = Array.isArray(remoteData.audit) ? remoteData.audit : [];
-      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(remoteData.audit));
+      localStorage.setItem(STORAGE_KEYS.audit, JSON.stringify(window.data.audit));
     }
   } else {
     Object.keys(STORAGE_KEYS).forEach(k => {
